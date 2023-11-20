@@ -1,0 +1,45 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;900&display=swap");
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    body {
+        @apply font-poppins;
+    }
+    h2 {
+        @apply text-2xl;
+    }
+    h3 {
+        @apply text-xl;
+    }
+    h4 {
+        @apply text-lg;
+    }
+    h5 {
+        @apply text-sm;
+    }
+    h6 {
+        @apply text-xs;
+    }
+}
+
+@layer components {
+    .cart-badge {
+        @apply absolute top-[-8px] right-[-8px] h-3 w-3 rounded-full bg-black text-white text-[8px] leading-3 text-center;
+    }
+    .button {
+        @apply border-2 border-primary px-4 py-2 text-xl font-semibold rounded uppercase cursor-pointer shadow-sm shadow-primary
+            hover:bg-primary hover:text-white hover:shadow-md hover:shadow-primary;
+    }
+    .card {
+        @apply relative bg-primary rounded-md shadow-md shadow-primary overflow-hidden 
+            hover:shadow-lg hover:shadow-primary;
+    }
+    .card-badge {
+        @apply absolute flex justify-center items-center gap-2 bg-cyan-50 rounded-md top-2 left-2 p-2 min-w-[25%];
+    }
+    .input-outline-none {
+        @apply py-4 border-b focus:outline-none;
+    }
+}

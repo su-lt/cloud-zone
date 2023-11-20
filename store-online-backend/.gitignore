@@ -1,0 +1,7 @@
+.env
+
+/node_modules
+
+src/configs/config.mongodb.js
+
+package-lock.json

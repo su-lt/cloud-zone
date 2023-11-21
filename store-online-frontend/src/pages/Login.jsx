@@ -1,7 +1,26 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { login } from "../helpers/axiosApi";
+import { useDispatch } from "react-redux";
+import { authSlice } from "../redux/slices/auth.slice";
 import TitleSection from "../components/TitleSection";
 
 const Login = () => {
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const [loginError, setLoginError] = useState(null);
+
+    const navigate = useNavigate();
+    const dispatch = useDispatch();
+
+    const handleLoginClick = async () => {
+        const { error, username } = await login(email, password);
+        if (error) setLoginError(error);
+        else {
+            dispatch(authSlice.actions.login(username));
+            navigate("/");
+        }
+    };
     return (
         <main>
             {/* title section */}
@@ -34,16 +53,23 @@ const Login = () => {
                         Welcome Back ! <br />
                         Please, Login now
                     </h3>
-                    <form className="mt-8 flex flex-col gap-2">
+                    <div className="mt-8 flex flex-col gap-2">
+                        {loginError && (
+                            <div className="p-3 text-center bg-red-200">
+                                {loginError}
+                            </div>
+                        )}
                         <input
                             type="text"
                             placeholder="Your email"
                             className="input-outline-none"
+                            onChange={(e) => setEmail(e.target.value)}
                         />
                         <input
                             type="password"
                             placeholder="Password"
                             className="input-outline-none"
+                            onChange={(e) => setPassword(e.target.value)}
                         />
                         <div className="text-xs flex items-center gap-2">
                             <input
@@ -53,9 +79,14 @@ const Login = () => {
                             Remember me
                         </div>
                         <div className="mt-3">
-                            <button className="button w-full">Login</button>
+                            <button
+                                className="button w-full"
+                                onClick={handleLoginClick}
+                            >
+                                Login
+                            </button>
                         </div>
-                    </form>
+                    </div>
                 </div>
             </div>
         </main>

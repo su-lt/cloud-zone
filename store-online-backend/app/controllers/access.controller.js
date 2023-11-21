@@ -54,11 +54,10 @@ const signUp = async (req, res) => {
 
         // set accessToken, refreshToken in cookie headers
         res.cookie("accessToken", tokens.accessToken, {
-            maxAge: 300, // 5m
+            maxAge: 300 * 1000, // 5m - milisecond
             httpOnly: true,
-        });
-        res.cookie("refreshToken", tokens.refreshToken, {
-            maxAge: 7 * 24 * 60 * 60, // 7d
+        }).cookie("refreshToken", tokens.refreshToken, {
+            maxAge: 86400 * 1000, // 1d - milisecond
             httpOnly: true,
         });
 
@@ -103,11 +102,10 @@ const login = async (req, res) => {
 
     // set accessToken, refreshToken in cookie headers
     res.cookie("accessToken", tokens.accessToken, {
-        maxAge: 300, // 5m
+        maxAge: 300 * 1000, // 5m - milisecond
         httpOnly: true,
-    });
-    res.cookie("refreshToken", tokens.refreshToken, {
-        maxAge: 7 * 24 * 60 * 60, // 7d
+    }).cookie("refreshToken", tokens.refreshToken, {
+        maxAge: 86400 * 1000, // 1d - milisecond
         httpOnly: true,
     });
 
@@ -115,6 +113,7 @@ const login = async (req, res) => {
         message: "Login successfully !",
         metadata: {
             id: userId,
+            username: foundUser.fullname,
         },
     });
 };
@@ -123,8 +122,16 @@ const logout = async (req, res) => {
     return res.status(200).json({ me: "oke" });
 };
 
+const refresh = async (req, res) => {
+    const refreshToken = req.cookies.refreshToken;
+    const userId = req.headers["x-client-id"];
+
+    return res.status(200).json({ me: "oke" });
+};
+
 module.exports = {
     signUp,
     login,
     logout,
+    refresh,
 };

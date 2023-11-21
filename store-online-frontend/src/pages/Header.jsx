@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { HiShoppingCart, HiMiniBars3, HiBarsArrowDown } from "react-icons/hi2";
 import { Link } from "react-router-dom";
-
+import { useSelector } from "react-redux";
 const menuItems = [
     { text: "Home", link: "#" },
     { text: "Shop", link: "#" },
@@ -10,6 +10,7 @@ const menuItems = [
 
 const Header = () => {
     const [open, setOpen] = useState(false);
+    const { username } = useSelector((state) => state.auth);
 
     // close menu toggle if menu toggle open and resize
     const handlerCloseMenuToggle = () => {
@@ -34,11 +35,30 @@ const Header = () => {
             {/* top bar */}
             <div className=" px-4 h-10 bg-slate-900 text-custom-1000">
                 <div className="flex justify-end md:container">
-                    <div className="my-2 px-4 border-x border-custom-300">
-                        <Link to="/login" className="leading-6 text-xs">
-                            My Account
-                        </Link>
-                    </div>
+                    {username ? (
+                        <>
+                            <div className="my-2 px-4 leading-6 text-xs">
+                                Welcome
+                                <h6 className="text-red-300 inline-block ml-1">
+                                    {username}
+                                </h6>
+                            </div>
+                            <div className="my-2 px-4 border-x border-custom-300">
+                                <Link
+                                    to="/logout"
+                                    className="leading-6 text-xs"
+                                >
+                                    Logout
+                                </Link>
+                            </div>
+                        </>
+                    ) : (
+                        <div className="my-2 px-4 border-x border-custom-300">
+                            <Link to="/login" className="leading-6 text-xs">
+                                My Account
+                            </Link>
+                        </div>
+                    )}
                 </div>
             </div>
             {/* nav bar */}

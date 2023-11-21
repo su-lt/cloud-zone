@@ -1,8 +1,31 @@
-import React from "react";
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { signup } from "../helpers/axiosApi";
+import { authSlice } from "../redux/slices/auth.slice";
 import TitleSection from "../components/TitleSection";
-import { Link } from "react-router-dom";
 
 const Register = () => {
+    const [fullname, setFullname] = useState("");
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const [repassword, setRepassword] = useState("");
+    const [passwordValidate, setPasswordValidate] = useState(false);
+    const [signUpError, setSignUpError] = useState(null);
+
+    const navigate = useNavigate();
+    const dispatch = useDispatch();
+
+    const handleSignUpClick = async () => {
+        if (password === repassword) {
+            const { error, username } = await signup(fullname, email, password);
+            if (error) setSignUpError(error);
+            else {
+                dispatch(authSlice.actions.login(username));
+                navigate("/");
+            }
+        } else setPasswordValidate(true);
+    };
     return (
         <main>
             {/* title section */}
@@ -32,27 +55,45 @@ const Register = () => {
                     <h3 className="text-2xl font-bold text-center md:font-medium md:text-xl">
                         Sign Up CloudZone Member
                     </h3>
-                    <form className="mt-4 flex flex-col gap-2">
+                    <div className="mt-4 flex flex-col gap-2">
+                        {signUpError && (
+                            <div className="p-3 text-center bg-red-200">
+                                {signUpError}
+                            </div>
+                        )}
                         <input
                             type="text"
                             placeholder="Your name"
                             className="input-outline-none"
+                            onChange={(e) => setFullname(e.target.value)}
                         />
                         <input
                             type="text"
                             placeholder="Your email"
                             className="input-outline-none"
+                            onChange={(e) => setEmail(e.target.value)}
                         />
                         <input
                             type="password"
                             placeholder="Password"
                             className="input-outline-none"
+                            onChange={(e) => setPassword(e.target.value)}
                         />
+
                         <input
                             type="password"
                             placeholder="Re-password"
-                            className="input-outline-none"
+                            className={`input-outline-none ${
+                                passwordValidate ? "    border-red-400" : ""
+                            }`}
+                            onChange={(e) => setRepassword(e.target.value)}
                         />
+                        {passwordValidate && (
+                            <span className="text-red-400 text-xs py-2">
+                                password not match
+                            </span>
+                        )}
+
                         <div className="text-xs flex items-center gap-2">
                             <input
                                 type="checkbox"
@@ -61,9 +102,14 @@ const Register = () => {
                             I agree to the Terms of User
                         </div>
                         <div className="mt-3">
-                            <button className="button w-full">SIGN UP</button>
+                            <button
+                                className="button w-full"
+                                onClick={handleSignUpClick}
+                            >
+                                SIGN UP
+                            </button>
                         </div>
-                    </form>
+                    </div>
                 </div>
             </div>
         </main>

@@ -2,57 +2,27 @@ import axios from "axios";
 
 const api = axios.create({
     baseURL: "http://localhost:8088/v1/api/",
+    headers: {
+        "Content-Type": "application/json",
+    },
 });
-api.defaults.withCredentials = true;
 
 // Cấu hình interceptor cho request
-api.interceptors.request.use(
-    (config) => {
-        const userId = localStorage.getItem("id");
-
-        // Nếu có AccessToken, thì thêm vào header Authorization
-        if (userId) config.headers["x-client-id"] = userId;
-
-        return config;
-    },
-    (error) => {
-        return Promise.reject(error);
-    }
-);
+api.interceptors.request.use(async (config) => {
+    // if (
+    //     config.url.indexOf("/login") > -1 ||
+    //     config.url.indexOf("/signup") > -1 ||
+    //     config.url.includes("/categories") ||
+    //     config.url.includes("/products")
+    // ) {
+    //     return config;
+    // }
+    config.headers["x-client-id"] = localStorage.getItem("id") || null;
+    return config;
+});
 
 // Cấu hình interceptor cho response
-api.interceptors.response.use(
-    async (response) => {
-        return response;
-    },
-    async (error) => {
-        const originalRequest = error.config;
-
-        // Xử lý lỗi 401 (Unauthorized)
-        if (error.response.status === 401 && !originalRequest._retry) {
-            originalRequest._retry = true;
-
-            try {
-                // Gọi lên server để đòi AccessToken mới (thực hiện theo nhu cầu của bạn)
-                // Ví dụ: await refreshToken()
-
-                // Thêm AccessToken mới vào header và thực hiện lại request ban đầu
-                const newRequest = await axios({
-                    ...originalRequest,
-                    headers: {
-                        ...originalRequest.headers,
-                    },
-                });
-
-                return Promise.resolve(newRequest);
-            } catch (refreshError) {
-                return Promise.reject(refreshError);
-            }
-        }
-
-        return Promise.reject(error);
-    }
-);
+api.interceptors.response.use();
 
 // Hàm đăng nhập
 export const login = async (email, password) => {

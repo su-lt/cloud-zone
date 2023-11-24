@@ -1,0 +1,162 @@
+[
+    {
+        "name": "Only Check Trouser",
+        "price": 25,
+        "image_thumbnail": "product-01.jpg",
+        "quantity_sold": 97,
+        "productDetail": "655cd1401e2d61a6aa0c9231",
+        "category": "655ca7151e2d61a6aa0c921b"
+    },
+    {
+        "name": "Herschel supply",
+        "price": 27,
+        "image_thumbnail": "product-02.jpg",
+        "quantity_sold": 111,
+        "productDetail": "655cd1401e2d61a6aa0c9232",
+        "category": "655ca7151e2d61a6aa0c921b"
+    },
+    {
+        "name": "Shirt in Stretch Cotton",
+        "price": 35,
+        "image_thumbnail": "product-03.jpg",
+        "quantity_sold": 67,
+        "productDetail": "655cd1401e2d61a6aa0c9233",
+        "category": "655ca7151e2d61a6aa0c921c"
+    },
+    {
+        "name": "Classic Trench Coat",
+        "price": 75,
+        "image_thumbnail": "product-04.jpg",
+        "quantity_sold": 81,
+        "productDetail": "655cd1401e2d61a6aa0c9234",
+        "category": "655ca7151e2d61a6aa0c921c"
+    },
+    {
+        "name": "Front Pocket Jumper",
+        "price": 35.88,
+        "image_thumbnail": "product-05.jpg",
+        "quantity_sold": 267,
+        "productDetail": "655cd1401e2d61a6aa0c9235",
+        "category": "655ca7151e2d61a6aa0c921c"
+    },
+    {
+        "name": "Esprit Ruffle Shirt",
+        "price": 18.64,
+        "image_thumbnail": "product-06.jpg",
+        "quantity_sold": 167,
+        "productDetail": "655cd1401e2d61a6aa0c9236",
+        "category": "655ca7151e2d61a6aa0c921c"
+    },
+    {
+        "name": "Herschel supply",
+        "price": 41.34,
+        "image_thumbnail": "product-07.jpg",
+        "quantity_sold": 33,
+        "productDetail": "655cd1401e2d61a6aa0c9237",
+        "category": "655ca7151e2d61a6aa0c921c"
+    },
+    {
+        "name": "Omega T1",
+        "price": 541.34,
+        "image_thumbnail": "product-08.jpeg",
+        "quantity_sold": 29,
+        "productDetail": "655cd1401e2d61a6aa0c9238",
+        "category": "655ca7151e2d61a6aa0c921d"
+    },
+    {
+        "name": "Rolex J9",
+        "price": 3441.11,
+        "image_thumbnail": "product-09.jpeg",
+        "quantity_sold": 11,
+        "productDetail": "655cd1401e2d61a6aa0c9239",
+        "category": "655ca7151e2d61a6aa0c921d"
+    },
+    {
+        "name": "Rayban Black",
+        "price": 255,
+        "image_thumbnail": "product-10.jpeg",
+        "quantity_sold": 311,
+        "productDetail": "655cd1401e2d61a6aa0c923a",
+        "category": "655ca7151e2d61a6aa0c921e"
+    },
+    {
+        "name": "Gucci Banana",
+        "price": 489,
+        "image_thumbnail": "product-11.jpeg",
+        "quantity_sold": 312,
+        "productDetail": "655cd1401e2d61a6aa0c923b",
+        "category": "655ca7151e2d61a6aa0c921e"
+    },
+    {
+        "name": "Gucci Durian",
+        "price": 1489,
+        "image_thumbnail": "product-12.jpeg",
+        "quantity_sold": 43,
+        "productDetail": "655cd1401e2d61a6aa0c923c",
+        "category": "655ca7151e2d61a6aa0c921e"
+    },
+    {
+        "name": "Gucci Apple",
+        "price": 661,
+        "image_thumbnail": "product-13.jpeg",
+        "quantity_sold": 143,
+        "productDetail": "655cd1401e2d61a6aa0c923d",
+        "category": "655ca7151e2d61a6aa0c921e"
+    },
+    {
+        "name": "Nike Air F1",
+        "price": 561,
+        "image_thumbnail": "product-14.jpeg",
+        "quantity_sold": 333,
+        "productDetail": "655cd1401e2d61a6aa0c923e",
+        "category": "655ca7151e2d61a6aa0c921f"
+    },
+    {
+        "name": "CK shoes 1",
+        "price": 261,
+        "image_thumbnail": "product-15.jpeg",
+        "quantity_sold": 133,
+        "productDetail": "655cd1401e2d61a6aa0c923f",
+        "category": "655ca7151e2d61a6aa0c921f"
+    },
+    {
+        "name": "CK E2 Black",
+        "price": 161,
+        "image_thumbnail": "product-16.jpeg",
+        "quantity_sold": 121,
+        "productDetail": "655cd1401e2d61a6aa0c9240",
+        "category": "655ca7151e2d61a6aa0c921f"
+    },
+    {
+        "name": "TomF Brown",
+        "price": 312,
+        "image_thumbnail": "product-17.jpeg",
+        "quantity_sold": 451,
+        "productDetail": "655cd1401e2d61a6aa0c9241",
+        "category": "655ca7151e2d61a6aa0c921f"
+    },
+    {
+        "name": "Zara wings",
+        "price": 212,
+        "image_thumbnail": "product-18.jpeg",
+        "quantity_sold": 761,
+        "productDetail": "655cd1401e2d61a6aa0c9242",
+        "category": "655ca7151e2d61a6aa0c921f"
+    },
+    {
+        "name": "Tisot A23",
+        "price": 612,
+        "image_thumbnail": "product-19.jpeg",
+        "quantity_sold": 813,
+        "productDetail": "655cd1401e2d61a6aa0c9243",
+        "category": "655ca7151e2d61a6aa0c921d"
+    },
+    {
+        "name": "Omega T2",
+        "price": 412,
+        "image_thumbnail": "product-20.jpeg",
+        "quantity_sold": 113,
+        "productDetail": "655cd1401e2d61a6aa0c9244",
+        "category": "655ca7151e2d61a6aa0c921d"
+    }
+]

@@ -3,14 +3,14 @@ import { HiShoppingCart, HiMiniBars3, HiBarsArrowDown } from "react-icons/hi2";
 import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
 const menuItems = [
-    { text: "Home", link: "#" },
-    { text: "Shop", link: "#" },
+    { text: "Home", link: "/" },
+    { text: "Shop", link: "/products" },
     { text: "Contact", link: "#" },
 ];
 
 const Header = () => {
     const [open, setOpen] = useState(false);
-    const { username } = useSelector((state) => state.auth);
+    const { username } = useSelector((slice) => slice.auth);
 
     // close menu toggle if menu toggle open and resize
     const handlerCloseMenuToggle = () => {

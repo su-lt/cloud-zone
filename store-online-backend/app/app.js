@@ -21,7 +21,7 @@ app.use(
         credentials: true,
     })
 );
-
+require("./models/product.model.js");
 // init db
 require("./databases/db.mongo.js");
 

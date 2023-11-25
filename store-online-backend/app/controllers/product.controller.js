@@ -1,6 +1,8 @@
 const productModel = require("../models/product.model");
 const categoryModel = require("../models/category.model");
+const productDetail = require("../models/productDetail.model");
 const { Types } = require("mongoose");
+const { NotFoundError } = require("../helpers/errorHandler");
 
 const getAllProducts = async (req, res) => {
     let { minPrice, maxPrice, page, limit, searchString, searchCategory } =
@@ -42,13 +44,53 @@ const getAllProducts = async (req, res) => {
     const totalProducts = await countQuery.countDocuments();
 
     // get products
-    const products = await query.exec();
+    const products = await query.lean().exec();
 
     return res.status(200).json({
         message: "success",
         metadata: {
             products: products,
             totalProducts,
+        },
+    });
+};
+
+const getProductById = async (req, res) => {
+    const id = req.params.id;
+    if (!id) throw new BadRequestError();
+
+    const product = await productModel
+        .findById(id)
+        .populate("productDetail")
+        .populate("category")
+        .lean();
+    if (!product) throw new NotFoundError();
+
+    return res.status(200).json({
+        message: "success",
+        metadata: {
+            product,
+        },
+    });
+};
+
+const getRelatedProducts = async (req, res) => {
+    const id = req.params.id;
+    if (!id) throw new BadRequestError();
+
+    const product = await productModel.findById(id).lean();
+    if (!product) throw new NotFoundError();
+
+    const relatedProducts = await productModel
+        .find({ category: product.category })
+        .sort({ createdAt: -1 })
+        .limit(4)
+        .lean();
+
+    return res.status(200).json({
+        message: "success",
+        metadata: {
+            relatedProducts,
         },
     });
 };
@@ -66,4 +108,6 @@ const getCategories = async (req, res) => {
 module.exports = {
     getAllProducts,
     getCategories,
+    getProductById,
+    getRelatedProducts,
 };

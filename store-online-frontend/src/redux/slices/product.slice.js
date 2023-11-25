@@ -4,7 +4,9 @@ import { buildQueryString } from "../../helpers/ultil";
 
 const initialState = {
     products: [],
+    product: null,
     categories: [],
+    relatedProducts: [],
     minPrice: "",
     maxPrice: "",
     searchString: "",
@@ -37,13 +39,21 @@ export const productSlice = createSlice({
         },
         setSearchCategory: (state, action) => {
             state.searchCategory = action.payload;
-            console.log("state.searchCategory", state.searchCategory);
         },
         clearState: (state) => {
             state = initialState;
         },
     },
     extraReducers: (builder) => {
+        builder.addCase(
+            fetchRelatedProductById.fulfilled,
+            (state, { payload }) => {
+                state.relatedProducts = payload.relatedProducts;
+            }
+        );
+        builder.addCase(fetchProductById.fulfilled, (state, { payload }) => {
+            state.product = payload.product;
+        });
         builder.addCase(fetchCategories.fulfilled, (state, { payload }) => {
             state.categories = payload.categories;
         });
@@ -81,16 +91,35 @@ export const fetchProducts = createAsyncThunk(
             searchString,
             searchCategory,
         });
-        const response = await api.post("/products?" + query);
+        const response = await api.get("/products?" + query);
 
         return response.data.metadata;
     }
 );
 
+// get categories
 export const fetchCategories = createAsyncThunk(
     "product/fetchCategories",
     async () => {
-        const response = await api.post("/categories");
+        const response = await api.get("/products/categories");
+        return response.data.metadata;
+    }
+);
+
+// get product by id
+export const fetchProductById = createAsyncThunk(
+    "product/fetchProductById",
+    async (id) => {
+        const response = await api.post(`/products/${id}`);
+        return response.data.metadata;
+    }
+);
+
+// get related products
+export const fetchRelatedProductById = createAsyncThunk(
+    "product/fetchRelatedProductById",
+    async (id) => {
+        const response = await api.post(`/products/related/${id}`);
         return response.data.metadata;
     }
 );

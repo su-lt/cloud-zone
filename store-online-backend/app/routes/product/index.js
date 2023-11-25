@@ -5,12 +5,20 @@ const asyncHandler = require("../../helpers/asyncHandler");
 const {
     getAllProducts,
     getCategories,
+    getProductById,
+    getRelatedProducts,
 } = require("../../controllers/product.controller");
 
 // get products
-router.post("/products", asyncHandler(getAllProducts));
+router.get("/", asyncHandler(getAllProducts));
+
+// get product
+router.post("/:id", asyncHandler(getProductById));
 
 // get categories
-router.post("/categories", asyncHandler(getCategories));
+router.get("/categories", asyncHandler(getCategories));
+
+// get related products
+router.post("/related/:id", asyncHandler(getRelatedProducts));
 
 module.exports = router;

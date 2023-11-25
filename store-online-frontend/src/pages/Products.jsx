@@ -1,6 +1,6 @@
 import Breadcrumb from "../components/Breadcrumb";
 import FilterSection from "../components/FilterSection";
-import ProductSection from "../components/Product";
+import ProductSection from "../components/Products/ProductSection";
 
 const Products = () => {
     const breadcrumbItems = [
@@ -10,11 +10,11 @@ const Products = () => {
     ];
 
     return (
-        <div className="p-4 md:container">
+        <main className="p-4 md:container">
             <Breadcrumb items={breadcrumbItems} />
             <FilterSection />
             <ProductSection />
-        </div>
+        </main>
     );
 };
 

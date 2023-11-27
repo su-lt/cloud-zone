@@ -2,7 +2,7 @@ import React from "react";
 
 const InputGroups = ({ quantity, handleChange }) => {
     return (
-        <div className="mt-4">
+        <div className="">
             <div className="w-[135px] h-[40px] flex items-center border border-custom-300 rounded-sm text-center">
                 <div
                     className="flex-grow leading-10 cursor-pointer hover:bg-primary hover:text-white select-none"

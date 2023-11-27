@@ -78,11 +78,8 @@ const getRelatedProducts = async (req, res) => {
     const id = req.params.id;
     if (!id) throw new BadRequestError();
 
-    const product = await productModel.findById(id).lean();
-    if (!product) throw new NotFoundError();
-
     const relatedProducts = await productModel
-        .find({ category: product.category })
+        .find({ category: id })
         .sort({ createdAt: -1 })
         .limit(4)
         .lean();

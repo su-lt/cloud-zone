@@ -11,7 +11,7 @@ const menuItems = [
 const Header = () => {
     const [open, setOpen] = useState(false);
     const { username } = useSelector((slice) => slice.auth);
-
+    const { totalQuantity, totalPrice } = useSelector((slice) => slice.cart);
     // close menu toggle if menu toggle open and resize
     const handlerCloseMenuToggle = () => {
         if (window.innerWidth >= 768 && open) {
@@ -86,12 +86,18 @@ const Header = () => {
                 {/* cart - menu */}
                 <div className="flex gap-4 items-center">
                     {/* cart */}
-                    <div className="relative">
+                    <Link className="relative" to="/cart">
                         <div>
                             <HiShoppingCart size={20} />
                         </div>
-                        <span className="cart-badge">12</span>
-                    </div>
+                        {totalQuantity ? (
+                            <span className="cart-badge">{totalQuantity}</span>
+                        ) : null}
+                    </Link>
+                    {totalQuantity
+                        ? "$ " + Math.round(totalPrice * 100) / 100
+                        : null}
+
                     {/* menu toggle */}
                     <div className="md:hidden">
                         {open ? (

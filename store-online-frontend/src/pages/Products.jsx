@@ -6,7 +6,7 @@ const Products = () => {
     const breadcrumbItems = [
         { label: "Home", link: "/" },
         { label: "Shop", link: "/products" },
-        { label: "Men's", link: "/products" },
+        { label: "All products", link: "" },
     ];
 
     return (

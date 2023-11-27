@@ -1,28 +1,53 @@
 import { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { fetchProductById } from "../../redux/slices/product.slice";
+import { useDispatch } from "react-redux";
 import InputGroups from "../InputGroup";
+import AlertMessage from "../AlertMessage";
+import { cartSlice } from "../../redux/slices/cart.slice";
 
-const Product = ({ id }) => {
+const Product = ({ product }) => {
     const dispatch = useDispatch();
 
-    const { product } = useSelector((slice) => slice.product);
     const [expand, setExpand] = useState(false);
     const [selectImage, setSelectImage] = useState("");
     const [quantity, setQuantity] = useState(1);
+    const [alertMessage, setAlertMessage] = useState("");
+
+    const showAlert = (message) => {
+        setAlertMessage(message);
+
+        // Ẩn thông báo sau 3 giây
+        setTimeout(() => {
+            setAlertMessage("");
+        }, 2000);
+    };
+
+    const handleAddToCart = () => {
+        const orderObject = {
+            _id: product._id,
+            price: product.price,
+            quantity,
+        };
+
+        // save cart to localStorage, redux state
+        dispatch(cartSlice.actions.addToCart(orderObject));
+
+        showAlert("Product added to cart.");
+        setQuantity(1);
+    };
 
     useEffect(() => {
         product && setSelectImage(product.productDetail.images[0]);
     }, [product]);
 
-    useEffect(() => {
-        dispatch(fetchProductById(id));
-
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
-
     return (
         <div className="mt-4">
+            {/* show message add to cart */}
+            {alertMessage && (
+                <AlertMessage
+                    message={alertMessage}
+                    onClose={() => setAlertMessage("")}
+                />
+            )}
             {product && (
                 <>
                     <div className="grid gap-y-10 sm:grid-cols-3 sm:gap-x-5">
@@ -57,7 +82,7 @@ const Product = ({ id }) => {
                                 <h5 className="mt-1 text-custom-1000">
                                     Brand: {product.productDetail.brand}
                                 </h5>
-                                <h3 className="mt-14 text-primary font-semibold tracking-wider">
+                                <h3 className="mt-14 mb-4 text-primary font-semibold tracking-wider">
                                     ${product.price}
                                 </h3>
                                 <InputGroups
@@ -65,7 +90,10 @@ const Product = ({ id }) => {
                                     handleChange={setQuantity}
                                 />
                                 <div>
-                                    <button className="button bg-primary text-white mt-8">
+                                    <button
+                                        className="button bg-primary text-white mt-8"
+                                        onClick={handleAddToCart}
+                                    >
                                         Add to cart
                                     </button>
                                 </div>

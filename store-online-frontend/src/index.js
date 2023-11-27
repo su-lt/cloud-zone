@@ -7,11 +7,17 @@ import { BrowserRouter } from "react-router-dom";
 import { Provider } from "react-redux";
 import { store } from "./redux/store";
 import { authSlice } from "./redux/slices/auth.slice";
+import { cartSlice } from "./redux/slices/cart.slice";
 const root = ReactDOM.createRoot(document.getElementById("root"));
 
 // check user ready login
 const existUser = localStorage.getItem("username");
 if (existUser) store.dispatch(authSlice.actions.setCurrentUser(existUser));
+
+// check cart store
+const existCart = localStorage.getItem("cart");
+if (existCart)
+    store.dispatch(cartSlice.actions.loadCart(JSON.parse(existCart)));
 
 root.render(
     <React.StrictMode>

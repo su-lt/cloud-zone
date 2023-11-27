@@ -6,10 +6,9 @@ import ProductCard from "./ProductCard";
 const RelatedProducts = ({ id }) => {
     const dispatch = useDispatch();
     const { relatedProducts } = useSelector((slice) => slice.product);
-    console.log(">>>>>>>>", relatedProducts);
+
     useEffect(() => {
         dispatch(fetchRelatedProductById(id));
-
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
     return (

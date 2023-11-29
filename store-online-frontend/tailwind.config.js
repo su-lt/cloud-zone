@@ -11,6 +11,7 @@ module.exports = {
             },
             fontFamily: {
                 poppins: ["Poppins", "sans-serif"],
+                playfair: ["Playfair Display", "sans-serif"],
             },
             colors: {
                 primary: "#16405B",
@@ -26,6 +27,13 @@ module.exports = {
             },
             boxShadow: {
                 neon: "0 0 5px theme('colors.purple.200'), 0 0 20px theme(colors.purple.700)",
+                "neon-1":
+                    "0 0 1px theme('colors.purple.200'), 0 0 5px theme(colors.purple.700)",
+                nav: "0 0px 3px 0px rgba(0,0,0,0.2)",
+            },
+            height: {
+                "custom-md": "calc(100vh - 40px)",
+                "custom-xs": "calc(100vh - 96px)",
             },
         },
     },

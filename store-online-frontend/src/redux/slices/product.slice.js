@@ -35,7 +35,7 @@ export const productSlice = createSlice({
             state.minPrice = action.payload;
         },
         setSearchString: (state, action) => {
-            state.searchString = action.payload;
+            state.searchString = action.payload.trim();
         },
         setSearchCategory: (state, action) => {
             state.searchCategory = action.payload;

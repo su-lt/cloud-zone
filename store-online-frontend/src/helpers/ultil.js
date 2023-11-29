@@ -1,3 +1,5 @@
+import { useEffect, useState } from "react";
+
 export const convertToSlug = (name) => {
     return name
         .toLowerCase()
@@ -14,4 +16,20 @@ export const buildQueryString = (params) => {
         }
     }
     return searchParams.toString();
+};
+
+export const useDebounce = (value, duration = 500) => {
+    const [debounceValue, setDebounceValue] = useState(value);
+
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setDebounceValue(value);
+        }, duration);
+
+        return () => {
+            clearTimeout(timer);
+        };
+    }, [duration, value]);
+
+    return debounceValue;
 };

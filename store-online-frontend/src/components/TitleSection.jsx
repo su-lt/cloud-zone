@@ -11,11 +11,11 @@ const TitleSection = ({ title, description }) => {
     }, []);
 
     return (
-        <section className="bg-[url('./assets/images/bg-title-02.jpg')] bg-cover bg-no-repeat bg-center">
+        <div className="bg-[url('./assets/images/bg-title-02.jpg')] bg-cover bg-no-repeat bg-center">
             <h2 className="py-24 font-bold text-center text-5xl text-white tracking-widest">
                 {title}
             </h2>
-        </section>
+        </div>
     );
 };
 

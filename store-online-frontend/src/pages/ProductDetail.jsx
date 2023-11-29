@@ -31,7 +31,7 @@ const ProductDetail = () => {
 
     return (
         product && (
-            <main className="p-4 md:container">
+            <main className="p-4 md:mt-10 md:container">
                 <Breadcrumb items={breadcrumbItems} />
                 <Product product={product} />
                 <RelatedProducts id={product.category._id} />

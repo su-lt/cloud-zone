@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;900&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Poppins:wght@400;500;600;700&display=swap");
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -31,11 +31,30 @@
     .cart-badge {
         @apply absolute top-[-8px] right-[-8px] h-3 w-3 rounded-full bg-black text-white text-[8px] leading-3 text-center;
     }
-    .button {
-        @apply border-2 border-primary px-4 py-2 text-xl font-semibold rounded uppercase cursor-pointer shadow-sm shadow-primary
+    .button-primary {
+        @apply px-4 py-2 text-white rounded uppercase cursor-pointer bg-primary shadow-sm shadow-primary
+            hover:bg-white hover:text-primary hover:border hover:border-primary hover:shadow-md hover:shadow-primary;
+    }
+    .button-outline {
+        @apply px-4 py-2 text-primary rounded uppercase cursor-pointer border border-primary shadow-sm shadow-primary
             hover:bg-primary hover:text-white hover:shadow-md hover:shadow-primary;
+    }
+    .wrapper-scroll {
+        @apply grid gap-8 grid-flow-col auto-cols-[80%] overflow-x-auto no-scrollbar snap-mandatory snap-x snap-always md:grid-cols-3;
     }
     .input-outline-none {
         @apply py-4 border-b focus:outline-none;
+    }
+}
+
+@layer utilities {
+    /* Chrome, Safari and Opera */
+    .no-scrollbar::-webkit-scrollbar {
+        display: none;
+    }
+
+    .no-scrollbar {
+        -ms-overflow-style: none; /* IE and Edge */
+        scrollbar-width: none; /* Firefox */
     }
 }

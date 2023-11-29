@@ -3,16 +3,15 @@ import routes from "./routes";
 
 import Footer from "./pages/Footer";
 import Header from "./pages/Header";
-import LayoutSection from "./components/LayoutSection";
+// import LayoutSection from "./components/LayoutSection";
 
 function App() {
     return (
         <>
             {/* header */}
             <Header />
-
             {/* layout amination appearing */}
-            <LayoutSection />
+            {/* <LayoutSection /> */}
 
             {/* routes */}
             <Routes>
@@ -26,7 +25,6 @@ function App() {
                     );
                 })}
             </Routes>
-
             {/* footer */}
             <Footer />
         </>

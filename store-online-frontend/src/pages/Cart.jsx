@@ -28,7 +28,7 @@ const Cart = () => {
     }, [cart, dispatch]);
 
     return (
-        <main className="mt-4 px-4 md:container">
+        <main className="md:mt-10 p-4 md:container">
             <Breadcrumb items={breadcrumbItems} />
             <div className="mt-4">
                 <h3>Cart list</h3>

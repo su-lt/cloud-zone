@@ -5,6 +5,7 @@ import {
     fetchProducts,
     productSlice,
 } from "../redux/slices/product.slice";
+import { useDebounce } from "../helpers/ultil";
 
 const FilterSection = () => {
     const dispatch = useDispatch();
@@ -22,6 +23,7 @@ const FilterSection = () => {
     const state = useSelector((slice) => slice.product);
     const { minPrice, maxPrice, categories, searchString, searchCategory } =
         state;
+    const debounceSearch = useDebounce(searchString);
 
     const handlePricesClick = (min, max) => {
         const searchInput = document.getElementById("searchInput");
@@ -55,10 +57,10 @@ const FilterSection = () => {
     };
 
     useEffect(() => {
-        dispatch(fetchProducts({ searchString, page: 1 }));
+        dispatch(fetchProducts({ searchString: debounceSearch, page: 1 }));
 
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [searchString]);
+    }, [debounceSearch]);
 
     useEffect(() => {
         dispatch(fetchProducts({ ...state, page: 1, searchString: "" }));
@@ -68,18 +70,20 @@ const FilterSection = () => {
 
     useEffect(() => {
         dispatch(fetchCategories());
-
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     return (
         <div className="mt-4 text-right">
             <div>
-                <button className="button text-xs" onClick={handleFilterClick}>
+                <button
+                    className="button-outline text-xs"
+                    onClick={handleFilterClick}
+                >
                     Filter
                 </button>
                 <button
-                    className="button text-xs ml-2"
+                    className="button-outline text-xs ml-2"
                     onClick={handleSearchClick}
                 >
                     Search

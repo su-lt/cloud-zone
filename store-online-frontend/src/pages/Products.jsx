@@ -10,7 +10,7 @@ const Products = () => {
     ];
 
     return (
-        <main className="p-4 md:container">
+        <main className="p-4 md:mt-10 md:container">
             <Breadcrumb items={breadcrumbItems} />
             <FilterSection />
             <ProductSection />

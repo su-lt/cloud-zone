@@ -1,15 +1,23 @@
-import { Route, Routes } from "react-router-dom";
+import { Route, Routes, useLocation } from "react-router-dom";
 import routes from "./routes";
 
 import Footer from "./pages/Footer";
 import Header from "./pages/Header";
 // import LayoutSection from "./components/LayoutSection";
+import DashboardLayout from "./pages/dashboard/Layout";
+import Dashboard from "./pages/dashboard/Dashboard";
+import Products from "./pages/dashboard/Products";
+import Category from "./pages/dashboard/Categories";
+import Orders from "./pages/dashboard/Orders";
 
 function App() {
+    const location = useLocation();
+    const isAdminDashboard = location.pathname.includes("/admin");
+
     return (
         <>
             {/* header */}
-            <Header />
+            {!isAdminDashboard && <Header />}
             {/* layout amination appearing */}
             {/* <LayoutSection /> */}
 
@@ -24,9 +32,15 @@ function App() {
                         />
                     );
                 })}
+                <Route path="/admin" element={<DashboardLayout />}>
+                    <Route path="dashboard" element={<Dashboard />} />
+                    <Route path="products" element={<Products />} />
+                    <Route path="categories" element={<Category />} />
+                    <Route path="orders" element={<Orders />} />
+                </Route>
             </Routes>
             {/* footer */}
-            <Footer />
+            {!isAdminDashboard && <Footer />}
         </>
     );
 }

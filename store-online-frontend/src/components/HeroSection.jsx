@@ -18,8 +18,8 @@ const HeroSection = () => {
     };
 
     return (
-        <Slider {...settings}>
-            <div className="bg-[url('./assets/images/slide-01.jpg')] h-custom-xs bg-cover bg-no-repeat bg-center md:h-custom-md">
+        <Slider {...settings} className="">
+            <div className="bg-[url('./assets/images/slide-01.jpg')] h-custom-xs max-h-[668px] bg-cover bg-no-repeat bg-center md:h-custom-md md:max-h-none">
                 {/* slide 1 */}
                 <div className="px-4 h-full flex flex-col gap-4 justify-center md:container">
                     <h3 className="text-xl animate-pulse md:text-3xl">
@@ -37,7 +37,7 @@ const HeroSection = () => {
             </div>
 
             {/* slide 2 */}
-            <div className="bg-[url('./assets/images/slide-02.jpg')] h-custom-xs bg-cover bg-no-repeat bg-center md:h-custom-md">
+            <div className="bg-[url('./assets/images/slide-02.jpg')] h-custom-xs max-h-[668px] bg-cover bg-no-repeat bg-center md:h-custom-md md:max-h-none">
                 <div className="px-4 h-full flex flex-col gap-4 justify-center md:container">
                     <h3 className="text-xl animate-pulse md:text-3xl">
                         Men Collection 2023
@@ -55,7 +55,7 @@ const HeroSection = () => {
             </div>
 
             {/* slide 3 */}
-            <div className="bg-[url('./assets/images/slide-03.jpg')] h-custom-xs bg-cover bg-no-repeat bg-center md:h-custom-md">
+            <div className="bg-[url('./assets/images/slide-03.jpg')] h-custom-xs max-h-[668px] bg-cover bg-no-repeat bg-center md:h-custom-md md:max-h-none">
                 <div className="px-4 h-full flex flex-col gap-4 justify-center md:container">
                     <h3 className="text-xl animate-pulse md:text-3xl">
                         Accessories

@@ -61,6 +61,14 @@ const Header = () => {
                                 </h6>
                             </div>
                             <div className="my-2 px-4 border-x border-custom-300">
+                                <a
+                                    href="/admin/dashboard"
+                                    className="leading-6 text-xs"
+                                >
+                                    Dashboard
+                                </a>
+                            </div>
+                            <div className="my-2 px-4 border-x border-custom-300">
                                 <Link
                                     to="/logout"
                                     className="leading-6 text-xs"

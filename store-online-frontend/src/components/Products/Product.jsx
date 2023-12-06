@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
-import InputGroups from "../InputGroup";
 import AlertMessage from "../AlertMessage";
 import { cartSlice } from "../../redux/slices/cart.slice";
 
@@ -19,6 +18,11 @@ const Product = ({ product }) => {
         setTimeout(() => {
             setAlertMessage("");
         }, 2000);
+    };
+
+    const handleQuantityChange = (event) => {
+        const value = parseInt(event.target.value) || 1;
+        setQuantity(value);
     };
 
     const handleAddToCart = () => {
@@ -75,29 +79,48 @@ const Product = ({ product }) => {
                             </div>
                         </div>
                         <div>
-                            <>
-                                <h2 className="sm:text-xl md:text-2xl">
-                                    {product.name}
-                                </h2>
-                                <h5 className="mt-1 text-custom-1000">
-                                    Brand: {product.productDetail.brand}
-                                </h5>
-                                <h3 className="mt-14 mb-4 text-primary font-semibold tracking-wider">
-                                    ${product.price}
-                                </h3>
-                                <InputGroups
-                                    quantity={quantity}
-                                    handleChange={setQuantity}
-                                />
-                                <div>
-                                    <button
-                                        className="button bg-primary text-white mt-8"
-                                        onClick={handleAddToCart}
-                                    >
-                                        Add to cart
-                                    </button>
+                            <h2 className="sm:text-xl md:text-2xl">
+                                {product.name}
+                            </h2>
+                            <h5 className="mt-1 text-custom-1000">
+                                Brand: {product.productDetail.brand}
+                            </h5>
+                            <h3 className="mt-14 mb-4 text-primary font-semibold tracking-wider">
+                                ${product.price}
+                            </h3>
+
+                            <div className="w-[135px] h-[40px] flex items-center border border-custom-300 rounded-sm text-center">
+                                <div
+                                    className="flex-grow leading-10 cursor-pointer hover:bg-primary hover:text-white select-none"
+                                    onClick={
+                                        quantity > 1
+                                            ? () => setQuantity(quantity - 1)
+                                            : () => {}
+                                    }
+                                >
+                                    &#45;
                                 </div>
-                            </>
+                                <input
+                                    className="bg-custom-100 border-r border-l border-custom-300 w-[45px] focus:outline-none h-[38px] text-center"
+                                    type="number"
+                                    value={quantity}
+                                    onChange={handleQuantityChange}
+                                />
+                                <div
+                                    className="flex-grow leading-10 cursor-pointer hover:bg-primary hover:text-white select-none"
+                                    onClick={() => setQuantity(quantity + 1)}
+                                >
+                                    &#43;
+                                </div>
+                            </div>
+                            <div>
+                                <button
+                                    className="button-primary bg-primary text-white mt-8"
+                                    onClick={handleAddToCart}
+                                >
+                                    Add to cart
+                                </button>
+                            </div>
                         </div>
                     </div>
                     <div className="mt-10 p-4  border border-custom-300">

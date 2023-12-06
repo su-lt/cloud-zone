@@ -14,11 +14,17 @@ const Cart = () => {
     const { cart, totalPrice } = useSelector((slice) => slice.cart);
 
     const handleChange = (quantity, _id) => {
+        if (quantity === 0) handleDelete(_id);
+
         const obj = {
             _id,
             quantity,
         };
         dispatch(cartSlice.actions.updateQuantity(obj));
+    };
+
+    const handleDelete = (_id) => {
+        dispatch(cartSlice.actions.removeProduct(_id));
     };
 
     useEffect(() => {
@@ -37,9 +43,19 @@ const Cart = () => {
                         {cart.length > 0 && cart[0].name ? (
                             cart.map((item) => (
                                 <div
-                                    className="p-5 flex gap-x-5 border border-b-0 border-custom-500"
+                                    className="p-5 flex gap-x-5 border border-b-0 border-custom-500 relative group"
                                     key={item._id}
                                 >
+                                    <div className="absolute -top-3 -right-2 w-5 h-5 hidden group-hover:block">
+                                        <button
+                                            className="w-full h-full bg-red-300 text-white text-xs leading-3 rounded-full "
+                                            onClick={() =>
+                                                handleDelete(item._id)
+                                            }
+                                        >
+                                            X
+                                        </button>
+                                    </div>
                                     <div className="w-auto h-36 lg:h-24">
                                         <img
                                             alt=""

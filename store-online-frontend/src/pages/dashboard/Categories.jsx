@@ -1,27 +1,43 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchCategories } from "../../redux/slices/product.slice";
+import { fetchCategories } from "../../redux/slices/category.slice";
 import CategoryModal from "../../components/Dashboard/CategoryMadal";
 
 const Categories = () => {
     const dispatch = useDispatch();
-    const { categories } = useSelector((slice) => slice.product);
+    const { categories, completed } = useSelector((slice) => slice.category);
 
     let [isOpen, setIsOpen] = useState(false);
-    let [isUpdate, setIsUpdate] = useState(true);
-    let [categoryId, setCategoryId] = useState("");
+    let [isUpdate, setIsUpdate] = useState(false);
+    let [isDelete, setDelete] = useState(false);
+    let [category, setCategory] = useState(null);
 
     const handleCreate = () => {
         setIsOpen(true);
         setIsUpdate(false);
-        setCategoryId("");
+        setDelete(false);
+        setCategory(null);
     };
 
-    const handleUpdate = (id) => {
+    const handleUpdate = (item) => {
         setIsOpen(true);
         setIsUpdate(true);
-        setCategoryId(id);
+        setDelete(false);
+        setCategory(item);
     };
+
+    const handleDelete = (item) => {
+        setIsOpen(true);
+        setIsUpdate(false);
+        setDelete(true);
+        setCategory(item);
+    };
+
+    useEffect(() => {
+        if (completed) dispatch(fetchCategories());
+
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [completed]);
 
     useEffect(() => {
         dispatch(fetchCategories());
@@ -36,7 +52,8 @@ const Categories = () => {
                 isOpen={isOpen}
                 onClose={() => setIsOpen(false)}
                 update={isUpdate}
-                id={categoryId}
+                data={category}
+                del={isDelete}
             />
 
             <div className="mt-3 items-start justify-between flex flex-col gap-3 md:flex-row">
@@ -66,12 +83,15 @@ const Categories = () => {
                                 </td>
                                 <td className="text-right px-6 whitespace-nowrap">
                                     <button
-                                        onClick={() => handleUpdate(item._id)}
+                                        onClick={() => handleUpdate(item)}
                                         className="py-2 px-3 font-medium text-indigo-600 hover:text-indigo-500 duration-150 hover:bg-gray-50 rounded-lg"
                                     >
                                         Edit
                                     </button>
-                                    <button className="py-2 leading-none px-3 font-medium text-red-600 hover:text-red-500 duration-150 hover:bg-gray-50 rounded-lg">
+                                    <button
+                                        onClick={() => handleDelete(item)}
+                                        className="py-2 leading-none px-3 font-medium text-red-600 hover:text-red-500 duration-150 hover:bg-gray-50 rounded-lg"
+                                    >
                                         Delete
                                     </button>
                                 </td>

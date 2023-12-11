@@ -6,6 +6,7 @@ const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const express = require("express");
 const app = express();
+const cloudinary = require("./configs/cloudinary.config");
 
 // middlewares
 app.use(cookieParser());
@@ -30,6 +31,15 @@ app.use("/", require("./routes"));
 
 // handling errors
 app.use((error, req, res, next) => {
+    // cleanup - remove image upload on cloudinary server
+    const images = req.files;
+    console.log(">>>>>>>>>", images);
+    if (images && images.length > 0) {
+        images.map((image) => {
+            cloudinary.uploader.destroy(image.filename);
+        });
+    }
+
     const statusCode = error.status || 500;
     return res.status(statusCode).json({
         status: "error",

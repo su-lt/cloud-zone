@@ -8,7 +8,7 @@ const {
 const productModel = require("../models/product.model");
 
 const getCategories = async (req, res) => {
-    const categories = await categoryModel.find({ deleted_at: null });
+    const categories = await categoryModel.find({ isDeleted: false });
     if (!categories) throw new NotFoundError("Cannot load categories");
 
     return res.status(200).json({
@@ -76,6 +76,7 @@ const updateCategoryById = async (req, res) => {
         },
     });
 };
+
 const deleteCategoryById = async (req, res) => {
     const id = req.params.id;
     if (!mongoose.Types.ObjectId.isValid(id)) {
@@ -83,9 +84,13 @@ const deleteCategoryById = async (req, res) => {
     }
 
     const result = await categoryModel.findByIdAndUpdate(id, {
-        deleted_at: new Date(),
+        deletedAt: new Date(),
+        isDeleted: true,
     });
     if (!result) throw new CreateDatabaseError();
+
+    // update products -> change status to deactive
+    await productModel.updateMany({ category: id }, { status: "deactive" });
 
     return res.status(200).json({
         message: "deleted successfully",

@@ -1,12 +1,9 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useDispatch, useSelector } from "react-redux";
-import {
-    fetchCategories,
-    fetchProducts,
-    productSlice,
-} from "../redux/slices/product.slice";
+import { fetchProducts, productSlice } from "../redux/slices/product.slice";
 import { useDebounce } from "../helpers/ultil";
+import { fetchCategories } from "../redux/slices/category.slice";
 
 const FilterSection = () => {
     const dispatch = useDispatch();

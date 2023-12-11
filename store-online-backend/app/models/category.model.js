@@ -6,7 +6,11 @@ const categorySchema = new Schema(
             type: String,
             required: true,
         },
-        deleted_at: {
+        isDeleted: {
+            type: Boolean,
+            default: false,
+        },
+        deletedAt: {
             type: Date,
             default: null,
         },
@@ -15,5 +19,9 @@ const categorySchema = new Schema(
         timestamps: true,
     }
 );
+
+categorySchema.pre("find", function () {
+    this.where({ isDeleted: false });
+});
 
 module.exports = model("Category", categorySchema);

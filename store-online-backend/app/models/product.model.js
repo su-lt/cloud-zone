@@ -1,33 +1,27 @@
-const { Schema, model } = require("mongoose");
+const mongoose = require("mongoose");
+const slug = require("mongoose-slug-updater");
+// plugins
+mongoose.plugin(slug);
 
-const productSchema = new Schema(
+const productSchema = new mongoose.Schema(
     {
-        name: {
-            type: String,
-            required: true,
-        },
-        slug: {
-            type: String,
-        },
-        price: {
-            type: Number,
-            required: true,
-        },
-        image_thumbnail: {
-            type: String,
-            required: true,
-        },
-        quantity_sold: {
-            type: Number,
-            default: 0,
-        },
+        name: { type: String, required: true },
+        slug: { type: String, slug: "name", unique: true },
+        price: { type: Number, required: true },
+        image_thumbnail: { type: String },
+        quantity_sold: { type: Number, default: 0 },
         productDetail: {
-            type: Schema.Types.ObjectId,
+            type: mongoose.Schema.Types.ObjectId,
             ref: "ProductDetail",
         },
         category: {
-            type: Schema.Types.ObjectId,
+            type: mongoose.Schema.Types.ObjectId,
             ref: "Category",
+        },
+        status: {
+            type: String,
+            enum: ["active", "deactived"],
+            default: "active",
         },
     },
     {
@@ -35,4 +29,4 @@ const productSchema = new Schema(
     }
 );
 
-module.exports = model("Product", productSchema);
+module.exports = mongoose.model("Product", productSchema);

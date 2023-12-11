@@ -3,7 +3,7 @@ const roleModel = require("../models/role.model");
 
 const {
     db: { host, port, name },
-} = require("../configs/config.mongodb");
+} = require("../configs/mongodb.config");
 
 const connectString = `mongodb://${host}:${port}/${name}`;
 mongoose

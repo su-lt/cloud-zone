@@ -3,11 +3,13 @@ import {
     HiOutlineCube,
     HiOutlineShoppingCart,
     HiOutlineAdjustments,
+    HiOutlineUsers,
 } from "react-icons/hi";
 
 import Category from "./Categories";
 import Products from "./Products";
-import Orders from "./Orders";
+import Orders from "./Order";
+import Users from "./User";
 import Dashboard from "./Dashboard";
 
 export const DASHBOARD_SIDEBAR = [
@@ -17,6 +19,13 @@ export const DASHBOARD_SIDEBAR = [
         path: "/admin/dashboard",
         icon: <HiOutlineViewGrid size={32} />,
         element: <Dashboard />,
+    },
+    {
+        key: "users",
+        label: "Users",
+        path: "/admin/users",
+        icon: <HiOutlineUsers size={32} />,
+        element: <Users />,
     },
     {
         key: "categories",

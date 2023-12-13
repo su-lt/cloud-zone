@@ -13,20 +13,26 @@ const userSchema = new Schema(
             required: true,
             unique: true,
         },
+        address: {
+            type: String,
+            required: true,
+        },
         password: {
             type: String,
             required: true,
         },
-        roles: [
-            {
-                type: Schema.Types.ObjectId,
-                ref: "Role",
-            },
-        ],
+        role: {
+            type: Schema.Types.ObjectId,
+            ref: "Role",
+        },
         status: {
             type: String,
             enum: ["active", "inactive"],
-            default: "inactive",
+            default: "active",
+        },
+        deletedAt: {
+            type: Date,
+            default: null,
         },
     },
     {

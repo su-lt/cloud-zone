@@ -8,7 +8,8 @@ import DashboardLayout from "./pages/dashboard/Layout";
 import Dashboard from "./pages/dashboard/Dashboard";
 import Products from "./pages/dashboard/Products";
 import Category from "./pages/dashboard/Categories";
-import Orders from "./pages/dashboard/Orders";
+import Orders from "./pages/dashboard/Order";
+import Users from "./pages/dashboard/User";
 
 function App() {
     const location = useLocation();
@@ -37,6 +38,7 @@ function App() {
                     <Route path="products" element={<Products />} />
                     <Route path="categories" element={<Category />} />
                     <Route path="orders" element={<Orders />} />
+                    <Route path="users" element={<Users />} />
                 </Route>
             </Routes>
             {/* footer */}

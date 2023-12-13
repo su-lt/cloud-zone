@@ -12,9 +12,10 @@ const {
 
 const signUp = async (req, res) => {
     // get data from request body
-    const { fullname, email, password } = req.body;
+    const { fullname, email, password, address } = req.body;
 
-    if (!fullname || !email || !password) throw new BadRequestError();
+    if (!fullname || !email || !password || !address)
+        throw new BadRequestError();
 
     // check exist user
     const checkUser = await userModel.findOne({ email }).lean();
@@ -31,6 +32,7 @@ const signUp = async (req, res) => {
     const newUser = await userModel.create({
         fullname,
         email,
+        address,
         password: passwordHash,
         roles: [roleMember._id],
     });

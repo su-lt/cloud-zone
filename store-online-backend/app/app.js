@@ -33,7 +33,6 @@ app.use("/", require("./routes"));
 app.use((error, req, res, next) => {
     // cleanup - remove image upload on cloudinary server
     const images = req.files;
-    console.log(">>>>>>>>>", images);
     if (images && images.length > 0) {
         images.map((image) => {
             cloudinary.uploader.destroy(image.filename);

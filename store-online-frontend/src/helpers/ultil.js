@@ -1,12 +1,14 @@
 import { useEffect, useState } from "react";
 
-export const transformFileBase64 = (file) => {
-    return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onload = () => resolve(reader.result);
-        reader.onerror = (error) => reject(error);
+export const formattedPrice = (price) => {
+    // create formatted price
+    const formatter = new Intl.NumberFormat("en-US", {
+        style: "currency",
+        currency: "USD", // currency code
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 2, // Number of digits after the decimal point
     });
+    return formatter.format(price);
 };
 
 export const buildQueryString = (params) => {

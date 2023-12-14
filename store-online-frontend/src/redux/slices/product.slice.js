@@ -158,6 +158,9 @@ export const productSlice = createSlice({
                 state.relatedProducts = payload.relatedProducts;
             }
         );
+        builder.addCase(fetchProductBySlug.fulfilled, (state, { payload }) => {
+            state.product = payload.product;
+        });
         builder.addCase(fetchProductById.fulfilled, (state, { payload }) => {
             const { product } = payload;
             if (product)
@@ -333,8 +336,8 @@ export const fetchProductById = createAsyncThunk(
 // get product by id
 export const fetchProductBySlug = createAsyncThunk(
     "product/fetchProductBySlug",
-    async (id) => {
-        const response = await api.post(`/products/${id}`);
+    async (slug) => {
+        const response = await api.get(`/products/slug/${slug}`);
         return response.data.metadata;
     }
 );

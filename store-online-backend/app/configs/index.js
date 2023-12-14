@@ -1,8 +1,10 @@
+// dev mode
 const dev = {
     port: process.env.DEV_APP_PORT,
     url: process.env.DEV_BASE_API_URL,
 };
 
+// production mode
 const product = {
     port: process.env.PRODUCT_APP_PORT,
     url: process.env.PRODUCT_BASE_API_URL,

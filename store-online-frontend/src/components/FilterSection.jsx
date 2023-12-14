@@ -2,25 +2,26 @@ import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchProducts, productSlice } from "../redux/slices/product.slice";
-import { useDebounce } from "../helpers/ultil";
 import { fetchCategories } from "../redux/slices/category.slice";
+import { useDebounce } from "../helpers/ultil";
+
+const colors = [
+    { bg: "bg-[#2563EB]", ring: "ring-[#2563EB]" },
+    { bg: "bg-[#8B5CF6]", ring: "ring-[#8B5CF6]" },
+    { bg: "bg-[#DB2777]", ring: "ring-[#DB2777]" },
+    { bg: "bg-[#475569]", ring: "ring-[#475569]" },
+    { bg: "bg-[#EA580C]", ring: "ring-[#EA580C]" },
+];
 
 const FilterSection = () => {
     const dispatch = useDispatch();
-    const colors = [
-        { bg: "bg-[#2563EB]", ring: "ring-[#2563EB]" },
-        { bg: "bg-[#8B5CF6]", ring: "ring-[#8B5CF6]" },
-        { bg: "bg-[#DB2777]", ring: "ring-[#DB2777]" },
-        { bg: "bg-[#475569]", ring: "ring-[#475569]" },
-        { bg: "bg-[#EA580C]", ring: "ring-[#EA580C]" },
-    ];
+    const state = useSelector((slice) => slice.product);
+    const { minPrice, maxPrice, searchString, searchCategory } = state;
+    const { categories } = useSelector((slice) => slice.category);
 
     const [openFilter, setOpenFilter] = useState(false);
     const [openSearch, setOpenSearch] = useState(false);
 
-    const state = useSelector((slice) => slice.product);
-    const { minPrice, maxPrice, categories, searchString, searchCategory } =
-        state;
     const debounceSearch = useDebounce(searchString);
 
     const handlePricesClick = (min, max) => {

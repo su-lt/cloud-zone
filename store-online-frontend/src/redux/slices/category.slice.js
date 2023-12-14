@@ -3,32 +3,126 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
     categories: [],
+    createObject: {
+        name: "",
+    },
+    updateObject: {
+        name: "",
+    },
+    deleteObject: {
+        name: "",
+    },
+    errors: {
+        name: "",
+    },
     dependencies: 0,
-    completed: false,
+    createCompleted: false,
+    updateCompleted: false,
+    deleteCompleted: false,
+    pending: false,
+    error: null,
+    isValid: false,
 };
 
 export const categorySlice = createSlice({
     name: "category",
     initialState,
     reducers: {
+        handleOnChange: (state, action) => {
+            const { field, value } = action.payload;
+            state.createObject[field] = value;
+            state.errors[field] = "";
+        },
+        handleUpdateOnChange: (state, action) => {
+            const { field, value } = action.payload;
+            state.updateObject[field] = value;
+            state.errors[field] = "";
+        },
+        setUpdateObject: (state, action) => {
+            state.updateObject = action.payload;
+        },
+        setDeleteObject: (state, action) => {
+            state.deleteObject = action.payload;
+        },
+        checkValidation: (state) => {
+            state.errors["name"] = state.createObject["name"].trim()
+                ? ""
+                : "This field is required";
+            state.isValid = !state.errors["name"];
+        },
+        checkUpdateValidation: (state) => {
+            state.errors["name"] = state.updateObject["name"].trim()
+                ? ""
+                : "This field is required";
+            state.isValid = !state.errors["name"];
+        },
+        setCreateCompleted: (state) => {
+            state.createCompleted = false;
+        },
+        setUpdateCompleted: (state) => {
+            state.updateCompleted = false;
+        },
+        setDeleteCompleted: (state) => {
+            state.deleteCompleted = false;
+        },
+        setError: (state) => {
+            state.error = null;
+        },
         clearState: (state) => {
-            state = initialState;
+            state.createObject = initialState.createObject;
+            state.updateObject = initialState.updateObject;
+            state.deleteObject = initialState.deleteObject;
+            state.errors = initialState.errors;
+            state.dependencies = initialState.dependencies;
         },
     },
     extraReducers: (builder) => {
+        // get all categories
         builder.addCase(fetchCategories.fulfilled, (state, { payload }) => {
             state.categories = payload.categories;
             state.completed = false;
         });
+        // create a new category
         builder.addCase(createCategory.fulfilled, (state, { payload }) => {
-            state.completed = true;
+            state.pending = false;
+            if (payload) {
+                state.createCompleted = true;
+            }
         });
+        builder.addCase(createCategory.rejected, (state, { error }) => {
+            state.pending = false;
+            state.error = error.message;
+        });
+        builder.addCase(createCategory.pending, (state, { payload }) => {
+            state.pending = true;
+        });
+        // update a category
         builder.addCase(updateCategory.fulfilled, (state, { payload }) => {
-            state.completed = true;
+            state.pending = false;
+            if (payload) {
+                state.updateCompleted = true;
+            }
         });
-        builder.addCase(deleteCategory.fulfilled, (state, { payload }) => {
-            state.completed = true;
+        builder.addCase(updateCategory.rejected, (state, { error }) => {
+            state.pending = false;
+            state.error = error.message;
         });
+        builder.addCase(updateCategory.pending, (state, { payload }) => {
+            state.pending = true;
+        });
+        // delete a category
+        builder.addCase(deleteCategory.fulfilled, (state) => {
+            state.pending = false;
+            state.deleteCompleted = true;
+        });
+        builder.addCase(deleteCategory.rejected, (state, { error }) => {
+            state.pending = false;
+            state.error = error.message;
+        });
+        builder.addCase(deleteCategory.pending, (state, { payload }) => {
+            state.pending = true;
+        });
+        // count all products by category
         builder.addCase(
             totalProductByCategoryId.fulfilled,
             (state, { payload }) => {
@@ -50,18 +144,30 @@ export const fetchCategories = createAsyncThunk(
 // create category
 export const createCategory = createAsyncThunk(
     "category/createCategory",
-    async (name) => {
-        const response = await api.post(`/category/`, { name });
-        return response.data.metadata;
+    async (name, { getState, dispatch }) => {
+        dispatch(checkValidation());
+        const state = getState()["category"];
+
+        if (state.isValid) {
+            const response = await api.post(`/category/`, { name });
+            return response.data.metadata;
+        }
+        return null;
     }
 );
 
 // update category by id
 export const updateCategory = createAsyncThunk(
     "category/updateCategory",
-    async ({ id, name }) => {
-        const response = await api.post(`/category/${id}`, { name });
-        return response.data.metadata;
+    async ({ id, name }, { getState, dispatch }) => {
+        dispatch(checkUpdateValidation());
+        const state = getState()["category"];
+
+        if (state.isValid) {
+            const response = await api.post(`/category/${id}`, { name });
+            return response.data.metadata;
+        }
+        return null;
     }
 );
 
@@ -82,3 +188,17 @@ export const totalProductByCategoryId = createAsyncThunk(
         return response.data.metadata;
     }
 );
+
+export const {
+    handleOnChange,
+    handleUpdateOnChange,
+    setDeleteObject,
+    setUpdateObject,
+    checkValidation,
+    checkUpdateValidation,
+    setCreateCompleted,
+    setUpdateCompleted,
+    setDeleteCompleted,
+    setError,
+    clearState,
+} = categorySlice.actions;

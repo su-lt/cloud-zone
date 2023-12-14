@@ -6,6 +6,7 @@ const asyncHandler = require("../../helpers/asyncHandler");
 const {
     getAllProducts,
     getProductById,
+    getProductBySlug,
     getRelatedProducts,
     createProduct,
     updateProduct,
@@ -17,6 +18,9 @@ router.get("/", asyncHandler(getAllProducts));
 
 // get product
 router.get("/:id", asyncHandler(getProductById));
+
+//get product by slug
+router.get("/slug/:slug", asyncHandler(getProductBySlug));
 
 // create product
 router.post("/", upload.array("images", 10), asyncHandler(createProduct));

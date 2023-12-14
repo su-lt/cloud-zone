@@ -6,7 +6,7 @@ import {
     HiOutlineUsers,
 } from "react-icons/hi";
 
-import Category from "./Categories";
+import Category from "./Category";
 import Products from "./Product";
 import Orders from "./Order";
 import Users from "./User";

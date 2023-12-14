@@ -7,7 +7,7 @@ import Header from "./pages/Header";
 import DashboardLayout from "./pages/dashboard/Layout";
 import Dashboard from "./pages/dashboard/Dashboard";
 import Product from "./pages/dashboard/Product";
-import Category from "./pages/dashboard/Categories";
+import Category from "./pages/dashboard/Category";
 import Orders from "./pages/dashboard/Order";
 import Users from "./pages/dashboard/User";
 

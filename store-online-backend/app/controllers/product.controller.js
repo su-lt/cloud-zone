@@ -93,6 +93,25 @@ const getProductById = async (req, res) => {
     });
 };
 
+const getProductBySlug = async (req, res) => {
+    const slug = req.params.slug;
+    if (!slug) throw new BadRequestError();
+
+    const product = await productModel
+        .findOne({ slug })
+        .populate("productDetail")
+        .populate("category")
+        .lean();
+    if (!product) throw new NotFoundError();
+
+    return res.status(200).json({
+        message: "success",
+        metadata: {
+            product,
+        },
+    });
+};
+
 const getRelatedProducts = async (req, res) => {
     const id = req.params.id;
     if (!id) throw new BadRequestError();
@@ -258,6 +277,7 @@ module.exports = {
     getAllProducts,
     // getCategories,
     getProductById,
+    getProductBySlug,
     getRelatedProducts,
     createProduct,
     updateProduct,

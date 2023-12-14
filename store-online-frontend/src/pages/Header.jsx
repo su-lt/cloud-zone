@@ -3,8 +3,9 @@ import { HiShoppingCart } from "react-icons/hi2";
 import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { motion, AnimatePresence } from "framer-motion";
-import DarkModeToggle from "react-dark-mode-toggle";
 import { MenuToggle } from "../components/MenuToggle";
+import DarkModeToggle from "react-dark-mode-toggle";
+import { formattedPrice } from "../helpers/ultil";
 
 const menuItems = [
     { text: "Home", link: "/" },
@@ -35,6 +36,7 @@ const Header = () => {
     };
 
     useEffect(() => {
+        // check size of screen
         window.addEventListener("resize", handlerCloseToggleMenu);
         window.addEventListener("scroll", handleScrollNavBar);
 
@@ -144,9 +146,7 @@ const Header = () => {
                                 </span>
                             ) : null}
                         </Link>
-                        {totalQuantity
-                            ? "$ " + Math.round(totalPrice * 100) / 100
-                            : null}
+                        {totalQuantity && formattedPrice(totalPrice)}
                     </div>
                 </div>
             </motion.nav>

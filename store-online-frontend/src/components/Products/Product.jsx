@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import AlertMessage from "../AlertMessage";
 import { cartSlice } from "../../redux/slices/cart.slice";
+import { formattedPrice } from "../../helpers/ultil";
 
 const Product = ({ product }) => {
     const dispatch = useDispatch();
@@ -60,12 +61,12 @@ const Product = ({ product }) => {
                                 {product.productDetail.images.map((img) => (
                                     <div
                                         className="w-[75px] h-[75px] max-h-[800px] overflow-hidden"
-                                        key={img}
+                                        key={img.filename}
                                         onClick={() => setSelectImage(img)}
                                     >
                                         <img
-                                            src={`/images/${img}`}
-                                            alt={img}
+                                            src={img.path}
+                                            alt={img.filename}
                                             className="w-full h-full object-cover"
                                         />
                                     </div>
@@ -73,8 +74,8 @@ const Product = ({ product }) => {
                             </div>
                             <div className="">
                                 <img
-                                    src={`/images/${selectImage}`}
-                                    alt={selectImage}
+                                    src={selectImage.path}
+                                    alt={selectImage.filename}
                                 />
                             </div>
                         </div>
@@ -86,7 +87,7 @@ const Product = ({ product }) => {
                                 Brand: {product.productDetail.brand}
                             </h5>
                             <h3 className="mt-14 mb-4 text-primary font-semibold tracking-wider">
-                                ${product.price}
+                                {formattedPrice(product.price)}
                             </h3>
 
                             <div className="w-[135px] h-[40px] flex items-center border border-custom-300 rounded-sm text-center">

@@ -2,14 +2,14 @@ import { useParams } from "react-router-dom";
 import Breadcrumb from "../components/Breadcrumb";
 import Product from "../components/Products/Product";
 import RelatedProducts from "../components/Products/RelatedProducts";
-import { fetchProductById } from "../redux/slices/product.slice";
+import { fetchProductBySlug } from "../redux/slices/product.slice";
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect } from "react";
 
 const ProductDetail = () => {
     const dispatch = useDispatch();
     const { product } = useSelector((slice) => slice.product);
-    const { productId } = useParams();
+    const { slug } = useParams();
 
     const breadcrumbItems = product
         ? [
@@ -24,10 +24,10 @@ const ProductDetail = () => {
         : null;
 
     useEffect(() => {
-        dispatch(fetchProductById(productId));
+        dispatch(fetchProductBySlug(slug));
 
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [productId]);
+    }, [slug]);
 
     return (
         product && (

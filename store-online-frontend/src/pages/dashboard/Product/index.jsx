@@ -92,7 +92,7 @@ const Orders = () => {
             />
             <div className="mt-3 items-start justify-between flex flex-col gap-3 md:flex-row">
                 <div className="text-lg md:text-2xl text-gray-700 font-medium">
-                    User management
+                    Products management
                 </div>
                 <button
                     onClick={() => setIsOpenCreate(true)}

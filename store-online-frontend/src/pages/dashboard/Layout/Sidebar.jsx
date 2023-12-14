@@ -5,7 +5,7 @@ import {
     HiOutlineArrowCircleLeft,
 } from "react-icons/hi";
 
-import { DASHBOARD_SIDEBAR } from "./navigation";
+import { routes_dashboard } from "../../../routes";
 import { Link, useLocation } from "react-router-dom";
 
 const Sidebar = () => {
@@ -58,7 +58,7 @@ const Sidebar = () => {
                 </div>
             </div>
             <div className="flex-1 py-14 flex flex-col gap-2">
-                {DASHBOARD_SIDEBAR.map((item) => (
+                {routes_dashboard.map((item) => (
                     <Link
                         to={item.path}
                         key={item.key}

@@ -28,6 +28,7 @@ export const userSlice = createSlice({
         handleOnChangeUpdate: (state, action) => {
             const { field, value } = action.payload;
             state.updateObject[field] = value;
+            state.errors[field] = "";
         },
         setUserUpdate: (state, action) => {
             state.user = action.payload;
@@ -131,7 +132,7 @@ export const createUser = createAsyncThunk(
 
         if (state.isValid) {
             const response = await api.post("/user/", {
-                // fullname: state.userObject.fullname,
+                fullname: state.userObject.fullname,
                 password: state.userObject.password,
                 email: state.userObject.email,
                 address: state.userObject.address,

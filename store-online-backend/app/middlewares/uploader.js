@@ -1,14 +1,16 @@
 const multer = require("multer");
-const { CloudinaryStorage } = require("multer-storage-cloudinary");
-const cloudinary = require("../configs/cloudinary.config");
 
-const storage = new CloudinaryStorage({
-    cloudinary,
-    params: {
-        folder: "CloudZone",
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, "./app/uploads/images/");
+    },
+    filename: function (req, file, cb) {
+        const extend = file.originalname.split(".");
+        const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
+        cb(null, `${uniqueSuffix}.${extend[extend.length - 1]}`);
     },
 });
 
-const uploadCloud = multer({ storage });
+const upload = multer({ storage: storage });
 
-module.exports = uploadCloud;
+module.exports = upload;

@@ -8,7 +8,7 @@ const {
 const productModel = require("../models/product.model");
 
 const getCategories = async (req, res) => {
-    const categories = await categoryModel.find({ isDeleted: false });
+    const categories = await categoryModel.find({ isDeleted: false }).lean();
     if (!categories) throw new NotFoundError("Cannot load categories");
 
     return res.status(200).json({

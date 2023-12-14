@@ -7,7 +7,7 @@ import {
 } from "react-icons/hi";
 
 import Category from "./Categories";
-import Products from "./Products";
+import Products from "./Product";
 import Orders from "./Order";
 import Users from "./User";
 import Dashboard from "./Dashboard";

@@ -10,6 +10,7 @@ const initialState = {
         name: "",
     },
     updateObject: {
+        id: "",
         name: "",
         price: "",
         quantity: "",
@@ -33,10 +34,12 @@ const initialState = {
     errors: {
         name: "",
         price: "",
-        category: "",
         quantity: "",
         brand: "",
         description: "",
+        category: "",
+        productDetail: "",
+        status: "",
     },
     relatedProducts: [],
     minPrice: "",
@@ -58,16 +61,15 @@ export const productSlice = createSlice({
     name: "product",
     initialState,
     reducers: {
-        // loadAllProducts: (state, action) => {
-        //     state.products = action.payload;
-        // },
         setProductObject: (state, action) => {
             const { field, value } = action.payload;
             state.productObject[field] = value;
+            state.errors[field] = "";
         },
         setUpdateObject: (state, action) => {
             const { field, value } = action.payload;
             state.updateObject[field] = value;
+            state.errors[field] = "";
         },
         setDeleteObject: (state, action) => {
             const { id, name } = action.payload;
@@ -84,8 +86,10 @@ export const productSlice = createSlice({
                             : "This field is required";
                 }
             });
-            state.isValid = Object.values(state.errors).every(
-                (error) => !error
+
+            const userObjectFields = Object.keys(state.productObject);
+            state.isValid = userObjectFields.every(
+                (field) => !state.errors[field]
             );
         },
         checkUpdateValidation: (state) => {
@@ -103,8 +107,10 @@ export const productSlice = createSlice({
                             : "This field is required";
                 }
             });
-            state.isValid = Object.values(state.errors).every(
-                (error) => !error
+
+            const userObjectFields = Object.keys(state.updateObject);
+            state.isValid = userObjectFields.every(
+                (field) => !state.errors[field]
             );
         },
         setPage: (state, action) => {

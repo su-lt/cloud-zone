@@ -6,7 +6,7 @@ import Header from "./pages/Header";
 // import LayoutSection from "./components/LayoutSection";
 import DashboardLayout from "./pages/dashboard/Layout";
 import Dashboard from "./pages/dashboard/Dashboard";
-import Products from "./pages/dashboard/Products";
+import Product from "./pages/dashboard/Product";
 import Category from "./pages/dashboard/Categories";
 import Orders from "./pages/dashboard/Order";
 import Users from "./pages/dashboard/User";
@@ -35,7 +35,7 @@ function App() {
                 })}
                 <Route path="/admin" element={<DashboardLayout />}>
                     <Route path="dashboard" element={<Dashboard />} />
-                    <Route path="products" element={<Products />} />
+                    <Route path="products" element={<Product />} />
                     <Route path="categories" element={<Category />} />
                     <Route path="orders" element={<Orders />} />
                     <Route path="users" element={<Users />} />

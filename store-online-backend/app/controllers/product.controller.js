@@ -1,7 +1,6 @@
+const fs = require("fs");
 const productModel = require("../models/product.model");
-// const categoryModel = require("../models/category.model");
 require("../models/productDetail.model");
-const cloudinary = require("../configs/cloudinary.config");
 
 const { Types } = require("mongoose");
 const {
@@ -25,7 +24,7 @@ const getAllProducts = async (req, res) => {
     minPrice = parseInt(minPrice) || 0;
     maxPrice = parseInt(maxPrice) || 0;
     page = parseInt(page) || 1;
-    limit = parseInt(limit) || 12;
+    limit = parseInt(limit) || 30;
 
     const skip = (page - 1) * limit;
 
@@ -117,7 +116,7 @@ const createProduct = async (req, res) => {
     const color = req.body.color || "none";
     const images = req.files.map((file) => {
         return {
-            path: file.path,
+            path: "http://localhost:8088/images/" + file.filename,
             filename: file.filename,
         };
     });
@@ -165,12 +164,12 @@ const updateProduct = async (req, res) => {
     const color = req.body.color || "none";
     const images = req.files.map((file) => {
         return {
-            path: file.path,
+            path: "http://localhost:8088/images/" + file.filename,
             filename: file.filename,
         };
     });
 
-    detail = await productDetailModel.findByIdAndUpdate(productDetail, {
+    const detail = await productDetailModel.findByIdAndUpdate(productDetail, {
         $push: { images: { $each: images } },
         quantity,
         brand,
@@ -212,7 +211,23 @@ const deleteProduct = async (req, res) => {
 
     if (product.productDetail.images.length > 0) {
         product.productDetail.images.map((image) => {
-            cloudinary.uploader.destroy(image.filename);
+            fs.access(
+                "./app/uploads/images/" + image.filename,
+                fs.constants.F_OK,
+                (err) => {
+                    if (err) {
+                        return;
+                    }
+                    fs.unlink(
+                        "./app/uploads/images/" + image.filename,
+                        (unlinkErr) => {
+                            if (unlinkErr) {
+                                return;
+                            }
+                        }
+                    );
+                }
+            );
         });
     }
 

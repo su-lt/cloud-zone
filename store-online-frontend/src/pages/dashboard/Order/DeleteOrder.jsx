@@ -3,7 +3,7 @@ import { Dialog, Transition } from "@headlessui/react";
 import { useDispatch, useSelector } from "react-redux";
 import { deleteUser } from "../../../redux/slices/user.slice";
 
-const DeleteUser = ({ isOpen, onClose }) => {
+const DeleteOrder = ({ isOpen, onClose }) => {
     const dispatch = useDispatch();
     const { deleteObject, deleteCompleted, error } = useSelector(
         (slice) => slice.user
@@ -94,4 +94,4 @@ const DeleteUser = ({ isOpen, onClose }) => {
     );
 };
 
-export default DeleteUser;
+export default DeleteOrder;

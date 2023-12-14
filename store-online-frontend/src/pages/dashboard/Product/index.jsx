@@ -1,19 +1,24 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import CreateProduct from "./CreateProduct";
+import UpdateProduct from "./UpdateProduct";
+import DeleteProduct from "./DeleteProduct";
+import { toast } from "react-toastify";
 import {
     fetchProducts,
-    setError,
     setCreateCompleted,
+    setDeleteCompleted,
     setUpdateCompleted,
+    setError,
     fetchProductById,
     setDeleteObject,
-} from "../../redux/slices/product.slice";
-import ProductModal from "../../components/Dashboard/ProductMadal";
-import { toast } from "react-toastify";
-import noImage from "../../assets/images/no-image.png";
+} from "../../../redux/slices/product.slice";
+import { fetchCategories } from "../../../redux/slices/category.slice";
+import noImage from "../../../assets/images/no-image.png";
 
-const Products = () => {
+const Orders = () => {
     const dispatch = useDispatch();
+
     const {
         products,
         createCompleted,
@@ -22,79 +27,75 @@ const Products = () => {
         error,
     } = useSelector((slice) => slice.product);
 
-    let [isOpen, setIsOpen] = useState(false);
-    let [isUpdate, setIsUpdate] = useState(false);
-    let [isDelete, setDelete] = useState(false);
+    const [isOpenCreate, setIsOpenCreate] = useState(false);
+    const [isOpenUpdate, setIsOpenUpdate] = useState(false);
+    const [isOpenDelete, setIsOpenDelete] = useState(false);
 
-    const handleCreate = () => {
-        setIsOpen(true);
-        setIsUpdate(false);
-        setDelete(false);
+    const handleUpdate = (id) => {
+        dispatch(fetchProductById(id));
+        setIsOpenUpdate(true);
     };
 
-    const handleUpdate = (_id) => {
-        dispatch(fetchProductById(_id));
-        setIsOpen(true);
-        setIsUpdate(true);
-        setDelete(false);
-    };
-
-    const handleDelete = (_id, name) => {
-        dispatch(setDeleteObject({ id: _id, name }));
-        setIsOpen(true);
-        setIsUpdate(false);
-        setDelete(true);
+    const handleDelete = (id, name) => {
+        dispatch(setDeleteObject({ id, name }));
+        setIsOpenDelete(true);
     };
 
     useEffect(() => {
         if (createCompleted) {
             toast.success("Create new product successfully !");
-            dispatch(setCreateCompleted());
             dispatch(fetchProducts({ defaultConfig: false }));
+            dispatch(setCreateCompleted());
         }
 
         if (updateCompleted) {
             toast.success("Update product successfully !");
-            dispatch(setUpdateCompleted());
             dispatch(fetchProducts({ defaultConfig: false }));
+            dispatch(setUpdateCompleted());
         }
 
         if (deleteCompleted) {
             toast.success("Delete product successfully !");
-            dispatch(setUpdateCompleted());
             dispatch(fetchProducts({ defaultConfig: false }));
+            dispatch(setDeleteCompleted());
         }
 
         if (error) {
             toast.error("Something wrong happened, please try again later !");
             dispatch(setError());
         }
-
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [createCompleted, updateCompleted, deleteCompleted, error]);
 
     useEffect(() => {
         dispatch(fetchProducts({ defaultConfig: false }));
-
+        dispatch(fetchCategories());
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     return (
-        <div className="px-4 mt-3 relative">
-            {/* modal */}
-            <ProductModal
-                isOpen={isOpen}
-                onClose={() => setIsOpen(false)}
-                update={isUpdate}
-                del={isDelete}
+        <div className="px-4 mt-3">
+            {/* create modal */}
+            <CreateProduct
+                isOpen={isOpenCreate}
+                onClose={() => setIsOpenCreate(false)}
             />
-
+            {/* update modal */}
+            <UpdateProduct
+                isOpen={isOpenUpdate}
+                onClose={() => setIsOpenUpdate(false)}
+            />
+            {/* delete modal */}
+            <DeleteProduct
+                isOpen={isOpenDelete}
+                onClose={() => setIsOpenDelete(false)}
+            />
             <div className="mt-3 items-start justify-between flex flex-col gap-3 md:flex-row">
                 <div className="text-lg md:text-2xl text-gray-700 font-medium">
-                    Product management
+                    User management
                 </div>
                 <button
-                    onClick={handleCreate}
+                    onClick={() => setIsOpenCreate(true)}
                     className="px-4 py-2 text-sm text-white duration-150 font-medium bg-indigo-600 rounded-lg hover:bg-indigo-500 active:bg-indigo-700 md:text-md"
                 >
                     Create Product
@@ -104,10 +105,11 @@ const Products = () => {
                 <table className="w-full table-auto text-sm text-left">
                     <thead className="bg-gray-50 text-gray-600 font-medium border-b">
                         <tr>
+                            <th className="py-3 px-2">#</th>
                             <th className="py-3 px-6">Name</th>
-                            <th className="py-3 px-6">Thumbnail</th>
-                            <th className="py-3 px-6">Price</th>
-                            <th className="py-3 px-6">Status</th>
+                            <th className="py-3 px-3">Thumbnail</th>
+                            <th className="py-3 px-2">Price</th>
+                            <th className="py-3 px-2">Status</th>
                             <th className="py-3 px-6"></th>
                         </tr>
                     </thead>
@@ -117,12 +119,15 @@ const Products = () => {
                                 <td>No product, please check it again !</td>
                             </tr>
                         ) : null}
-                        {products.map((item) => (
+                        {products.map((item, index) => (
                             <tr key={item._id}>
-                                <td className="px-6 py-4 whitespace-nowrap">
+                                <td className="px-2 py-4 whitespace-nowrap">
+                                    {index + 1}
+                                </td>
+                                <td className="w-full px-6 py-4 whitespace-nowrap">
                                     {item.name}
                                 </td>
-                                <td className="px-6 py-4 whitespace-nowrap">
+                                <td className="px-3 py-4 whitespace-nowrap">
                                     <img
                                         src={`${
                                             item.image_thumbnail || noImage
@@ -131,10 +136,10 @@ const Products = () => {
                                         className="h-16 w-auto object-cover"
                                     />
                                 </td>
-                                <td className="px-6 py-4 whitespace-nowrap">
+                                <td className="px-2 py-4 whitespace-nowrap">
                                     $ {item.price}
                                 </td>
-                                <td className="px-6 py-4 whitespace-nowrap">
+                                <td className="px-2 py-4 whitespace-nowrap">
                                     <span
                                         className={`${
                                             item.status === "active"
@@ -170,4 +175,4 @@ const Products = () => {
     );
 };
 
-export default Products;
+export default Orders;

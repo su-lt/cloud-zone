@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const slug = require("mongoose-slug-updater");
+const { create } = require("./productDetail.model");
 // plugins
 mongoose.plugin(slug);
 
@@ -29,4 +30,10 @@ const productSchema = new mongoose.Schema(
     }
 );
 
+productSchema.pre("find", function (next) {
+    this.sort({
+        createdAt: -1,
+    });
+    next();
+});
 module.exports = mongoose.model("Product", productSchema);

@@ -5,6 +5,7 @@ import { filterSlice } from "./slices/filter.slice";
 import { cartSlice } from "./slices/cart.slice";
 import { categorySlice } from "./slices/category.slice";
 import { userSlice } from "./slices/user.slice";
+import { orderSlice } from "./slices/order.slice";
 
 export const store = configureStore({
     reducer: {
@@ -14,5 +15,6 @@ export const store = configureStore({
         filter: filterSlice.reducer,
         cart: cartSlice.reducer,
         category: categorySlice.reducer,
+        order: orderSlice.reducer,
     },
 });

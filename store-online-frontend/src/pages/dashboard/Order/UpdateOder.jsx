@@ -1,18 +1,18 @@
 import { Fragment, useEffect } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { useDispatch, useSelector } from "react-redux";
-
 import {
-    clearState,
     handleOnChangeUpdate,
-    updateUser,
-} from "../../../redux/slices/user.slice";
+    updateOrder,
+    clearState,
+} from "../../../redux/slices/order.slice";
 
 const UpdateOrder = ({ isOpen, onClose }) => {
     const dispatch = useDispatch();
-    const { user, updateObject, roles, updateCompleted, error } = useSelector(
-        (slice) => slice.user
+    const { updateObject, updateCompleted, error } = useSelector(
+        (slice) => slice.order
     );
+
     // onchange input
     const handleChange = (field, value) => {
         dispatch(handleOnChangeUpdate({ field, value }));
@@ -20,7 +20,7 @@ const UpdateOrder = ({ isOpen, onClose }) => {
 
     // create click button
     const handleClick = () => {
-        dispatch(updateUser());
+        dispatch(updateOrder(updateObject));
     };
 
     // cancel click button
@@ -77,12 +77,15 @@ const UpdateOrder = ({ isOpen, onClose }) => {
                                     as="h3"
                                     className="text-lg font-medium leading-6 text-gray-900"
                                 >
-                                    Update User
+                                    Detail OrderCode:{" "}
+                                    <span className="text-red-500">
+                                        #{updateObject && updateObject.code}
+                                    </span>
                                 </Dialog.Title>
-                                {user && (
+                                {updateObject && (
                                     <>
                                         {/* fullname  */}
-                                        <div className="mt-4 flex items-center">
+                                        <div className="mt-10 flex items-center">
                                             <label className="w-20 text-sm font-medium text-gray-700">
                                                 Fullname
                                             </label>
@@ -90,26 +93,15 @@ const UpdateOrder = ({ isOpen, onClose }) => {
                                                 <input
                                                     type="text"
                                                     className={`w-full p-2 border rounded-md`}
-                                                    value={user.fullname}
+                                                    value={
+                                                        updateObject.user
+                                                            .fullname
+                                                    }
                                                     disabled
                                                 />
                                             </div>
                                         </div>
-                                        {/* email */}
-                                        <div className="mt-4 flex items-center">
-                                            <label className="w-20 text-sm font-medium text-gray-700">
-                                                Email
-                                            </label>
-                                            <div className="flex-1">
-                                                <input
-                                                    type="text"
-                                                    className={`w-full p-2 border rounded-md`}
-                                                    value={user.email}
-                                                    disabled
-                                                />
-                                            </div>
-                                        </div>
-                                        {/* address */}
+                                        {/* address  */}
                                         <div className="mt-4 flex items-center">
                                             <label className="w-20 text-sm font-medium text-gray-700">
                                                 Address
@@ -118,52 +110,75 @@ const UpdateOrder = ({ isOpen, onClose }) => {
                                                 <input
                                                     type="text"
                                                     className={`w-full p-2 border rounded-md`}
-                                                    value={user.address}
+                                                    value={updateObject.address}
                                                     disabled
                                                 />
                                             </div>
                                         </div>
-                                        {/* roles */}
-                                        <div className="mt-4 flex items-center">
+                                        {/* items  */}
+                                        <div className="mt-4 flex">
                                             <label className="w-20 text-sm font-medium text-gray-700">
-                                                Role
+                                                Products
+                                            </label>
+                                            <div className="flex-1 select-none">
+                                                {updateObject.items.map(
+                                                    (item, idx) => (
+                                                        <div
+                                                            key={item._id}
+                                                            className="relative mt-2 flex items-center w-full text-xs text-gray-500 border rounded-md"
+                                                        >
+                                                            <span className="absolute -top-2 -left-2 w-4 h-4 flex justify-center items-center rounded-full  bg-gray-300 ">
+                                                                {idx + 1}
+                                                            </span>
+                                                            <div className="flex-1 p-2">
+                                                                <div>
+                                                                    Name:{" "}
+                                                                    {
+                                                                        item
+                                                                            .product
+                                                                            .name
+                                                                    }
+                                                                </div>
+                                                                <div className="mt-2">
+                                                                    Quantity:{" "}
+                                                                    {
+                                                                        item.quantity
+                                                                    }
+                                                                </div>
+                                                            </div>
+                                                            <div className="h-16 w-auto mr-2">
+                                                                <img
+                                                                    src={
+                                                                        item
+                                                                            .product
+                                                                            .image_thumbnail
+                                                                    }
+                                                                    alt=""
+                                                                    className="w-full h-full object-cover rounded-md"
+                                                                />
+                                                            </div>
+                                                        </div>
+                                                    )
+                                                )}
+                                            </div>
+                                        </div>
+                                        {/* note  */}
+                                        <div className="mt-10 flex">
+                                            <label className="w-20 text-sm font-medium text-gray-700">
+                                                Note
                                             </label>
                                             <div className="flex-1">
-                                                <div className="relative w-full">
-                                                    <svg
-                                                        xmlns="http://www.w3.org/2000/svg"
-                                                        className="absolute top-0 bottom-0 w-5 h-5 my-auto text-gray-400 right-3 pointer-events-none"
-                                                        viewBox="0 0 20 20"
-                                                        fill="currentColor"
-                                                    >
-                                                        <path
-                                                            fillRule="evenodd"
-                                                            d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                                                            clipRule="evenodd"
-                                                        />
-                                                    </svg>
-                                                    <select
-                                                        value={
-                                                            updateObject.role
-                                                        }
-                                                        className={`px-3 py-2 w-full border rounded-md outline-none appearance-none focus:ring-1 focus:ring-inset focus:ring-indigo-600`}
-                                                        onChange={(e) =>
-                                                            handleChange(
-                                                                "role",
-                                                                e.target.value
-                                                            )
-                                                        }
-                                                    >
-                                                        {roles.map((role) => (
-                                                            <option
-                                                                key={role._id}
-                                                                value={role._id}
-                                                            >
-                                                                {role.name}
-                                                            </option>
-                                                        ))}
-                                                    </select>
-                                                </div>
+                                                <textarea
+                                                    value={updateObject.note}
+                                                    onChange={(e) =>
+                                                        handleChange(
+                                                            "note",
+                                                            e.target.value
+                                                        )
+                                                    }
+                                                    rows="4"
+                                                    className="w-full p-2 border rounded-md"
+                                                ></textarea>
                                             </div>
                                         </div>
                                         {/* status */}
@@ -197,11 +212,20 @@ const UpdateOrder = ({ isOpen, onClose }) => {
                                                             )
                                                         }
                                                     >
-                                                        <option value="active">
-                                                            Active
+                                                        <option value="cancel">
+                                                            Cancel
                                                         </option>
-                                                        <option value="inactive">
-                                                            Inactive
+                                                        <option value="pending">
+                                                            Pending
+                                                        </option>
+                                                        <option value="processing">
+                                                            Processing
+                                                        </option>
+                                                        <option value="shipping">
+                                                            Shipping
+                                                        </option>
+                                                        <option value="delivered">
+                                                            Delivered
                                                         </option>
                                                     </select>
                                                 </div>

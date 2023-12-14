@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const uploadCloud = require("../../middlewares/uploader");
+const upload = require("../../middlewares/uploader");
 
 const asyncHandler = require("../../helpers/asyncHandler");
 const {
@@ -19,14 +19,10 @@ router.get("/", asyncHandler(getAllProducts));
 router.get("/:id", asyncHandler(getProductById));
 
 // create product
-router.post("/", uploadCloud.array("images", 10), asyncHandler(createProduct));
+router.post("/", upload.array("images", 10), asyncHandler(createProduct));
 
 // update product
-router.put(
-    "/:id",
-    uploadCloud.array("images", 10),
-    asyncHandler(updateProduct)
-);
+router.put("/:id", upload.array("images", 10), asyncHandler(updateProduct));
 
 // delete product
 router.delete("/:id", asyncHandler(deleteProduct));

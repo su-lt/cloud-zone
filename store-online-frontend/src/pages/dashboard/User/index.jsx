@@ -106,6 +106,11 @@ const Users = () => {
                         </tr>
                     </thead>
                     <tbody className="text-gray-600 divide-y">
+                        {users.length === 0 ? (
+                            <tr className="text-center">
+                                <td>No user, please check it again !</td>
+                            </tr>
+                        ) : null}
                         {users.map((user, idx) => (
                             <tr key={idx}>
                                 <td className="px-6 py-4 whitespace-nowrap">

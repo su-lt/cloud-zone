@@ -77,8 +77,9 @@ const createUser = async (req, res) => {
         email,
         address,
         password: passwordHash,
-        roles: [roleMember._id],
+        role: roleMember._id,
     });
+    if (!newUser) CreateDatabaseError();
 
     return res.status(200).json({
         message: "success",

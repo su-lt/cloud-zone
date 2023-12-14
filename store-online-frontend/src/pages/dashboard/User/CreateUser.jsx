@@ -8,7 +8,7 @@ import {
     handleOnChange,
 } from "../../../redux/slices/user.slice";
 
-const CreateOrder = ({ isOpen, onClose }) => {
+const CreateUser = ({ isOpen, onClose }) => {
     const dispatch = useDispatch();
     const { userObject, errors, createCompleted } = useSelector(
         (slice) => slice.user
@@ -213,4 +213,4 @@ const CreateOrder = ({ isOpen, onClose }) => {
     );
 };
 
-export default CreateOrder;
+export default CreateUser;

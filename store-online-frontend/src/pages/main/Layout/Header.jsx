@@ -1,11 +1,13 @@
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
+import { Menu, Transition } from "@headlessui/react";
 import { HiShoppingCart } from "react-icons/hi2";
 import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { motion, AnimatePresence } from "framer-motion";
 import { MenuToggle } from "../../../components/MenuToggle";
-import DarkModeToggle from "react-dark-mode-toggle";
 import { formattedPrice } from "../../../helpers/ultil";
+import DarkModeToggle from "react-dark-mode-toggle";
 
 const menuItems = [
     { text: "Home", link: "/" },
@@ -14,6 +16,7 @@ const menuItems = [
 ];
 
 const Header = () => {
+    const navigate = useNavigate();
     const [open, setOpen] = useState(false); // check toggle menu
     const [isFixed, setIsFixed] = useState(false); // check fixed navbar
     const [isDarkMode, setIsDarkMode] = useState(false); // check darkmode
@@ -53,10 +56,10 @@ const Header = () => {
         <header>
             {/* top bar */}
             <div className="h-10 bg-slate-900 text-custom-1000">
-                <div className="px-4 flex justify-end md:container">
+                <div className="md:px-4 flex justify-between md:justify-end md:container">
                     {username ? (
                         <>
-                            <div className="my-2 px-4 leading-6 text-xs">
+                            {/* <div className="my-2 px-4 leading-6 text-xs">
                                 Welcome
                                 <h6 className="text-red-300 inline-block ml-1">
                                     {username}
@@ -77,7 +80,75 @@ const Header = () => {
                                 >
                                     Logout
                                 </Link>
-                            </div>
+                            </div> */}
+                            <Menu
+                                as="div"
+                                className="relative inline-block text-left"
+                            >
+                                <Menu.Button className="my-2 px-4 leading-6 text-xs border-x border-custom-300 hover:bg-slate-700 hover:rounded-md">
+                                    Welcome
+                                    <h6 className="text-red-300 inline-block ml-1 hover:text-re">
+                                        {username}
+                                    </h6>
+                                </Menu.Button>
+
+                                <Transition
+                                    as={Fragment}
+                                    enter="transition ease-out duration-100"
+                                    enterFrom="transform opacity-0 scale-95"
+                                    enterTo="transform opacity-100 scale-100"
+                                    leave="transition ease-in duration-75"
+                                    leaveFrom="transform opacity-100 scale-100"
+                                    leaveTo="transform opacity-0 scale-95"
+                                >
+                                    <Menu.Items className="origin-top-right z-[52] absolute left-2 leading-6 text-xs md:left-auto md:right-0 mt-1 w-48 rounded-sm shadow-md p-1 bg-white ring-1 ring-opacity-5 focus:outline-none">
+                                        <Menu.Item>
+                                            {({ active }) => (
+                                                <div
+                                                    className={`${
+                                                        active && "bg-gray-100"
+                                                    } px-4 text-gray-700 cursor-pointer rounded-sm focus:bg-gray-200`}
+                                                    // onClick={() =>
+                                                    //     navigate("/logout")
+                                                    // }
+                                                >
+                                                    Profile
+                                                </div>
+                                            )}
+                                        </Menu.Item>
+                                        <Menu.Item>
+                                            {({ active }) => (
+                                                <div
+                                                    className={`${
+                                                        active && "bg-gray-100"
+                                                    } px-4 text-gray-700 cursor-pointer rounded-sm focus:bg-gray-200`}
+                                                    onClick={() =>
+                                                        navigate(
+                                                            "/admin/dashboard"
+                                                        )
+                                                    }
+                                                >
+                                                    Dashboard
+                                                </div>
+                                            )}
+                                        </Menu.Item>
+                                        <Menu.Item>
+                                            {({ active }) => (
+                                                <div
+                                                    className={`${
+                                                        active && "bg-gray-100"
+                                                    } px-4 text-gray-700 cursor-pointer rounded-sm focus:bg-gray-200`}
+                                                    // onClick={() =>
+                                                    //     navigate("/logout")
+                                                    // }
+                                                >
+                                                    Logout
+                                                </div>
+                                            )}
+                                        </Menu.Item>
+                                    </Menu.Items>
+                                </Transition>
+                            </Menu>
                         </>
                     ) : (
                         <div className="my-2 px-4 border-x border-custom-300">
@@ -86,7 +157,7 @@ const Header = () => {
                             </Link>
                         </div>
                     )}
-                    <div className="pl-4 flex items-center">
+                    <div className="px-4 md:pr-0 flex items-center">
                         <DarkModeToggle
                             onChange={() => setIsDarkMode(!isDarkMode)}
                             checked={isDarkMode}

@@ -13,8 +13,8 @@ import { cartSlice } from "./redux/slices/cart.slice";
 const root = ReactDOM.createRoot(document.getElementById("root"));
 
 // check user ready login
-const existUser = localStorage.getItem("username");
-if (existUser) store.dispatch(authSlice.actions.setCurrentUser(existUser));
+const existedUser = localStorage.getItem("username");
+if (existedUser) store.dispatch(authSlice.actions.setCurrentUser(existedUser));
 
 // check cart store
 const existCart = localStorage.getItem("cart");

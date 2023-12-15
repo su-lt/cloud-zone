@@ -134,7 +134,9 @@ const Users = () => {
                                             ${
                                                 user.status === "active"
                                                     ? "bg-green-100 text-green-600"
-                                                    : "bg-red-100 text-red-600"
+                                                    : user.status === "deleted"
+                                                    ? "bg-red-100 text-red-600"
+                                                    : "bg-gray-300 text-gray-600"
                                             }
                                         `}
                                     >
@@ -150,15 +152,15 @@ const Users = () => {
                                     </button>
                                     <button
                                         disabled={
-                                            user.status === "inactive"
-                                                ? true
-                                                : false
+                                            user.status === "active"
+                                                ? false
+                                                : true
                                         }
                                         onClick={() => handledDelete(user)}
                                         className={`py-2 leading-none px-3 font-medium duration-150 hover:bg-gray-50 rounded-lg ${
-                                            user.status === "inactive"
-                                                ? "text-gray-600 hover:text-gray-500"
-                                                : "text-red-600 hover:text-red-500"
+                                            user.status === "active"
+                                                ? "text-red-600 hover:text-red-500"
+                                                : "text-gray-600 hover:text-gray-500"
                                         }`}
                                     >
                                         Delete

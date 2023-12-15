@@ -9,10 +9,14 @@ const {
     updateUserById,
     deleteUserById,
     getRoles,
+    totalCustomer,
 } = require("../../controllers/user.controller");
 
 // get users
 router.get("/", asyncHandler(getUsers));
+
+// get total customers
+router.get("/totalCustomer", asyncHandler(totalCustomer));
 
 // get roles
 router.get("/roles", asyncHandler(getRoles));

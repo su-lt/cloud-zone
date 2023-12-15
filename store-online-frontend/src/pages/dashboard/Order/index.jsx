@@ -6,8 +6,9 @@ import { toast } from "react-toastify";
 import {
     fetchOrderById,
     fetchOrders,
-    setDeleteCompleted,
+    setDeleteObject,
     setUpdateCompleted,
+    setDeleteCompleted,
     setError,
 } from "../../../redux/slices/order.slice";
 
@@ -25,8 +26,8 @@ const Orders = () => {
         setIsOpenUpdate(true);
     };
 
-    const handledDelete = (user) => {
-        // dispatch(setDeleteOject(user));
+    const handledDelete = (order) => {
+        dispatch(setDeleteObject({ id: order._id, code: order.code }));
         setIsOpenDelete(true);
     };
 
@@ -78,8 +79,9 @@ const Orders = () => {
                             <th className="py-3 px-2">#</th>
                             <th className="py-3 px-2">OrderCode</th>
                             <th className="py-3 px-6">User</th>
-                            <th className="py-3 px-6">Address shipping</th>
+                            <th className="py-3 px-6">Address Shipping</th>
                             <th className="py-3 px-6">Total Price</th>
+                            <th className="py-3 px-2">Order Date</th>
                             <th className="py-3 px-2">Status</th>
                             <th className="py-3 px-2"></th>
                         </tr>
@@ -107,6 +109,18 @@ const Orders = () => {
                                 <td className="px-6 py-4 whitespace-nowrap">
                                     ${order.totalPrice}
                                 </td>
+                                <td className="px-2 py-4 whitespace-nowrap">
+                                    <div>
+                                        {new Date(
+                                            order.createdAt
+                                        ).toLocaleDateString("en-GB")}
+                                    </div>
+                                    <div>
+                                        {new Date(
+                                            order.createdAt
+                                        ).toLocaleTimeString()}
+                                    </div>
+                                </td>
                                 <td className={`px-2 py-4 whitespace-nowrap`}>
                                     <span
                                         className={`px-2 rounded-lg
@@ -133,22 +147,35 @@ const Orders = () => {
                                 </td>
                                 <td className="text-right px-2 whitespace-nowrap">
                                     <button
+                                        disabled={
+                                            order.status === "delivered" ||
+                                            order.status === "cancel"
+                                                ? true
+                                                : false
+                                        }
                                         onClick={() => handleUpdate(order._id)}
-                                        className="py-2 px-3 font-medium text-indigo-600 hover:text-indigo-500 duration-150 hover:bg-gray-50 rounded-lg"
+                                        className={`py-2 px-3 font-medium  duration-150 hover:bg-gray-50 rounded-lg ${
+                                            order.status === "delivered" ||
+                                            order.status === "cancel"
+                                                ? "text-gray-500"
+                                                : "text-indigo-600 hover:text-indigo-500"
+                                        }`}
                                     >
                                         Detail
                                     </button>
                                     <button
                                         disabled={
+                                            order.status === "delivered" ||
                                             order.status === "cancel"
                                                 ? true
                                                 : false
                                         }
-                                        onClick={() => handledDelete(order._id)}
+                                        onClick={() => handledDelete(order)}
                                         className={`py-2 leading-none px-3 font-medium  duration-150 rounded-lg ${
+                                            order.status === "delivered" ||
                                             order.status === "cancel"
                                                 ? "text-gray-500"
-                                                : "text-red-500 hover:bg-gray-50 "
+                                                : "text-red-500 hover:bg-gray-50"
                                         }`}
                                     >
                                         Delete

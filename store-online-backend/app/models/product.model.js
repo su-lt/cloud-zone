@@ -10,6 +10,7 @@ const productSchema = new mongoose.Schema(
         slug: { type: String, slug: "name", unique: true },
         price: { type: Number, required: true },
         image_thumbnail: { type: String },
+        quantity: { type: Number, default: 0 },
         quantity_sold: { type: Number, default: 0 },
         productDetail: {
             type: mongoose.Schema.Types.ObjectId,
@@ -21,7 +22,7 @@ const productSchema = new mongoose.Schema(
         },
         status: {
             type: String,
-            enum: ["active", "deactived"],
+            enum: ["active", "inactive"],
             default: "active",
         },
     },
@@ -32,7 +33,7 @@ const productSchema = new mongoose.Schema(
 
 productSchema.pre("find", function (next) {
     this.sort({
-        createdAt: -1,
+        updatedAt: -1,
     });
     next();
 });

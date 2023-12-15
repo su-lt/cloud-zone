@@ -1,6 +1,25 @@
 import { IoBagHandle, IoPieChart, IoPeople, IoCart } from "react-icons/io5";
+import { useSelector, useDispatch } from "react-redux";
+import { useEffect } from "react";
+import { fetchTotalOrder } from "../../redux/slices/order.slice";
+import { fetchTotalProducts } from "../../redux/slices/product.slice";
+import { fetchTotalCustomers } from "../../redux/slices/user.slice";
+import { formattedPrice } from "../../helpers/ultil";
 
 const StatsGrid = () => {
+    const dispatch = useDispatch();
+    // states redux
+    const { totalCustomers } = useSelector((slice) => slice.user);
+    const { totalProducts } = useSelector((slice) => slice.product);
+    const { totalOrders, totalPrices } = useSelector((slice) => slice.order);
+
+    useEffect(() => {
+        // fetch data
+        dispatch(fetchTotalCustomers());
+        dispatch(fetchTotalOrder());
+        dispatch(fetchTotalProducts());
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
     return (
         <div className="p-4 pt-3 rounded-sm border-gray-200">
             <strong className="px-4 text-gray-700 font-medium">
@@ -17,11 +36,11 @@ const StatsGrid = () => {
                         </span>
                         <div className="flex items-center">
                             <strong className="text-xl text-gray-700 font-semibold">
-                                $3456.78
+                                {formattedPrice(totalPrices)}
                             </strong>
-                            <span className="text-sm text-green-500 pl-2">
+                            {/* <span className="text-sm text-green-500 pl-2">
                                 +234
-                            </span>
+                            </span> */}
                         </div>
                     </div>
                 </BoxWrapper>
@@ -31,15 +50,15 @@ const StatsGrid = () => {
                     </div>
                     <div className="pl-4">
                         <span className="text-sm text-gray-500 font-sans">
-                            Total Expenses
+                            Total Products
                         </span>
                         <div className="flex items-center">
                             <strong className="text-xl text-gray-700 font-semibold">
-                                $3456.78
+                                {totalProducts} items
                             </strong>
-                            <span className="text-sm text-green-500 pl-2">
+                            {/* <span className="text-sm text-green-500 pl-2">
                                 +234
-                            </span>
+                            </span> */}
                         </div>
                     </div>
                 </BoxWrapper>
@@ -53,11 +72,8 @@ const StatsGrid = () => {
                         </span>
                         <div className="flex items-center">
                             <strong className="text-xl text-gray-700 font-semibold">
-                                $3456.78
+                                {totalCustomers} persons
                             </strong>
-                            <span className="text-sm text-green-500 pl-2">
-                                +234
-                            </span>
                         </div>
                     </div>
                 </BoxWrapper>
@@ -71,11 +87,11 @@ const StatsGrid = () => {
                         </span>
                         <div className="flex items-center">
                             <strong className="text-xl text-gray-700 font-semibold">
-                                $3456.78
+                                {totalOrders} purchases
                             </strong>
-                            <span className="text-sm text-green-500 pl-2">
+                            {/* <span className="text-sm text-green-500 pl-2">
                                 +234
-                            </span>
+                            </span> */}
                         </div>
                     </div>
                 </BoxWrapper>

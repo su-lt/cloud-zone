@@ -8,6 +8,7 @@ const {
     BadRequestError,
     CreateDatabaseError,
 } = require("../helpers/errorHandler");
+const orderModel = require("../models/order.model");
 
 const getUsers = async (req, res) => {
     const users = await userModel
@@ -43,13 +44,13 @@ const getUserById = async (req, res) => {
         throw new BadRequestError("Id not valid !");
     }
 
-    const category = await categoryModel.findById(id);
-    if (!category) throw new NotFoundError("category not found");
+    const user = await userModel.findById(id);
+    if (!user) throw new NotFoundError("category not found");
 
     return res.status(200).json({
         message: "success",
         metadata: {
-            category,
+            user,
         },
     });
 };
@@ -122,12 +123,34 @@ const deleteUserById = async (req, res) => {
 
     const result = await userModel.findByIdAndUpdate(id, {
         deletedAt: new Date(),
-        status: "inactive",
+        status: "deleted",
     });
     if (!result) throw new CreateDatabaseError();
 
+    await orderModel.deleteMany({
+        user: id,
+    });
+
     return res.status(200).json({
         message: "deleted successfully",
+    });
+};
+
+const totalCustomer = async (req, res) => {
+    // count customers with active status and member role
+    const count = await userModel
+        .find({ status: "active" })
+        .populate({
+            path: "role",
+            match: { name: "MEMBER" },
+        })
+        .countDocuments();
+
+    return res.status(200).json({
+        message: "success",
+        metadata: {
+            count,
+        },
     });
 };
 
@@ -138,4 +161,5 @@ module.exports = {
     updateUserById,
     deleteUserById,
     getRoles,
+    totalCustomer,
 };

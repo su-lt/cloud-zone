@@ -76,9 +76,10 @@ const getAllProducts = async (req, res) => {
 };
 
 const getProductById = async (req, res) => {
+    // get _id
     const id = req.params.id;
     if (!id) throw new BadRequestError();
-
+    // get product by id
     const product = await productModel
         .findById(id)
         .populate("productDetail")
@@ -94,9 +95,10 @@ const getProductById = async (req, res) => {
 };
 
 const getProductBySlug = async (req, res) => {
+    // get _id
     const slug = req.params.slug;
     if (!slug) throw new BadRequestError();
-
+    // get product by slug
     const product = await productModel
         .findOne({ slug })
         .populate("productDetail")
@@ -113,9 +115,10 @@ const getProductBySlug = async (req, res) => {
 };
 
 const getRelatedProducts = async (req, res) => {
+    // get _id
     const id = req.params.id;
     if (!id) throw new BadRequestError();
-
+    // get related products
     const relatedProducts = await productModel
         .find({ category: id })
         .sort({ createdAt: -1 })
@@ -133,13 +136,14 @@ const getRelatedProducts = async (req, res) => {
 const createProduct = async (req, res) => {
     const { name, price, category, quantity, brand, description } = req.body;
     const color = req.body.color || "none";
+    // get images by multer
     const images = req.files.map((file) => {
         return {
             path: "http://localhost:8088/images/" + file.filename,
             filename: file.filename,
         };
     });
-
+    // create product details
     const productDetails = await productDetailModel.create({
         quantity,
         brand,
@@ -148,7 +152,7 @@ const createProduct = async (req, res) => {
         color,
     });
     if (!productDetails) throw new CreateDatabaseError();
-
+    // create product
     const product = await productModel.create({
         name,
         price,
@@ -181,13 +185,14 @@ const updateProduct = async (req, res) => {
         productDetail,
     } = req.body;
     const color = req.body.color || "none";
+    // get images by multer
     const images = req.files.map((file) => {
         return {
             path: "http://localhost:8088/images/" + file.filename,
             filename: file.filename,
         };
     });
-
+    // update product details
     const detail = await productDetailModel.findByIdAndUpdate(productDetail, {
         $push: { images: { $each: images } },
         quantity,
@@ -196,7 +201,7 @@ const updateProduct = async (req, res) => {
         color,
     });
     if (!detail) throw new CreateDatabaseError();
-
+    // update product
     const product = await productModel.findByIdAndUpdate(
         id,
         {
@@ -222,14 +227,17 @@ const deleteProduct = async (req, res) => {
     const id = req.params.id;
     if (!id) throw new BadRequestError();
 
+    // get product to get images
     const product = await productModel
         .findById(id)
         .populate("productDetail")
         .lean();
     if (!product) throw new BadRequestError();
 
+    // remove images of product from server
     if (product.productDetail.images.length > 0) {
         product.productDetail.images.map((image) => {
+            // check existing image
             fs.access(
                 "./app/uploads/images/" + image.filename,
                 fs.constants.F_OK,
@@ -237,6 +245,7 @@ const deleteProduct = async (req, res) => {
                     if (err) {
                         return;
                     }
+                    // if existed -> remove it
                     fs.unlink(
                         "./app/uploads/images/" + image.filename,
                         (unlinkErr) => {
@@ -263,23 +272,43 @@ const deleteProduct = async (req, res) => {
     });
 };
 
-// const getCategories = async (req, res) => {
-//     const categories = await categoryModel.find();
+const getPopularProducts = async (req, res) => {
+    // count products with active status
+    const products = await productModel
+        .find({ status: "active" })
+        .sort({ quantity_sold: -1 }) // Sort descending
+        .limit(5);
 
-//     return res.status(200).json({
-//         message: "success",
-//         metadata: {
-//             categories,
-//         },
-//     });
-// };
+    return res.status(200).json({
+        message: "success",
+        metadata: {
+            products,
+        },
+    });
+};
+
+const totalProducts = async (req, res) => {
+    // count products with active status
+    const count = await productModel
+        .find({ status: "active" })
+        .countDocuments();
+
+    return res.status(200).json({
+        message: "success",
+        metadata: {
+            count,
+        },
+    });
+};
+
 module.exports = {
     getAllProducts,
-    // getCategories,
     getProductById,
     getProductBySlug,
     getRelatedProducts,
     createProduct,
     updateProduct,
     deleteProduct,
+    totalProducts,
+    getPopularProducts,
 };

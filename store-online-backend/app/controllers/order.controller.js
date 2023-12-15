@@ -1,8 +1,10 @@
 const mongoose = require("mongoose");
 const orderModel = require("../models/order.model");
+const productModel = require("../models/product.model");
 require("../models/user.model");
 
 const getOrders = async (req, res) => {
+    // get all orders sorted by update time
     const orders = await orderModel
         .find()
         .populate({
@@ -21,11 +23,13 @@ const getOrders = async (req, res) => {
 };
 
 const getOrderById = async (req, res) => {
+    // get _id
     const id = req.params.id;
     if (!mongoose.Types.ObjectId.isValid(id)) {
         throw new BadRequestError("Id not valid !");
     }
 
+    // find by _id
     const order = await orderModel
         .findById(id)
         .populate({
@@ -34,7 +38,7 @@ const getOrderById = async (req, res) => {
         })
         .populate({
             path: "items.product",
-            select: "name price image_thumbnail", // Chọn các trường bạn muốn lấy từ đối tượng product
+            select: "name price image_thumbnail status", // get fields of product
         });
     if (!order) throw new NotFoundError("order not found");
 
@@ -50,6 +54,16 @@ const createOrder = async (req, res) => {
     const { user, address, items, totalPrice } = req.body;
     if (!user && !address && !items && !totalPrice) throw new BadRequestError();
 
+    // check items is array
+    if (Array.isArray(items)) {
+        for (const item of items) {
+            await productModel.findByIdAndUpdate(item.product, {
+                $inc: { quantity: -item.quantity },
+            });
+        }
+    }
+
+    // create order
     const order = await orderModel.create({
         code: generateOrderCode(),
         user,
@@ -68,20 +82,58 @@ const createOrder = async (req, res) => {
 };
 
 const updateOrderById = async (req, res) => {
+    // get_id
     const id = req.params.id;
     if (!mongoose.Types.ObjectId.isValid(id)) {
         throw new BadRequestError("Id not valid !");
     }
 
     const { note, status } = req.body;
-    console.log(":::::", note, status);
     if (!note && !status) throw new BadRequestError();
 
-    const update = await orderModel.findByIdAndUpdate(
-        id,
-        { note, status },
-        { new: true }
-    );
+    // get order by _id
+    const order = await orderModel.findById(id).populate({
+        path: "items.product",
+        select: "status", // get fields of product
+    });
+    // update note
+    order.note = note;
+
+    // update status
+    order.status = status;
+
+    // remove inactive products from the order
+    if (status === "shipping" || status === "delivered") {
+        order.items = order.items.filter(
+            (item) => item.product && item.product.status === "active"
+        );
+        const totalPrice = order.items.reduce((total, item) => {
+            const price = parseInt(item.quantity) * parseInt(item.price);
+            return total + price;
+        }, 0);
+        order.totalPrice = totalPrice;
+    }
+
+    // rollback quantity of products
+    if (status === "cancel") {
+        for (const item of order.items) {
+            await productModel.findByIdAndUpdate(item.product._id, {
+                $inc: { quantity: item.quantity },
+            });
+        }
+    }
+
+    // increase quantity of sold products
+    if (status === "delivered") {
+        for (const item of order.items) {
+            await productModel.findByIdAndUpdate(item.product._id, {
+                $inc: { quantity_sold: item.quantity },
+            });
+        }
+    }
+
+    // update order
+    const update = await order.save();
     if (!update) throw new CreateDatabaseError();
 
     return res.status(200).json({
@@ -93,19 +145,60 @@ const updateOrderById = async (req, res) => {
 };
 
 const deleteOrderById = async (req, res) => {
+    // get _id
     const id = req.params.id;
     if (!mongoose.Types.ObjectId.isValid(id)) {
         throw new BadRequestError("Id not valid !");
     }
 
-    const result = await orderModel.findByIdAndDelete(id);
-    if (!result) throw new CreateDatabaseError();
+    // get order by _id
+    const order = await orderModel.findById(id).populate({
+        path: "items.product",
+        select: "status", // get fields of product
+    });
+    if (!order) throw new BadRequestError();
+
+    // rollback quantity of products
+    for (const item of order.items) {
+        await productModel.findByIdAndUpdate(item.product._id, {
+            $inc: { quantity: item.quantity },
+        });
+    }
+    order.delete;
+    // delete order
+    const result = await order.deleteOne();
+    if (result.deletedCount !== 1) throw new CreateDatabaseError();
 
     return res.status(200).json({
         message: "deleted successfully",
     });
 };
 
+const totalOrders = async (req, res) => {
+    // count orders with status != cancel
+    const count = await orderModel
+        .find({ status: { $ne: "cancel" } })
+        .countDocuments();
+
+    const totalPrices = await orderModel
+        .find({
+            status: { $ne: "cancel" },
+        })
+        .select("totalPrice")
+        .then((orders) =>
+            orders.reduce((acc, order) => acc + order.totalPrice, 0)
+        );
+
+    return res.status(200).json({
+        message: "success",
+        metadata: {
+            count,
+            totalPrices,
+        },
+    });
+};
+
+// generate ordercode
 function generateOrderCode() {
     const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
     const codeLength = 8;
@@ -125,4 +218,5 @@ module.exports = {
     createOrder,
     updateOrderById,
     deleteOrderById,
+    totalOrders,
 };

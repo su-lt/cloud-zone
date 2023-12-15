@@ -122,43 +122,67 @@ const UpdateOrder = ({ isOpen, onClose }) => {
                                             </label>
                                             <div className="flex-1 select-none">
                                                 {updateObject.items.map(
-                                                    (item, idx) => (
-                                                        <div
-                                                            key={item._id}
-                                                            className="relative mt-2 flex items-center w-full text-xs text-gray-500 border rounded-md"
-                                                        >
-                                                            <span className="absolute -top-2 -left-2 w-4 h-4 flex justify-center items-center rounded-full  bg-gray-300 ">
-                                                                {idx + 1}
-                                                            </span>
-                                                            <div className="flex-1 p-2">
-                                                                <div>
-                                                                    Name:{" "}
-                                                                    {
+                                                    (item, idx) =>
+                                                        item.product && (
+                                                            <div
+                                                                key={item._id}
+                                                                className={`relative mt-2 flex items-center w-full text-xs text-gray-500 border rounded-md ${
+                                                                    item.product
+                                                                        .status !==
+                                                                    "active"
+                                                                        ? "border-red-400"
+                                                                        : ""
+                                                                }`}
+                                                            >
+                                                                <span
+                                                                    className={`absolute -top-2 -left-2 w-4 h-4 flex justify-center items-center rounded-full  ${
                                                                         item
                                                                             .product
-                                                                            .name
-                                                                    }
+                                                                            .status !==
+                                                                        "active"
+                                                                            ? "bg-red-300 text-white"
+                                                                            : "bg-gray-300"
+                                                                    }`}
+                                                                >
+                                                                    {idx + 1}
+                                                                </span>
+                                                                {item.product
+                                                                    .status !==
+                                                                    "active" && (
+                                                                    <span className="absolute -top-2 -right-2 px-2 bg-red-300 text-white rounded-md">
+                                                                        Out of
+                                                                        stock
+                                                                    </span>
+                                                                )}
+                                                                <div className="flex-1 p-2">
+                                                                    <div>
+                                                                        Name:{" "}
+                                                                        {
+                                                                            item
+                                                                                .product
+                                                                                .name
+                                                                        }
+                                                                    </div>
+                                                                    <div className="mt-2">
+                                                                        Quantity:{" "}
+                                                                        {
+                                                                            item.quantity
+                                                                        }
+                                                                    </div>
                                                                 </div>
-                                                                <div className="mt-2">
-                                                                    Quantity:{" "}
-                                                                    {
-                                                                        item.quantity
-                                                                    }
+                                                                <div className="h-16 w-auto mr-2">
+                                                                    <img
+                                                                        src={
+                                                                            item
+                                                                                .product
+                                                                                .image_thumbnail
+                                                                        }
+                                                                        alt=""
+                                                                        className="w-full h-full object-cover rounded-md"
+                                                                    />
                                                                 </div>
                                                             </div>
-                                                            <div className="h-16 w-auto mr-2">
-                                                                <img
-                                                                    src={
-                                                                        item
-                                                                            .product
-                                                                            .image_thumbnail
-                                                                    }
-                                                                    alt=""
-                                                                    className="w-full h-full object-cover rounded-md"
-                                                                />
-                                                            </div>
-                                                        </div>
-                                                    )
+                                                        )
                                                 )}
                                             </div>
                                         </div>

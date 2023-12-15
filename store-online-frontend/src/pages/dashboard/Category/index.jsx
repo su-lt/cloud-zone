@@ -49,7 +49,7 @@ const Category = () => {
     useEffect(() => {
         // create completed
         if (createCompleted) {
-            toast.success("Create new category successfully !");
+            toast.success("Create new category successfully!");
             dispatch(fetchCategories());
             dispatch(setCreateCompleted());
         }

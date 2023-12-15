@@ -5,6 +5,8 @@ import { buildQueryString } from "../../helpers/ultil";
 const initialState = {
     products: [],
     product: null,
+    totalProducts: 0,
+    popularProducts: [],
     deleteObject: {
         id: "",
         name: "",
@@ -77,6 +79,7 @@ export const productSlice = createSlice({
             state.deleteObject["name"] = name;
         },
         checkValidation: (state) => {
+            // check all field before submit
             Object.keys(state.productObject).forEach((field) => {
                 if (field !== "color") {
                     state.errors[field] =
@@ -86,7 +89,7 @@ export const productSlice = createSlice({
                             : "This field is required";
                 }
             });
-
+            // add errors
             const userObjectFields = Object.keys(state.productObject);
             state.isValid = userObjectFields.every(
                 (field) => !state.errors[field]
@@ -107,7 +110,7 @@ export const productSlice = createSlice({
                             : "This field is required";
                 }
             });
-
+            // add errros
             const userObjectFields = Object.keys(state.updateObject);
             state.isValid = userObjectFields.every(
                 (field) => !state.errors[field]
@@ -152,15 +155,18 @@ export const productSlice = createSlice({
         },
     },
     extraReducers: (builder) => {
+        // fetch related product by id
         builder.addCase(
             fetchRelatedProductById.fulfilled,
             (state, { payload }) => {
                 state.relatedProducts = payload.relatedProducts;
             }
         );
+        // fetch product by slug
         builder.addCase(fetchProductBySlug.fulfilled, (state, { payload }) => {
             state.product = payload.product;
         });
+        // fetch product by id
         builder.addCase(fetchProductById.fulfilled, (state, { payload }) => {
             const { product } = payload;
             if (product)
@@ -169,15 +175,16 @@ export const productSlice = createSlice({
                     name: product.name,
                     price: product.price,
                     category: product.category,
-                    quantity: product.productDetail.quantity,
+                    quantity: product.quantity,
+                    status: product.status,
                     brand: product.productDetail.brand,
                     description: product.productDetail.description,
                     productDetail: product.productDetail._id,
                     color: product.productDetail.color,
-                    status: product.status,
                     images: product.productDetail.images,
                 };
         });
+        // handle fetch all products
         builder.addCase(fetchProducts.fulfilled, (state, { payload }) => {
             state.pending = false;
             state.products = payload.products;
@@ -190,6 +197,7 @@ export const productSlice = createSlice({
         builder.addCase(fetchProducts.pending, (state) => {
             state.pending = true;
         });
+        // handle create product
         builder.addCase(createProduct.fulfilled, (state, { payload }) => {
             state.pending = false;
             if (payload) {
@@ -203,6 +211,7 @@ export const productSlice = createSlice({
         builder.addCase(createProduct.pending, (state) => {
             state.pending = true;
         });
+        // handle update api
         builder.addCase(updateProduct.fulfilled, (state, { payload }) => {
             state.pending = false;
             if (payload) {
@@ -216,6 +225,7 @@ export const productSlice = createSlice({
         builder.addCase(updateProduct.pending, (state) => {
             state.pending = true;
         });
+        // handle delete api
         builder.addCase(deleteProduct.fulfilled, (state, { payload }) => {
             state.pending = false;
             state.deleteCompleted = true;
@@ -227,6 +237,17 @@ export const productSlice = createSlice({
         builder.addCase(deleteProduct.pending, (state) => {
             state.pending = true;
         });
+        // total products
+        builder.addCase(fetchTotalProducts.fulfilled, (state, { payload }) => {
+            state.totalProducts = payload.count;
+        });
+        // popular products
+        builder.addCase(
+            fetchPopularProducts.fulfilled,
+            (state, { payload }) => {
+                state.popularProducts = payload.products;
+            }
+        );
     },
 });
 
@@ -260,12 +281,15 @@ export const fetchProducts = createAsyncThunk(
 export const createProduct = createAsyncThunk(
     "product/createProduct",
     async ({ images }, { getState, dispatch }) => {
+        // check validation before creating product
         dispatch(checkValidation());
         const state = getState()["product"];
 
         if (state.isValid) {
             const create = state.productObject;
+            // create form
             const data = new FormData();
+            // add to form
             images.forEach((element) => {
                 data.append("images", element);
             });
@@ -273,6 +297,7 @@ export const createProduct = createAsyncThunk(
                 data.append(field, create[field]);
             });
 
+            // send data to server
             const response = await api.post("/products/", data, {
                 headers: {
                     "Content-Type": "multipart/form-data",
@@ -289,12 +314,13 @@ export const createProduct = createAsyncThunk(
 export const updateProduct = createAsyncThunk(
     "product/updateProduct",
     async ({ images }, { getState, dispatch }) => {
+        // check validation
         dispatch(checkUpdateValidation());
         const state = getState()["product"];
 
         if (state.isValid) {
             const updateObj = state.updateObject;
-
+            // create form
             const data = new FormData();
             images.forEach((element) => {
                 data.append("images", element);
@@ -302,6 +328,8 @@ export const updateProduct = createAsyncThunk(
             Object.keys(updateObj).forEach((field) => {
                 data.append(field, updateObj[field]);
             });
+
+            // send data to server
             const response = await api.put("/products/" + updateObj.id, data, {
                 headers: {
                     "Content-Type": "multipart/form-data",
@@ -347,6 +375,24 @@ export const fetchRelatedProductById = createAsyncThunk(
     "product/fetchRelatedProductById",
     async (id) => {
         const response = await api.post(`/products/related/${id}`);
+        return response.data.metadata;
+    }
+);
+
+// count total products
+export const fetchTotalProducts = createAsyncThunk(
+    "product/fetchTotalProducts",
+    async () => {
+        const response = await api.get(`/products/totalProducts`);
+        return response.data.metadata;
+    }
+);
+
+// fetch popular products
+export const fetchPopularProducts = createAsyncThunk(
+    "product/fetchPopularProducts",
+    async () => {
+        const response = await api.get(`/products/popularProducts`);
         return response.data.metadata;
     }
 );

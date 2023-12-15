@@ -3,7 +3,13 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
     orders: [],
+    totalOrders: 0,
+    totalPrices: 0,
     updateObject: null,
+    deleteObject: {
+        id: "",
+        code: "",
+    },
     updateCompleted: false,
     deleteCompleted: false,
     pending: false,
@@ -17,6 +23,10 @@ export const orderSlice = createSlice({
         handleOnChangeUpdate: (state, action) => {
             const { field, value } = action.payload;
             state.updateObject[field] = value;
+        },
+        setDeleteObject: (state, action) => {
+            console.log(action.payload);
+            state.deleteObject = action.payload;
         },
         setUpdateCompleted: (state) => {
             state.updateCompleted = false;
@@ -65,6 +75,21 @@ export const orderSlice = createSlice({
         builder.addCase(updateOrder.pending, (state, { payload }) => {
             state.pending = true;
         });
+        builder.addCase(deleteOrder.fulfilled, (state) => {
+            state.pending = false;
+            state.deleteCompleted = true;
+        });
+        builder.addCase(deleteOrder.rejected, (state, { error }) => {
+            state.pending = false;
+            state.error = error.message;
+        });
+        builder.addCase(deleteOrder.pending, (state, { payload }) => {
+            state.pending = true;
+        });
+        builder.addCase(fetchTotalOrder.fulfilled, (state, { payload }) => {
+            state.totalOrders = payload.count;
+            state.totalPrices = payload.totalPrices;
+        });
     },
 });
 
@@ -98,8 +123,27 @@ export const updateOrder = createAsyncThunk(
     }
 );
 
+// delete order
+export const deleteOrder = createAsyncThunk(
+    "category/deleteOrder",
+    async (id) => {
+        const response = await api.delete("/order/" + id);
+        return response.data.metadata;
+    }
+);
+
+// count total order
+export const fetchTotalOrder = createAsyncThunk(
+    "category/fetchTotalOrder",
+    async () => {
+        const response = await api.get("/order/totalOrder");
+        return response.data.metadata;
+    }
+);
+
 export const {
     handleOnChangeUpdate,
+    setDeleteObject,
     setUpdateCompleted,
     setDeleteCompleted,
     setError,

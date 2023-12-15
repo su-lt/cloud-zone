@@ -1,4 +1,6 @@
-import React from "react";
+import { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchOrders } from "../../redux/slices/order.slice";
 
 const recentData = [
     {
@@ -44,6 +46,15 @@ const recentData = [
 ];
 
 const RecentOrders = () => {
+    const dispatch = useDispatch();
+    // states redux
+    const { orders } = useSelector((slice) => slice.order);
+
+    useEffect(() => {
+        dispatch(fetchOrders({ limit: 5 }));
+
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
     return (
         <div className="p-4 pt-3 min-w-[265px] bg-white rounded-sm border-gray-200 flex-1">
             <strong className="text-gray-700 font-medium">Recent Orders</strong>
@@ -51,40 +62,61 @@ const RecentOrders = () => {
                 <table className="w-full table-auto text-gray-700 border-x border-gray-200">
                     <thead>
                         <tr>
-                            <th className="py-3 px-6">ID</th>
-                            <th className="py-3 px-6">Product ID</th>
-                            <th className="py-3 px-6">Customer Name</th>
-                            <th className="py-3 px-6">Order Date</th>
-                            <th className="py-3 px-6">Order Total</th>
-                            <th className="py-3 px-6">Shipping Address</th>
-                            <th className="py-3 px-6">Order Status</th>
+                            <th className="py-3 px-6 text-left">#</th>
+                            <th className="py-3 px-6 text-left">OrderCode</th>
+                            <th className="py-3 px-6 text-left">Customer</th>
+                            <th className="py-3 px-6 text-left">
+                                Shipping Address
+                            </th>
+                            <th className="py-3 px-6 text-left">Order Date</th>
+                            <th className="py-3 px-6 text-left">
+                                Order Status
+                            </th>
                         </tr>
                     </thead>
                     <tbody className="divide-y">
-                        {recentData.map((order) => (
-                            <tr key={order.id}>
-                                <td className="pr-6 py-4 whitespace-nowrap">
-                                    #{order.id}
+                        {orders.map((order, index) => (
+                            <tr key={order._id}>
+                                <td className="px-6 py-3 whitespace-nowrap">
+                                    {index + 1}
                                 </td>
-                                <td className="pr-6 py-4 whitespace-nowrap">
-                                    {order.product_id}
+                                <td className="px-6 py-3 whitespace-nowrap">
+                                    #{order.code}
                                 </td>
-                                <td className="pr-6 py-4 whitespace-nowrap">
-                                    {order.customer_name}
+                                <td className="px-6 py-3 whitespace-nowrap">
+                                    {order.user.fullname}
                                 </td>
-                                <td className="pr-6 py-4 whitespace-nowrap">
+                                <td className="px-6 py-3 whitespace-nowrap">
+                                    {order.address}
+                                </td>
+                                <td className="px-6 py-3 whitespace-nowrap">
                                     {new Date(
-                                        order.order_date
+                                        order.createdAt
                                     ).toLocaleDateString()}
                                 </td>
-                                <td className="pr-6 py-4 whitespace-nowrap">
-                                    {order.order_total}
-                                </td>
-                                <td className="pr-6 py-4 whitespace-nowrap">
-                                    {order.shipping_address}
-                                </td>
-                                <td className="pr-6 py-4 whitespace-nowrap">
-                                    {order.order_status}
+                                <td className="px-6 py-3 whitespace-nowrap">
+                                    <span
+                                        className={`px-2 rounded-lg
+                                            ${
+                                                order.status === "pending"
+                                                    ? "bg-gray-300 text-gray-600"
+                                                    : order.status ===
+                                                      "processing"
+                                                    ? "bg-blue-100 text-blue-600"
+                                                    : order.status ===
+                                                      "shipping"
+                                                    ? "bg-purple-100 text-purple-600"
+                                                    : order.status ===
+                                                      "delivered"
+                                                    ? "bg-green-100 text-green-600"
+                                                    : order.status === "cancel"
+                                                    ? "bg-red-100 text-red-600"
+                                                    : "text-black"
+                                            }
+                                        `}
+                                    >
+                                        {order.status}
+                                    </span>
                                 </td>
                             </tr>
                         ))}

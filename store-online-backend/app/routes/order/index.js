@@ -8,10 +8,14 @@ const {
     createOrder,
     updateOrderById,
     deleteOrderById,
+    totalOrders,
 } = require("../../controllers/order.controller");
 
 // get categories
 router.get("/", asyncHandler(getOrders));
+
+// get categories
+router.get("/totalOrder", asyncHandler(totalOrders));
 
 // get category by id
 router.get("/:id", asyncHandler(getOrderById));

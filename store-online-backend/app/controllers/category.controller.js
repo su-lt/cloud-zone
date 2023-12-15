@@ -8,6 +8,7 @@ const {
 const productModel = require("../models/product.model");
 
 const getCategories = async (req, res) => {
+    // all categories sorted by update time
     const categories = await categoryModel.find({ isDeleted: false }).lean();
     if (!categories) throw new NotFoundError("Cannot load categories");
 
@@ -20,11 +21,13 @@ const getCategories = async (req, res) => {
 };
 
 const getCategoryById = async (req, res) => {
+    // get _id
     const id = req.params.id;
     if (!mongoose.Types.ObjectId.isValid(id)) {
         throw new BadRequestError("Id not valid !");
     }
 
+    // get category by id
     const category = await categoryModel.findById(id);
     if (!category) throw new NotFoundError("category not found");
 
@@ -40,6 +43,7 @@ const createCategory = async (req, res) => {
     const name = req.body.name;
     if (!name) throw new BadRequestError("name is required");
 
+    // create a new category
     const category = await categoryModel.create({
         name,
     });
@@ -54,6 +58,7 @@ const createCategory = async (req, res) => {
 };
 
 const updateCategoryById = async (req, res) => {
+    // get _id
     const id = req.params.id;
     if (!mongoose.Types.ObjectId.isValid(id)) {
         throw new BadRequestError("Id not valid !");
@@ -62,6 +67,7 @@ const updateCategoryById = async (req, res) => {
     const name = req.body.name;
     if (!name) throw new BadRequestError("name is required");
 
+    // update category
     const update = await categoryModel.findByIdAndUpdate(
         id,
         { name },
@@ -78,19 +84,24 @@ const updateCategoryById = async (req, res) => {
 };
 
 const deleteCategoryById = async (req, res) => {
+    // get _id
     const id = req.params.id;
     if (!mongoose.Types.ObjectId.isValid(id)) {
         throw new BadRequestError("Id not valid !");
     }
 
+    // soft delete category
     const result = await categoryModel.findByIdAndUpdate(id, {
         deletedAt: new Date(),
         isDeleted: true,
     });
     if (!result) throw new CreateDatabaseError();
 
-    // update products -> change status to deactive
-    await productModel.updateMany({ category: id }, { status: "deactive" });
+    // update products -> change status to inactive
+    await productModel.updateMany(
+        { category: id },
+        { status: "inactive", category: null }
+    );
 
     return res.status(200).json({
         message: "deleted successfully",
@@ -98,11 +109,13 @@ const deleteCategoryById = async (req, res) => {
 };
 
 const getTotalProductByCategoryId = async (req, res) => {
+    // get _id category
     const id = req.params.id;
     if (!mongoose.Types.ObjectId.isValid(id)) {
         throw new BadRequestError("Id not valid !");
     }
 
+    // count total products of this category
     const result = await productModel
         .find({
             category: new mongoose.Types.ObjectId(id),

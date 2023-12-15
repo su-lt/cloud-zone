@@ -4,6 +4,7 @@ import api from "../../helpers/axiosApi";
 const initialState = {
     users: [],
     roles: [],
+    totalCustomers: 0,
     user: null,
     userObject: { fullname: "", password: "", email: "", address: "" },
     errors: { fullname: "", password: "", email: "", address: "" },
@@ -108,6 +109,9 @@ export const userSlice = createSlice({
         builder.addCase(fetchRoles.fulfilled, (state, { payload }) => {
             state.roles = payload.roles;
         });
+        builder.addCase(fetchTotalCustomers.fulfilled, (state, { payload }) => {
+            state.totalCustomers = payload.count;
+        });
     },
 });
 
@@ -157,11 +161,20 @@ export const updateUser = createAsyncThunk(
     }
 );
 
-// update user
+// delete user
 export const deleteUser = createAsyncThunk("users/deleteUser", async (id) => {
     const response = await api.delete("/user/" + id);
     return response.data.metadata;
 });
+
+// fetch total customers
+export const fetchTotalCustomers = createAsyncThunk(
+    "users/fetchTotalCustomers",
+    async () => {
+        const response = await api.get("/user/totalCustomer");
+        return response.data.metadata;
+    }
+);
 
 export const {
     handleOnChange,

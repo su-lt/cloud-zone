@@ -36,5 +36,12 @@ const orderSchema = new Schema(
     }
 );
 
+orderSchema.pre("find", function (next) {
+    this.sort({
+        updatedAt: -1,
+    });
+    next();
+});
+
 //Export the model
 module.exports = model("Order", orderSchema);

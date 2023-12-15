@@ -11,10 +11,18 @@ const {
     createProduct,
     updateProduct,
     deleteProduct,
+    totalProducts,
+    getPopularProducts,
 } = require("../../controllers/product.controller");
 
 // get products
 router.get("/", asyncHandler(getAllProducts));
+
+// count products
+router.get("/totalProducts", asyncHandler(totalProducts));
+
+// get popular products
+router.get("/popularProducts", asyncHandler(getPopularProducts));
 
 // get product
 router.get("/:id", asyncHandler(getProductById));

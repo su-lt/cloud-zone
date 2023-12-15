@@ -18,7 +18,7 @@ import noImage from "../../../assets/images/no-image.png";
 
 const Orders = () => {
     const dispatch = useDispatch();
-
+    // states redux
     const {
         products,
         createCompleted,
@@ -31,16 +31,19 @@ const Orders = () => {
     const [isOpenUpdate, setIsOpenUpdate] = useState(false);
     const [isOpenDelete, setIsOpenDelete] = useState(false);
 
+    // handle update click
     const handleUpdate = (id) => {
         dispatch(fetchProductById(id));
         setIsOpenUpdate(true);
     };
 
+    // handle delete click
     const handleDelete = (id, name) => {
         dispatch(setDeleteObject({ id, name }));
         setIsOpenDelete(true);
     };
 
+    // close modal dialog
     useEffect(() => {
         if (createCompleted) {
             toast.success("Create new product successfully !");
@@ -67,6 +70,7 @@ const Orders = () => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [createCompleted, updateCompleted, deleteCompleted, error]);
 
+    // fetch data load page
     useEffect(() => {
         dispatch(fetchProducts({ defaultConfig: false }));
         dispatch(fetchCategories());

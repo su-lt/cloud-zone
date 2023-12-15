@@ -1,16 +1,16 @@
 import { Fragment, useEffect } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { useDispatch, useSelector } from "react-redux";
-import { deleteUser } from "../../../redux/slices/user.slice";
+import { deleteOrder } from "../../../redux/slices/order.slice";
 
 const DeleteOrder = ({ isOpen, onClose }) => {
     const dispatch = useDispatch();
     const { deleteObject, deleteCompleted, error } = useSelector(
-        (slice) => slice.user
+        (slice) => slice.order
     );
 
     const handleClick = () => {
-        dispatch(deleteUser(deleteObject.id));
+        dispatch(deleteOrder(deleteObject.id));
     };
 
     useEffect(() => {
@@ -65,8 +65,8 @@ const DeleteOrder = ({ isOpen, onClose }) => {
 
                             <div className="mt-2">
                                 <p className="mt-2">
-                                    Do you sure to delete this user :
-                                    <span className="text-red-400">{` ${deleteObject.email}`}</span>
+                                    Do you sure to delete this order code:
+                                    <span className="text-red-400">{` ${deleteObject.code}`}</span>
                                 </p>
                             </div>
 

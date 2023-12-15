@@ -166,6 +166,9 @@ export const productSlice = createSlice({
         builder.addCase(fetchProductBySlug.fulfilled, (state, { payload }) => {
             state.product = payload.product;
         });
+        builder.addCase(fetchProductBySlug.rejected, (state, { error }) => {
+            state.error = error.message;
+        });
         // fetch product by id
         builder.addCase(fetchProductById.fulfilled, (state, { payload }) => {
             const { product } = payload;

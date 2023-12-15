@@ -18,6 +18,7 @@ import User from "./pages/dashboard/User";
 import Category from "./pages/dashboard/Category";
 import Product from "./pages/dashboard/Product";
 import Order from "./pages/dashboard/Order";
+import NotFound from "./pages/main/404";
 
 const routes_main = [
     { path: "/", element: <HomePage /> },
@@ -26,6 +27,7 @@ const routes_main = [
     { path: "/register", element: <RegisterPage /> },
     { path: "/login", element: <LoginPage /> },
     { path: "/cart", element: <Cart /> },
+    { path: "*", element: <NotFound /> },
 ];
 
 const routes_dashboard = [

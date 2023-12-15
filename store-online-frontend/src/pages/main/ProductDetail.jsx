@@ -1,14 +1,15 @@
-import { useParams } from "react-router-dom";
+import { useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import Breadcrumb from "../../components/Breadcrumb";
 import Product from "../../components/Products/Product";
 import RelatedProducts from "../../components/Products/RelatedProducts";
-import { fetchProductBySlug } from "../../redux/slices/product.slice";
+import { fetchProductBySlug, setError } from "../../redux/slices/product.slice";
 import { useDispatch, useSelector } from "react-redux";
-import { useEffect } from "react";
 
 const ProductDetail = () => {
+    const navigate = useNavigate();
     const dispatch = useDispatch();
-    const { product } = useSelector((slice) => slice.product);
+    const { product, error } = useSelector((slice) => slice.product);
     const { slug } = useParams();
 
     const breadcrumbItems = product
@@ -22,6 +23,17 @@ const ProductDetail = () => {
               { label: product.name, link: "" },
           ]
         : null;
+
+    useEffect(() => {
+        if (error) {
+            console.log("lỗi cái đầu mày");
+            console.log(error);
+            // dispatch(setError());
+            // navigate("/404");
+        }
+
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [error]);
 
     useEffect(() => {
         dispatch(fetchProductBySlug(slug));

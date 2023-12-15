@@ -1,7 +1,7 @@
 import { useDispatch, useSelector } from "react-redux";
-import Breadcrumb from "../components/Breadcrumb";
+import Breadcrumb from "../../components/Breadcrumb";
 import { useEffect } from "react";
-import { cartSlice, fetchProductById } from "../redux/slices/cart.slice";
+import { cartSlice, fetchProductById } from "../../redux/slices/cart.slice";
 
 const breadcrumbItems = [
     { label: "Home", link: "/" },

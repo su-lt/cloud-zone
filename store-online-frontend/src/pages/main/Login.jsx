@@ -1,9 +1,9 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
-import { login } from "../helpers/axiosApi";
+import { login } from "../../helpers/axiosApi";
 import { useDispatch } from "react-redux";
-import { authSlice } from "../redux/slices/auth.slice";
-import TitleSection from "../components/TitleSection";
+import { authSlice } from "../../redux/slices/auth.slice";
+import TitleSection from "../../components/TitleSection";
 
 const Login = () => {
     const [email, setEmail] = useState("");

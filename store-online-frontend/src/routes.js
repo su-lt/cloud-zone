@@ -6,12 +6,12 @@ import {
     HiOutlineUsers,
 } from "react-icons/hi";
 // main pages
-import HomePage from "./pages/HomePage";
-import RegisterPage from "./pages/Register";
-import LoginPage from "./pages/Login";
-import Products from "./pages/Products";
-import ProductDetail from "./pages/ProductDetail";
-import Cart from "./pages/Cart";
+import HomePage from "./pages/main/HomePage";
+import RegisterPage from "./pages/main/Register";
+import LoginPage from "./pages/main/Login";
+import Products from "./pages/main/Products";
+import ProductDetail from "./pages/main/ProductDetail";
+import Cart from "./pages/main/Cart";
 // dashboard pages
 import Dashboard from "./pages/dashboard/";
 import User from "./pages/dashboard/User";

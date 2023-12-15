@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import { signup } from "../helpers/axiosApi";
-import { authSlice } from "../redux/slices/auth.slice";
-import TitleSection from "../components/TitleSection";
+import { signup } from "../../helpers/axiosApi";
+import { authSlice } from "../../redux/slices/auth.slice";
+import TitleSection from "../../components/TitleSection";
 
 const Register = () => {
     const [fullname, setFullname] = useState("");

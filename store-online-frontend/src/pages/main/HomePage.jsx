@@ -1,8 +1,8 @@
-import HeroSection from "../components/HeroSection";
-import imageCollection_01 from "../assets/images/collection-01.jpg";
-import imageCollection_02 from "../assets/images/collection-02.jpg";
-import imageCollection_03 from "../assets/images/collection-03.jpg";
-import RelatedProducts from "../components/Products/RelatedProducts";
+import HeroSection from "../../components/HeroSection";
+import imageCollection_01 from "../../assets/images/collection-01.jpg";
+import imageCollection_02 from "../../assets/images/collection-02.jpg";
+import imageCollection_03 from "../../assets/images/collection-03.jpg";
+import RelatedProducts from "../../components/Products/RelatedProducts";
 import { FaTruck, FaArrowsRotate } from "react-icons/fa6";
 import { MdSupportAgent } from "react-icons/md";
 import { TbDatabaseX } from "react-icons/tb";

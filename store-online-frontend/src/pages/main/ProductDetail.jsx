@@ -1,8 +1,8 @@
 import { useParams } from "react-router-dom";
-import Breadcrumb from "../components/Breadcrumb";
-import Product from "../components/Products/Product";
-import RelatedProducts from "../components/Products/RelatedProducts";
-import { fetchProductBySlug } from "../redux/slices/product.slice";
+import Breadcrumb from "../../components/Breadcrumb";
+import Product from "../../components/Products/Product";
+import RelatedProducts from "../../components/Products/RelatedProducts";
+import { fetchProductBySlug } from "../../redux/slices/product.slice";
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect } from "react";
 

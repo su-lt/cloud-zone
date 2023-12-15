@@ -3,9 +3,9 @@ import { HiShoppingCart } from "react-icons/hi2";
 import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { motion, AnimatePresence } from "framer-motion";
-import { MenuToggle } from "../components/MenuToggle";
+import { MenuToggle } from "../../../components/MenuToggle";
 import DarkModeToggle from "react-dark-mode-toggle";
-import { formattedPrice } from "../helpers/ultil";
+import { formattedPrice } from "../../../helpers/ultil";
 
 const menuItems = [
     { text: "Home", link: "/" },

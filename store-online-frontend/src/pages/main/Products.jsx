@@ -1,6 +1,6 @@
-import Breadcrumb from "../components/Breadcrumb";
-import FilterSection from "../components/FilterSection";
-import ProductSection from "../components/Products/ProductSection";
+import Breadcrumb from "../../components/Breadcrumb";
+import FilterSection from "../../components/FilterSection";
+import ProductSection from "../../components/Products/ProductSection";
 
 const Products = () => {
     const breadcrumbItems = [

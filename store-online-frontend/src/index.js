@@ -8,13 +8,13 @@ import { ToastContainer } from "react-toastify";
 import { BrowserRouter } from "react-router-dom";
 import { Provider } from "react-redux";
 import { store } from "./redux/store";
-import { authSlice } from "./redux/slices/auth.slice";
+import { checkAuth } from "./redux/slices/auth.slice";
 import { cartSlice } from "./redux/slices/cart.slice";
 const root = ReactDOM.createRoot(document.getElementById("root"));
 
 // check user ready login
-const existedUser = localStorage.getItem("username");
-if (existedUser) store.dispatch(authSlice.actions.setCurrentUser(existedUser));
+const existedUserId = localStorage.getItem("id");
+if (existedUserId) store.dispatch(checkAuth());
 
 // check cart store
 const existCart = localStorage.getItem("cart");

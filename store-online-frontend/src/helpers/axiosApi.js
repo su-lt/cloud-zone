@@ -6,41 +6,55 @@ const api = axios.create({
         "Content-Type": "application/json",
     },
 });
+api.defaults.withCredentials = true;
 
-// Cấu hình interceptor cho request
+// set interceptor request
 api.interceptors.request.use(async (config) => {
-    // if (
-    //     config.url.indexOf("/login") > -1 ||
-    //     config.url.indexOf("/signup") > -1 ||
-    //     config.url.includes("/categories") ||
-    //     config.url.includes("/products")
-    // ) {
-    //     return config;
-    // }
+    if (
+        config.url.indexOf("/access/login") > -1 ||
+        config.url.indexOf("/access/signup") > -1 ||
+        config.url.indexOf("/access/refreshToken") > -1
+    ) {
+        return config;
+    }
+    // set headers - authentication
     config.headers["x-client-id"] = localStorage.getItem("id") || null;
+    config.headers["x-token"] = localStorage.getItem("accessToken") || null;
     return config;
 });
 
-// Cấu hình interceptor cho response
-api.interceptors.response.use();
+// set interceptor response
+api.interceptors.response.use(
+    async (response) => {
+        const config = response.config;
+        if (
+            config.url.indexOf("/login") > -1 ||
+            config.url.indexOf("/signup") > -1 ||
+            config.url.indexOf("/refresh") > -1
+        ) {
+            return response;
+        }
+        const { code, message } = response.data;
+        if (code && code === 401) {
+            if (message && message === "TokenExpiredError") {
+                const { accessToken } = await handleRefreshToken();
+                if (accessToken) {
+                    // set new access token to local storage
+                    localStorage.setItem("accessToken", accessToken);
 
-// Hàm đăng nhập
-export const login = async (email, password) => {
-    try {
-        const response = await api.post("/login", { email, password });
-        const { id, username } = response.data.metadata;
-
-        // set id, username to localStorage
-        localStorage.setItem("id", id);
-        localStorage.setItem("username", username);
-
-        return { username };
-    } catch (error) {
-        return { error: error.response.data.message };
+                    // return -> call request again
+                    return api(config);
+                }
+            }
+        }
+        return response;
+    },
+    (err) => {
+        return Promise.reject(err);
     }
-};
+);
 
-// Hàm đăng nhập
+// signup
 export const signup = async (fullname, email, password) => {
     try {
         const response = await api.post("/signup", {
@@ -59,18 +73,10 @@ export const signup = async (fullname, email, password) => {
     }
 };
 
-// Hàm đăng nhập
-export const refreshToken = async () => {
-    try {
-        const response = await api.post("/refresh");
-        console.log(response);
-        // set id to localStorage
-        // localStorage.setItem("id", id);
-
-        return null;
-    } catch (error) {
-        // throw error;
-    }
+// handle refresh token
+export const handleRefreshToken = async () => {
+    const res = await api.get("/access/refresh");
+    return res.data.metadata;
 };
 
 export default api;

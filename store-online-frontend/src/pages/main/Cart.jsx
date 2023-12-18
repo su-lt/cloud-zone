@@ -59,7 +59,7 @@ const Cart = () => {
                                     <div className="w-auto h-36 lg:h-24">
                                         <img
                                             alt=""
-                                            src={`/images/${item.image_thumbnail}`}
+                                            src={item.image_thumbnail}
                                             className="w-full h-full object-cover"
                                         />
                                     </div>

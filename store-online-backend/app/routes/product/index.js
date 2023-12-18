@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const upload = require("../../middlewares/uploader");
+const upload = require("../../middlewares/uploader.middleware");
 
 const asyncHandler = require("../../helpers/asyncHandler");
 const {
@@ -14,6 +14,7 @@ const {
     totalProducts,
     getPopularProducts,
 } = require("../../controllers/product.controller");
+const { authentication } = require("../../middlewares/auth.middleware");
 
 // get products
 router.get("/", asyncHandler(getAllProducts));

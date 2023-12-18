@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
-import AlertMessage from "../AlertMessage";
-import { cartSlice } from "../../redux/slices/cart.slice";
+import { addToCart } from "../../redux/slices/cart.slice";
 import { formattedPrice } from "../../helpers/ultil";
+import { toast } from "react-toastify";
 
 const Product = ({ product }) => {
     const dispatch = useDispatch();
@@ -10,16 +10,6 @@ const Product = ({ product }) => {
     const [expand, setExpand] = useState(false);
     const [selectImage, setSelectImage] = useState("");
     const [quantity, setQuantity] = useState(1);
-    const [alertMessage, setAlertMessage] = useState("");
-
-    const showAlert = (message) => {
-        setAlertMessage(message);
-
-        // Ẩn thông báo sau 3 giây
-        setTimeout(() => {
-            setAlertMessage("");
-        }, 2000);
-    };
 
     const handleQuantityChange = (event) => {
         const value = parseInt(event.target.value) || 1;
@@ -34,9 +24,9 @@ const Product = ({ product }) => {
         };
 
         // save cart to localStorage, redux state
-        dispatch(cartSlice.actions.addToCart(orderObject));
+        dispatch(addToCart(orderObject));
 
-        showAlert("Product added to cart.");
+        toast.success("Product added to cart.");
         setQuantity(1);
     };
 
@@ -47,12 +37,6 @@ const Product = ({ product }) => {
     return (
         <div className="mt-4">
             {/* show message add to cart */}
-            {alertMessage && (
-                <AlertMessage
-                    message={alertMessage}
-                    onClose={() => setAlertMessage("")}
-                />
-            )}
             {product && (
                 <>
                     <div className="grid gap-y-10 sm:grid-cols-3 sm:gap-x-5">

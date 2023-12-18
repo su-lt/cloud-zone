@@ -1,26 +1,38 @@
+import { useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useState } from "react";
-import { login } from "../../helpers/axiosApi";
-import { useDispatch } from "react-redux";
-import { authSlice } from "../../redux/slices/auth.slice";
+import { useDispatch, useSelector } from "react-redux";
+import { handleOnChange, login } from "../../redux/slices/auth.slice";
+
+// component
 import TitleSection from "../../components/TitleSection";
 
 const Login = () => {
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
-    const [loginError, setLoginError] = useState(null);
-
     const navigate = useNavigate();
     const dispatch = useDispatch();
 
-    const handleLoginClick = async () => {
-        const { error, username } = await login(email, password);
-        if (error) setLoginError(error);
-        else {
-            dispatch(authSlice.actions.login(username));
-            navigate("/");
-        }
+    const { loginObject, completed, errors, error } = useSelector(
+        (slice) => slice.auth
+    );
+
+    const handleChange = (field, value) => {
+        dispatch(handleOnChange({ field, value }));
     };
+
+    const handleLoginClick = async () => {
+        dispatch(login(loginObject));
+        // const { error, username } = await login(email, password);
+        // if (error) setLoginError(error);
+        // else {
+        //     dispatch(authSlice.actions.login(username));
+        //     navigate("/");
+        // }
+    };
+
+    useEffect(() => {
+        if (completed) navigate("/");
+
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [completed]);
     return (
         <main>
             {/* title section */}
@@ -42,7 +54,7 @@ const Login = () => {
                             the
                         </p>
                         <Link to="/register">
-                            <button className="button mt-8 text-xs bg-white shadow-neon text-primary md:text-lg">
+                            <button className="button-outline mt-8 text-xs bg-white text-primary md:text-lg">
                                 create an account
                             </button>
                         </Link>
@@ -54,33 +66,55 @@ const Login = () => {
                         Please, Login now
                     </h3>
                     <div className="mt-8 flex flex-col gap-2">
-                        {loginError && (
+                        {error && (
                             <div className="p-3 text-center bg-red-200">
-                                {loginError}
+                                {error}
                             </div>
                         )}
-                        <input
-                            type="text"
-                            placeholder="Your email"
-                            className="input-outline-none"
-                            onChange={(e) => setEmail(e.target.value)}
-                        />
-                        <input
-                            type="password"
-                            placeholder="Password"
-                            className="input-outline-none"
-                            onChange={(e) => setPassword(e.target.value)}
-                        />
-                        <div className="text-xs flex items-center gap-2">
+                        <div className="flex flex-col">
+                            <input
+                                type="text"
+                                placeholder="Your email"
+                                className={`input-outline-none ${
+                                    errors.email && "border-red-400"
+                                }`}
+                                onChange={(e) =>
+                                    handleChange("email", e.target.value)
+                                }
+                            />
+                            {errors.email && (
+                                <span className="text-xs text-red-500">
+                                    * {errors.email}
+                                </span>
+                            )}
+                        </div>
+                        <div className="flex flex-col">
+                            <input
+                                type="password"
+                                placeholder="Password"
+                                className={`input-outline-none ${
+                                    errors.password && "border-red-400"
+                                }`}
+                                onChange={(e) =>
+                                    handleChange("password", e.target.value)
+                                }
+                            />
+                            {errors.password && (
+                                <span className="text-xs text-red-500">
+                                    * {errors.password}
+                                </span>
+                            )}
+                        </div>
+                        {/* <div className="text-xs flex items-center gap-2">
                             <input
                                 type="checkbox"
                                 className="checked:bg-primary "
                             />
                             Remember me
-                        </div>
+                        </div> */}
                         <div className="mt-3">
                             <button
-                                className="button w-full"
+                                className="button-primary w-full"
                                 onClick={handleLoginClick}
                             >
                                 Login

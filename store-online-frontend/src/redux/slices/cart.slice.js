@@ -120,7 +120,9 @@ export const cartSlice = createSlice({
 export const fetchProductById = createAsyncThunk(
     "cart/fetchProductById",
     async (id) => {
-        const response = await api.post(`/products/${id}`);
+        const response = await api.get(`/product/${id}`);
         return response.data.metadata.product;
     }
 );
+
+export const { addToCart } = cartSlice.actions;

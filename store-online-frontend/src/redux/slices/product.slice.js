@@ -275,7 +275,7 @@ export const fetchProducts = createAsyncThunk(
             searchCategory,
             defaultConfig,
         });
-        const response = await api.get("/products?" + query);
+        const response = await api.get("/product?" + query);
         return response.data.metadata;
     }
 );
@@ -301,7 +301,7 @@ export const createProduct = createAsyncThunk(
             });
 
             // send data to server
-            const response = await api.post("/products/", data, {
+            const response = await api.post("/product/", data, {
                 headers: {
                     "Content-Type": "multipart/form-data",
                 },
@@ -333,7 +333,7 @@ export const updateProduct = createAsyncThunk(
             });
 
             // send data to server
-            const response = await api.put("/products/" + updateObj.id, data, {
+            const response = await api.put("/product/" + updateObj.id, data, {
                 headers: {
                     "Content-Type": "multipart/form-data",
                 },
@@ -349,7 +349,7 @@ export const updateProduct = createAsyncThunk(
 export const deleteProduct = createAsyncThunk(
     "product/deleteProduct",
     async (id) => {
-        const response = await api.delete("/products/" + id);
+        const response = await api.delete("/product/" + id);
 
         return response.data.metadata;
     }
@@ -359,7 +359,7 @@ export const deleteProduct = createAsyncThunk(
 export const fetchProductById = createAsyncThunk(
     "product/fetchProductById",
     async (id) => {
-        const response = await api.get(`/products/${id}`);
+        const response = await api.get(`/product/${id}`);
         return response.data.metadata;
     }
 );
@@ -368,7 +368,7 @@ export const fetchProductById = createAsyncThunk(
 export const fetchProductBySlug = createAsyncThunk(
     "product/fetchProductBySlug",
     async (slug) => {
-        const response = await api.get(`/products/slug/${slug}`);
+        const response = await api.get(`/product/slug/${slug}`);
         return response.data.metadata;
     }
 );
@@ -377,7 +377,7 @@ export const fetchProductBySlug = createAsyncThunk(
 export const fetchRelatedProductById = createAsyncThunk(
     "product/fetchRelatedProductById",
     async (id) => {
-        const response = await api.post(`/products/related/${id}`);
+        const response = await api.post(`/product/related/${id}`);
         return response.data.metadata;
     }
 );
@@ -386,7 +386,7 @@ export const fetchRelatedProductById = createAsyncThunk(
 export const fetchTotalProducts = createAsyncThunk(
     "product/fetchTotalProducts",
     async () => {
-        const response = await api.get(`/products/totalProducts`);
+        const response = await api.get(`/product/totalProducts`);
         return response.data.metadata;
     }
 );
@@ -395,7 +395,7 @@ export const fetchTotalProducts = createAsyncThunk(
 export const fetchPopularProducts = createAsyncThunk(
     "product/fetchPopularProducts",
     async () => {
-        const response = await api.get(`/products/popularProducts`);
+        const response = await api.get(`/product/popularProducts`);
         return response.data.metadata;
     }
 );

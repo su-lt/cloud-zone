@@ -28,8 +28,8 @@ const createTokenPair = async (payload, privateKey) => {
     }
 };
 
-const verifyJWT = async (token, keySecret) => {
-    return await JWT.verify(token, keySecret);
+const verifyJWT = (token, keySecret) => {
+    return JWT.verify(token, keySecret);
 };
 
 module.exports = {

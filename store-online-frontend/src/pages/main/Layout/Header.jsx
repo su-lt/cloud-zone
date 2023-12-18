@@ -3,10 +3,11 @@ import { Menu, Transition } from "@headlessui/react";
 import { HiShoppingCart } from "react-icons/hi2";
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { motion, AnimatePresence } from "framer-motion";
 import { MenuToggle } from "../../../components/MenuToggle";
 import { formattedPrice } from "../../../helpers/ultil";
+import { clearState, logout } from "../../../redux/slices/auth.slice";
 import DarkModeToggle from "react-dark-mode-toggle";
 
 const menuItems = [
@@ -17,12 +18,13 @@ const menuItems = [
 
 const Header = () => {
     const navigate = useNavigate();
+    const dispatch = useDispatch();
     const [open, setOpen] = useState(false); // check toggle menu
     const [isFixed, setIsFixed] = useState(false); // check fixed navbar
     const [isDarkMode, setIsDarkMode] = useState(false); // check darkmode
 
     // redux state
-    const { username } = useSelector((slice) => slice.auth);
+    const { fullname, isLogin, isAdmin } = useSelector((slice) => slice.auth);
     const { totalQuantity, totalPrice } = useSelector((slice) => slice.cart);
 
     // close menu toggle if menu toggle open and resize
@@ -30,12 +32,20 @@ const Header = () => {
         if (window.innerWidth >= 768 && open) setOpen(() => false);
     };
 
+    // handle fix header
     const handleScrollNavBar = () => {
         const scrollPosition = window.scrollY;
         const offset = 40;
 
         // check scroll down 40px -> set navbar change absolute to fixed position
         setIsFixed(scrollPosition >= offset);
+    };
+
+    //handle logout
+    const handleLogout = () => {
+        dispatch(logout());
+        dispatch(clearState());
+        navigate("/");
     };
 
     useEffect(() => {
@@ -57,65 +67,43 @@ const Header = () => {
             {/* top bar */}
             <div className="h-10 bg-slate-900 text-custom-1000">
                 <div className="md:px-4 flex justify-between md:justify-end md:container">
-                    {username ? (
-                        <>
-                            {/* <div className="my-2 px-4 leading-6 text-xs">
+                    {isLogin ? (
+                        <Menu
+                            as="div"
+                            className="relative inline-block text-left"
+                        >
+                            <Menu.Button className="my-2 px-4 leading-6 text-xs border-x border-custom-300 hover:bg-slate-700 hover:rounded-md">
                                 Welcome
-                                <h6 className="text-red-300 inline-block ml-1">
-                                    {username}
+                                <h6 className="text-red-300 inline-block ml-1 hover:text-re">
+                                    {fullname}
                                 </h6>
-                            </div>
-                            <div className="my-2 px-4 border-x border-custom-300">
-                                <a
-                                    href="/admin/dashboard"
-                                    className="leading-6 text-xs"
-                                >
-                                    Dashboard
-                                </a>
-                            </div>
-                            <div className="my-2 px-4 border-x border-custom-300">
-                                <Link
-                                    to="/logout"
-                                    className="leading-6 text-xs"
-                                >
-                                    Logout
-                                </Link>
-                            </div> */}
-                            <Menu
-                                as="div"
-                                className="relative inline-block text-left"
-                            >
-                                <Menu.Button className="my-2 px-4 leading-6 text-xs border-x border-custom-300 hover:bg-slate-700 hover:rounded-md">
-                                    Welcome
-                                    <h6 className="text-red-300 inline-block ml-1 hover:text-re">
-                                        {username}
-                                    </h6>
-                                </Menu.Button>
+                            </Menu.Button>
 
-                                <Transition
-                                    as={Fragment}
-                                    enter="transition ease-out duration-100"
-                                    enterFrom="transform opacity-0 scale-95"
-                                    enterTo="transform opacity-100 scale-100"
-                                    leave="transition ease-in duration-75"
-                                    leaveFrom="transform opacity-100 scale-100"
-                                    leaveTo="transform opacity-0 scale-95"
-                                >
-                                    <Menu.Items className="origin-top-right z-[52] absolute left-2 leading-6 text-xs md:left-auto md:right-0 mt-1 w-48 rounded-sm shadow-md p-1 bg-white ring-1 ring-opacity-5 focus:outline-none">
-                                        <Menu.Item>
-                                            {({ active }) => (
-                                                <div
-                                                    className={`${
-                                                        active && "bg-gray-100"
-                                                    } px-4 text-gray-700 cursor-pointer rounded-sm focus:bg-gray-200`}
-                                                    // onClick={() =>
-                                                    //     navigate("/logout")
-                                                    // }
-                                                >
-                                                    Profile
-                                                </div>
-                                            )}
-                                        </Menu.Item>
+                            <Transition
+                                as={Fragment}
+                                enter="transition ease-out duration-100"
+                                enterFrom="transform opacity-0 scale-95"
+                                enterTo="transform opacity-100 scale-100"
+                                leave="transition ease-in duration-75"
+                                leaveFrom="transform opacity-100 scale-100"
+                                leaveTo="transform opacity-0 scale-95"
+                            >
+                                <Menu.Items className="origin-top-right z-[52] absolute left-2 leading-6 text-xs md:left-auto md:right-0 mt-1 w-48 rounded-sm shadow-md p-1 bg-white ring-1 ring-opacity-5 focus:outline-none">
+                                    <Menu.Item>
+                                        {({ active }) => (
+                                            <div
+                                                className={`${
+                                                    active && "bg-gray-100"
+                                                } px-4 text-gray-700 cursor-pointer rounded-sm focus:bg-gray-200`}
+                                                // onClick={() =>
+                                                //     navigate("/logout")
+                                                // }
+                                            >
+                                                Profile
+                                            </div>
+                                        )}
+                                    </Menu.Item>
+                                    {isAdmin && (
                                         <Menu.Item>
                                             {({ active }) => (
                                                 <div
@@ -132,24 +120,22 @@ const Header = () => {
                                                 </div>
                                             )}
                                         </Menu.Item>
-                                        <Menu.Item>
-                                            {({ active }) => (
-                                                <div
-                                                    className={`${
-                                                        active && "bg-gray-100"
-                                                    } px-4 text-gray-700 cursor-pointer rounded-sm focus:bg-gray-200`}
-                                                    // onClick={() =>
-                                                    //     navigate("/logout")
-                                                    // }
-                                                >
-                                                    Logout
-                                                </div>
-                                            )}
-                                        </Menu.Item>
-                                    </Menu.Items>
-                                </Transition>
-                            </Menu>
-                        </>
+                                    )}
+                                    <Menu.Item>
+                                        {({ active }) => (
+                                            <div
+                                                className={`${
+                                                    active && "bg-gray-100"
+                                                } px-4 text-gray-700 cursor-pointer rounded-sm focus:bg-gray-200`}
+                                                onClick={handleLogout}
+                                            >
+                                                Logout
+                                            </div>
+                                        )}
+                                    </Menu.Item>
+                                </Menu.Items>
+                            </Transition>
+                        </Menu>
                     ) : (
                         <div className="my-2 px-4 border-x border-custom-300">
                             <Link to="/login" className="leading-6 text-xs">
@@ -217,7 +203,7 @@ const Header = () => {
                                 </span>
                             ) : null}
                         </Link>
-                        {totalQuantity && formattedPrice(totalPrice)}
+                        {totalQuantity > 0 && formattedPrice(totalPrice)}
                     </div>
                 </div>
             </motion.nav>
@@ -245,9 +231,7 @@ const Header = () => {
                                 </span>
                             ) : null}
                         </Link>
-                        {totalQuantity
-                            ? "$ " + Math.round(totalPrice * 100) / 100
-                            : null}
+                        {totalQuantity > 0 && formattedPrice(totalPrice)}
                     </div>
 
                     {/* menu toggle */}

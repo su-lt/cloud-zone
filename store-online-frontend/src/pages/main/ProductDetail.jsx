@@ -25,11 +25,9 @@ const ProductDetail = () => {
         : null;
 
     useEffect(() => {
-        if (error) {
-            console.log("lỗi cái đầu mày");
-            console.log(error);
-            // dispatch(setError());
-            // navigate("/404");
+        if (error === "404") {
+            dispatch(setError());
+            navigate("/404");
         }
 
         // eslint-disable-next-line react-hooks/exhaustive-deps

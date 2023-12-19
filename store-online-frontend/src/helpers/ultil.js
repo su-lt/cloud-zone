@@ -15,7 +15,11 @@ export const buildQueryString = (params) => {
     const searchParams = new URLSearchParams();
 
     for (const key in params) {
-        if (params[key] !== undefined && params[key] !== "") {
+        if (
+            params[key] !== undefined &&
+            params[key] !== "" &&
+            !(Array.isArray(params[key]) && params[key].length === 0)
+        ) {
             searchParams.append(key, params[key]);
         }
     }

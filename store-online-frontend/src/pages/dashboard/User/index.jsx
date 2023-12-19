@@ -14,12 +14,24 @@ import {
     setUserUpdate,
 } from "../../../redux/slices/user.slice";
 import { toast } from "react-toastify";
+import { useDebounce } from "../../../helpers/ultil";
 
 const Users = () => {
     const dispatch = useDispatch();
-    const { users, createCompleted, updateCompleted, deleteCompleted, error } =
-        useSelector((slice) => slice.user);
+    // redux state
+    const {
+        users,
+        totalPages,
+        createCompleted,
+        updateCompleted,
+        deleteCompleted,
+        error,
+    } = useSelector((slice) => slice.user);
+    const { searchString } = useSelector((slice) => slice.filter);
+    // use custom hook
+    const debounceSearch = useDebounce(searchString);
 
+    const [page, setPage] = useState(1);
     const [isOpenCreate, setIsOpenCreate] = useState(false);
     const [isOpenUpdate, setIsOpenUpdate] = useState(false);
     const [isOpenDelete, setIsOpenDelete] = useState(false);
@@ -60,10 +72,20 @@ const Users = () => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [createCompleted, updateCompleted, deleteCompleted, error]);
 
+    // search products
     useEffect(() => {
-        dispatch(fetchUsers());
-        dispatch(fetchRoles());
+        dispatch(fetchUsers({ searchString: debounceSearch }));
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [debounceSearch]);
 
+    // fetch products
+    useEffect(() => {
+        dispatch(fetchUsers({ searchString, page }));
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [page]);
+
+    useEffect(() => {
+        dispatch(fetchRoles());
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
     return (
@@ -170,6 +192,75 @@ const Users = () => {
                         ))}
                     </tbody>
                 </table>
+                {/* pagination */}
+                {totalPages > 0 && (
+                    <div className="grid-cols-none w-full mx-auto mt-2 px-4 text-gray-600 md:px-8">
+                        <div
+                            className="flex items-center justify-center gap-x-3"
+                            aria-label="Pagination"
+                        >
+                            <button
+                                onClick={() => setPage(page - 1)}
+                                className="hover:text-indigo-600  flex items-center gap-x-2"
+                                disabled={page === 1 ? true : false}
+                            >
+                                <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    viewBox="0 0 20 20"
+                                    fill="currentColor"
+                                    className="w-5 h-5"
+                                >
+                                    <path
+                                        fillRule="evenodd"
+                                        d="M12.79 5.23a.75.75 0 01-.02 1.06L8.832 10l3.938 3.71a.75.75 0 11-1.04 1.08l-4.5-4.25a.75.75 0 010-1.08l4.5-4.25a.75.75 0 011.06.02z"
+                                        clipRule="evenodd"
+                                    />
+                                </svg>
+                            </button>
+                            <ul className="flex items-center gap-1">
+                                {Array(totalPages)
+                                    .fill(null)
+                                    .map((_, idx) => (
+                                        <li key={idx} className="text-sm">
+                                            <button
+                                                onClick={() => setPage(idx + 1)}
+                                                className={`px-4 py-2 rounded-lg duration-150 hover:text-indigo-600 hover:bg-indigo-50 ${
+                                                    page === idx + 1
+                                                        ? "bg-indigo-50 text-indigo-600 font-medium"
+                                                        : ""
+                                                }`}
+                                                disabled={
+                                                    page === idx + 1
+                                                        ? true
+                                                        : false
+                                                }
+                                            >
+                                                {idx + 1}
+                                            </button>
+                                        </li>
+                                    ))}
+                            </ul>
+                            <button
+                                onClick={() => setPage(page + 1)}
+                                className="hover:text-indigo-600 flex items-center gap-x-2"
+                                disabled={page === totalPages ? true : false}
+                            >
+                                <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    viewBox="0 0 20 20"
+                                    fill="currentColor"
+                                    className="w-5 h-5"
+                                >
+                                    <path
+                                        fillRule="evenodd"
+                                        d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z"
+                                        clipRule="evenodd"
+                                    />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                )}
             </div>
         </div>
     );

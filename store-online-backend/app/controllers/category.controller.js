@@ -8,14 +8,43 @@ const {
 const productModel = require("../models/product.model");
 
 const getCategories = async (req, res) => {
-    // all categories sorted by update time
-    const categories = await categoryModel.find({ isDeleted: false }).lean();
+    // get params
+    let { searchString, page } = req.query;
+    page = parseInt(page) || 1;
+
+    // set limit product
+    const limit = 12;
+    const skip = (page - 1) * limit;
+
+    // get all categories sorted by update time
+    const query = categoryModel
+        .find({ isDeleted: false })
+        .skip(skip)
+        .limit(limit);
+    const countQuery = categoryModel.find({ isDeleted: false });
+
+    // search name condition
+    if (searchString) {
+        const regex = new RegExp(searchString, "i");
+        query.where({
+            name: regex,
+        });
+        countQuery.where({
+            name: regex,
+        });
+    }
+
+    // get total number of products
+    const totalCategories = await countQuery.countDocuments().exec();
+    // get products
+    const categories = await query.lean().exec();
     if (!categories) throw new NotFoundError("Cannot load categories");
 
     return res.status(200).json({
         message: "success",
         metadata: {
             categories,
+            totalCategories,
         },
     });
 };

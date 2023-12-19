@@ -1,49 +1,18 @@
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchPopularProducts } from "../../redux/slices/product.slice";
+import {
+    fetchPopularProducts,
+    fetchProducts,
+} from "../../redux/slices/product.slice";
 import { formattedPrice } from "../../helpers/ultil";
-
-const popularData = [
-    {
-        id: "1",
-        product_id: "123",
-        product_name: "product 1",
-        product_thumbnail: "https://source.unsplash.com/random/400x300",
-        product_price: "234",
-        product_stock: "123",
-    },
-    {
-        id: "2",
-        product_id: "123",
-        product_name: "product 2",
-        product_thumbnail: "https://source.unsplash.com/random/400x300",
-        product_price: "234",
-        product_stock: "123",
-    },
-    {
-        id: "3",
-        product_id: "123",
-        product_name: "product 3",
-        product_thumbnail: "https://source.unsplash.com/random/400x300",
-        product_price: "234",
-        product_stock: "123",
-    },
-    {
-        id: "4",
-        product_id: "123",
-        product_name: "product 4",
-        product_thumbnail: "https://source.unsplash.com/random/400x300",
-        product_price: "234",
-        product_stock: "123",
-    },
-];
 
 const PopularProducts = () => {
     const dispatch = useDispatch();
-    const { popularProducts } = useSelector((slice) => slice.product);
+    const { products } = useSelector((slice) => slice.product);
 
     useEffect(() => {
-        dispatch(fetchPopularProducts());
+        // dispatch(fetchPopularProducts());
+        dispatch(fetchProducts({ sort: "bestseller", limit: 9 }));
 
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
@@ -53,7 +22,7 @@ const PopularProducts = () => {
                 Popular Products
             </strong>
             <div className="mt-4 flex flex-col gap-3">
-                {popularProducts.map((product) => (
+                {products.map((product) => (
                     <div key={product._id} className="flex hover:no-underline">
                         <div className="w-10 h-10 bg-gray-200 rounded-sm overflow-hidden">
                             <img

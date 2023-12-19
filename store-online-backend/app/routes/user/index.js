@@ -11,6 +11,14 @@ const {
     getRoles,
     totalCustomer,
 } = require("../../controllers/user.controller");
+const {
+    authentication,
+    isAdmin,
+} = require("../../middlewares/auth.middleware");
+
+// check authentication
+router.use(asyncHandler(authentication));
+router.use(asyncHandler(isAdmin));
 
 // get users
 router.get("/", asyncHandler(getUsers));

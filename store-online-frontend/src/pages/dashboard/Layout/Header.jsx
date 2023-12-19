@@ -6,9 +6,14 @@ import {
     HiOutlineChatAlt,
     HiOutlineSearch,
 } from "react-icons/hi";
+import { useSelector, useDispatch } from "react-redux";
+import { setSearchString } from "../../../redux/slices/filter.slice";
 
 const Header = () => {
     const navigate = useNavigate();
+    const dispatch = useDispatch();
+
+    const { searchString } = useSelector((slice) => slice.filter);
 
     return (
         <section className="bg-white h-16 px-4 flex justify-between items-center shadow-nav">
@@ -20,6 +25,8 @@ const Header = () => {
                 <input
                     type="text"
                     placeholder="Search..."
+                    value={searchString}
+                    onChange={(e) => dispatch(setSearchString(e.target.value))}
                     className="px-4 pl-10 h-10 w-28 sm:w-72 lg:w-96 text-sm border border-custom-500 rounded-sm focus:outline-none active:outline-none"
                 />
             </div>

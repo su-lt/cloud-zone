@@ -1,5 +1,6 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import api from "../../helpers/axiosApi";
+import { buildQueryString } from "../../helpers/ultil";
 
 const initialState = {
     users: [],
@@ -10,6 +11,7 @@ const initialState = {
     errors: { fullname: "", password: "", email: "", address: "" },
     updateObject: { id: "", role: "", status: "" },
     deleteObject: { id: "", email: "" },
+    totalPages: 0,
     pending: false,
     error: null,
     isValid: false,
@@ -70,17 +72,22 @@ export const userSlice = createSlice({
         },
     },
     extraReducers: (builder) => {
+        // fetch users
         builder.addCase(fetchUsers.fulfilled, (state, { payload }) => {
             state.pending = false;
             state.users = payload.users;
+            state.totalPages = Math.ceil(
+                payload.totalUsers / process.env.REACT_APP_PRODUCT_LIMIT
+            );
         });
         builder.addCase(fetchUsers.rejected, (state, { error }) => {
             state.pending = false;
-            state.error = error.message;
+            // state.error = error.message;
         });
         builder.addCase(fetchUsers.pending, (state) => {
             state.pending = true;
         });
+        // create user
         builder.addCase(createUser.fulfilled, (state, { payload }) => {
             state.pending = false;
             if (payload) {
@@ -94,6 +101,7 @@ export const userSlice = createSlice({
         builder.addCase(createUser.pending, (state) => {
             state.pending = true;
         });
+        // update user
         builder.addCase(updateUser.fulfilled, (state) => {
             state.updateCompleted = true;
         });
@@ -106,6 +114,7 @@ export const userSlice = createSlice({
         builder.addCase(deleteUser.rejected, (state, { error }) => {
             state.error = error.message;
         });
+        // fetch roles
         builder.addCase(fetchRoles.fulfilled, (state, { payload }) => {
             state.roles = payload.roles;
         });
@@ -116,10 +125,17 @@ export const userSlice = createSlice({
 });
 
 // get users
-export const fetchUsers = createAsyncThunk("users/fetchUsers", async () => {
-    const response = await api.get("/user/");
-    return response.data.metadata;
-});
+export const fetchUsers = createAsyncThunk(
+    "users/fetchUsers",
+    async ({ searchString, page }) => {
+        const query = buildQueryString({
+            searchString,
+            page,
+        });
+        const response = await api.get("/user?" + query);
+        return response.data.metadata;
+    }
+);
 
 // get roles
 export const fetchRoles = createAsyncThunk("users/fetchRoles", async () => {

@@ -51,7 +51,7 @@ const RecentOrders = () => {
     const { orders } = useSelector((slice) => slice.order);
 
     useEffect(() => {
-        dispatch(fetchOrders({ limit: 5 }));
+        dispatch(fetchOrders({ limit: 10 }));
 
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);

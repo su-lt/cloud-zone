@@ -1,5 +1,6 @@
 import api from "../../helpers/axiosApi";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import { buildQueryString } from "../../helpers/ultil";
 
 const initialState = {
     orders: [],
@@ -12,6 +13,7 @@ const initialState = {
     },
     updateCompleted: false,
     deleteCompleted: false,
+    totalPages: 0,
     pending: false,
     error: null,
 };
@@ -25,7 +27,6 @@ export const orderSlice = createSlice({
             state.updateObject[field] = value;
         },
         setDeleteObject: (state, action) => {
-            console.log(action.payload);
             state.deleteObject = action.payload;
         },
         setUpdateCompleted: (state) => {
@@ -42,17 +43,22 @@ export const orderSlice = createSlice({
         },
     },
     extraReducers: (builder) => {
+        // get orders
         builder.addCase(fetchOrders.fulfilled, (state, { payload }) => {
             state.pending = false;
             state.orders = payload.orders;
+            state.totalPages = Math.ceil(
+                payload.totalOrders / process.env.REACT_APP_PRODUCT_LIMIT
+            );
         });
         builder.addCase(fetchOrders.rejected, (state, { error }) => {
             state.pending = false;
-            state.error = error.message;
+            // state.error = error.message;
         });
         builder.addCase(fetchOrders.pending, (state, { payload }) => {
             state.pending = true;
         });
+        // get order by id
         builder.addCase(fetchOrderById.fulfilled, (state, { payload }) => {
             state.pending = false;
             state.updateObject = payload.order;
@@ -64,6 +70,7 @@ export const orderSlice = createSlice({
         builder.addCase(fetchOrderById.pending, (state, { payload }) => {
             state.pending = true;
         });
+        // post update
         builder.addCase(updateOrder.fulfilled, (state, { payload }) => {
             state.pending = false;
             state.updateCompleted = true;
@@ -75,6 +82,7 @@ export const orderSlice = createSlice({
         builder.addCase(updateOrder.pending, (state, { payload }) => {
             state.pending = true;
         });
+        // post delete
         builder.addCase(deleteOrder.fulfilled, (state) => {
             state.pending = false;
             state.deleteCompleted = true;
@@ -86,6 +94,7 @@ export const orderSlice = createSlice({
         builder.addCase(deleteOrder.pending, (state, { payload }) => {
             state.pending = true;
         });
+        // fetch total except cancel status
         builder.addCase(fetchTotalOrder.fulfilled, (state, { payload }) => {
             state.totalOrders = payload.count;
             state.totalPrices = payload.totalPrices;
@@ -96,8 +105,13 @@ export const orderSlice = createSlice({
 // get orders
 export const fetchOrders = createAsyncThunk(
     "category/fetchOrders",
-    async () => {
-        const response = await api.get("/order/");
+    async ({ searchString, page, limit }) => {
+        const query = buildQueryString({
+            searchString,
+            page,
+            limit,
+        });
+        const response = await api.get("/order?" + query);
         return response.data.metadata;
     }
 );

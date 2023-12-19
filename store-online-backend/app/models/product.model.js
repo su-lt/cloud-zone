@@ -33,7 +33,7 @@ const productSchema = new mongoose.Schema(
 
 productSchema.pre("find", function (next) {
     this.sort({
-        updatedAt: -1,
+        createdAt: -1,
     });
     next();
 });

@@ -1,4 +1,5 @@
 const keyModel = require("../models/key.model");
+const userModel = require("../models/user.model");
 const { verifyJWT } = require("../auth/ulti.auth");
 const {
     AuthFailureError,
@@ -10,6 +11,10 @@ const authentication = async (req, res, next) => {
     // get userId
     const userId = req.headers["x-client-id"]; // return null string if header null
     if (!userId) throw new BadRequestError();
+
+    // get user
+    const user = await userModel.findById(userId).populate("role").lean();
+    if (!user) throw new NotFoundError("User not found");
 
     // get accessToken in cookie
     const accessToken = req.headers["x-token"]; // return null string if header null
@@ -27,8 +32,8 @@ const authentication = async (req, res, next) => {
 
         // set keyStore
         req.keyStore = keyStore;
+        req.user = user;
 
-        // return next
         return next();
     } catch (error) {
         if (error.name === "TokenExpiredError")
@@ -45,11 +50,13 @@ const authentication = async (req, res, next) => {
     }
 };
 
-const isAdmin = (req, res, next) => {
-    const roles = req.user.roles;
+const isAdmin = async (req, res, next) => {
+    // get user req.user (check authentication middleware success)
+    const user = req.user;
 
-    const roleAdmin = roles.find((u) => u.roleName === "admin");
-    if (!roleAdmin)
+    // check role
+    const isAdmin = user.role.name === "ADMIN" ? true : false;
+    if (!isAdmin)
         return res.status(401).json({
             message: "Unauthorized access !",
         });

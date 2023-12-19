@@ -4,7 +4,8 @@ const initialState = {
     minPrice: "",
     maxPrice: "",
     searchString: "",
-    searchCategory: "",
+    searchCategory: [],
+    sort: "",
     page: 1,
 };
 
@@ -25,10 +26,33 @@ export const filterSlice = createSlice({
             state.searchString = action.payload;
         },
         setSearchCategory: (state, action) => {
-            state.searchCategory = action.payload;
+            const categorySelected = action.payload;
+            // check category in array
+            const foundIndex = state.searchCategory.findIndex(
+                (category) => category === categorySelected
+            );
+
+            if (foundIndex !== -1)
+                // if found remove
+                state.searchCategory.splice(foundIndex, 1);
+            // not found, push to array
+            else state.searchCategory.push(categorySelected);
         },
-        clearState: (state) => {
-            state = initialState;
+        setSort: (state, { payload }) => {
+            state.sort = payload;
+        },
+        clearState: () => {
+            return initialState;
         },
     },
 });
+
+export const {
+    setMaxPrice,
+    setMinPrice,
+    setSearchString,
+    setSearchCategory,
+    setSort,
+    setPage,
+    clearState,
+} = filterSlice.actions;

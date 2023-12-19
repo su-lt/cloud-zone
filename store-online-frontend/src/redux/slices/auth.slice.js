@@ -62,7 +62,6 @@ export const authSlice = createSlice({
             }
         });
         builder.addCase(login.rejected, (state, action) => {
-            // console.log(action);
             state.error = "Login failed, please try again !";
         });
         // logout

@@ -4,11 +4,13 @@ import {
     HiOutlineLogout,
     HiOutlineArrowCircleLeft,
 } from "react-icons/hi";
-
+import { useDispatch } from "react-redux";
 import { routes_dashboard } from "../../../routes";
 import { Link, useLocation } from "react-router-dom";
+import { setSearchString } from "../../../redux/slices/filter.slice";
 
 const Sidebar = () => {
+    const dispatch = useDispatch();
     const { pathname } = useLocation();
     const [open, setOpen] = useState(false);
 
@@ -43,7 +45,11 @@ const Sidebar = () => {
                     onClick={() => setOpen((prev) => !prev)}
                 />
             </div>
-            <div className={`flex items-center gap-2 px-1 py-3 `}>
+            <Link
+                to={"/"}
+                onClick={() => dispatch(setSearchString(""))}
+                className="flex items-center gap-2 px-1 py-3"
+            >
                 <div>
                     <HiCloud size={40} className="text-green-600" />
                 </div>
@@ -56,12 +62,13 @@ const Sidebar = () => {
                     <h2 className="font-light">Zone</h2>
                     <h2 className="font-bold">.</h2>
                 </div>
-            </div>
+            </Link>
             <div className="flex-1 py-14 flex flex-col gap-2">
                 {routes_dashboard.map((item) => (
                     <Link
                         to={item.path}
                         key={item.key}
+                        onClick={() => dispatch(setSearchString(""))}
                         className={`${
                             pathname === item.path
                                 ? "bg-neutral-700"

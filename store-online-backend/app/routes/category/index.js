@@ -10,9 +10,17 @@ const {
     deleteCategoryById,
     getTotalProductByCategoryId,
 } = require("../../controllers/category.controller");
+const {
+    authentication,
+    isAdmin,
+} = require("../../middlewares/auth.middleware");
 
 // get categories
 router.get("/", asyncHandler(getCategories));
+
+// check authentication
+router.use(asyncHandler(authentication));
+router.use(asyncHandler(isAdmin));
 
 // get category by id
 router.get("/:id", asyncHandler(getCategoryById));

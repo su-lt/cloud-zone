@@ -1,5 +1,6 @@
 import api from "../../helpers/axiosApi";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import { buildQueryString } from "../../helpers/ultil";
 
 const initialState = {
     categories: [],
@@ -22,6 +23,7 @@ const initialState = {
     pending: false,
     error: null,
     isValid: false,
+    totalPages: 0,
 };
 
 export const categorySlice = createSlice({
@@ -79,8 +81,11 @@ export const categorySlice = createSlice({
     extraReducers: (builder) => {
         // get all categories
         builder.addCase(fetchCategories.fulfilled, (state, { payload }) => {
-            state.categories = payload.categories;
             state.completed = false;
+            state.categories = payload.categories;
+            state.totalPages = Math.ceil(
+                payload.totalCategories / process.env.REACT_APP_PRODUCT_LIMIT
+            );
         });
         // create a new category
         builder.addCase(createCategory.fulfilled, (state, { payload }) => {
@@ -135,8 +140,12 @@ export const categorySlice = createSlice({
 // get categories
 export const fetchCategories = createAsyncThunk(
     "category/fetchCategories",
-    async () => {
-        const response = await api.get("/category/");
+    async ({ searchString, page }) => {
+        const query = buildQueryString({
+            searchString,
+            page,
+        });
+        const response = await api.get("/category?" + query);
         return response.data.metadata;
     }
 );

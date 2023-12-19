@@ -44,6 +44,15 @@ class NotFoundError extends ErrorResponse {
     }
 }
 
+class ForbiddenError extends ErrorResponse {
+    constructor(
+        message = responStatus.FORBIDDEN,
+        statusCode = statusCodes.FORBIDDEN
+    ) {
+        super(message, statusCode);
+    }
+}
+
 class CreateDatabaseError extends ErrorResponse {
     constructor(
         message = responStatus.NOT_FOUND,
@@ -58,5 +67,6 @@ module.exports = {
     AuthFailureError,
     ConflictRequestError,
     NotFoundError,
+    ForbiddenError,
     CreateDatabaseError,
 };

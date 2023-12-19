@@ -1,18 +1,31 @@
-import { useDispatch, useSelector } from "react-redux";
-import { fetchProducts, productSlice } from "../redux/slices/product.slice";
 import { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchProducts } from "../redux/slices/product.slice";
+import { setPage } from "../redux/slices/filter.slice";
 
 const Pagination = () => {
     const dispatch = useDispatch();
-    const state = useSelector((slice) => slice.product);
-    const { page, totalPages } = state;
+    // state redux
+    const { minPrice, maxPrice, searchString, searchCategory, sort, page } =
+        useSelector((slice) => slice.filter);
+    const { totalPages } = useSelector((slice) => slice.product);
+
+    // handle page change
     const handleSelectPage = (page) => {
-        dispatch(productSlice.actions.setPage(page));
+        dispatch(setPage(page));
     };
 
     useEffect(() => {
-        dispatch(fetchProducts(state));
-
+        dispatch(
+            fetchProducts({
+                minPrice,
+                maxPrice,
+                searchString,
+                searchCategory,
+                sort,
+                page,
+            })
+        );
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [page]);
 

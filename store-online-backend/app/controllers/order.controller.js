@@ -4,20 +4,42 @@ const productModel = require("../models/product.model");
 require("../models/user.model");
 
 const getOrders = async (req, res) => {
-    // get all orders sorted by update time
-    const orders = await orderModel
-        .find()
-        .populate({
-            path: "user",
-            select: "fullname",
-        })
-        .lean();
+    // get params
+    let { searchString, page, limit } = req.query;
+    page = parseInt(page) || 1;
+    limit = parseInt(limit) || 12;
+
+    const skip = (page - 1) * limit;
+
+    // set query
+    const query = orderModel.find().skip(skip).limit(limit).populate({
+        path: "user",
+        select: "fullname",
+    });
+    const countQuery = orderModel.find();
+
+    // search name condition
+    if (searchString) {
+        const regex = new RegExp(searchString, "i");
+        query.where({
+            $or: [{ code: regex }, { address: regex }],
+        });
+        countQuery.where({
+            $or: [{ code: regex }, { address: regex }],
+        });
+    }
+
+    // get total number of products
+    const totalOrders = await countQuery.countDocuments().exec();
+    // get products
+    const orders = await query.lean().exec();
     if (!orders) throw new NotFoundError("Cannot load orders");
 
     return res.status(200).json({
         message: "success",
         metadata: {
             orders,
+            totalOrders,
         },
     });
 };

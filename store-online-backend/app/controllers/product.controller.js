@@ -11,57 +11,83 @@ const {
 const productDetailModel = require("../models/productDetail.model");
 
 const getAllProducts = async (req, res) => {
+    // get params
     let {
         minPrice,
         maxPrice,
         page,
-        limit,
         searchString,
         searchCategory,
-        defaultConfig = "true",
+        sort,
+        limit,
+        defaultConfig,
     } = req.query;
 
+    // check variable product
     minPrice = parseInt(minPrice) || 0;
     maxPrice = parseInt(maxPrice) || 0;
     page = parseInt(page) || 1;
-    limit = parseInt(limit) || 30;
+    limit = parseInt(limit) || 12;
 
     const skip = (page - 1) * limit;
-
     const query = productModel.find().skip(skip).limit(limit);
-
     const countQuery = productModel.find();
 
     // get product with conditions
-
+    // min price condition
     if (minPrice > 0) {
         query.where("price").gt(minPrice);
         countQuery.where("price").gt(minPrice);
     }
-
+    // max price condition
     if (maxPrice > 0) {
         query.where("price").lt(maxPrice);
         countQuery.where("price").lt(maxPrice);
     }
-
+    // search name condition
     if (searchString) {
         const regex = new RegExp(searchString, "i");
         query.where({ name: regex });
         countQuery.where({ name: regex });
     }
-
+    // categories search condition
     if (searchCategory) {
-        query.find({ category: new Types.ObjectId(searchCategory) });
-        countQuery.where({ category: new Types.ObjectId(searchCategory) });
+        // split into categories
+        const categories = searchCategory.split(",");
+        // find by categories
+        query.find({ category: { $in: categories } });
+        countQuery.where({ category: { $in: categories } });
+    }
+    // sort
+    if (sort) {
+        switch (sort) {
+            case "latest":
+                query.sort({ updatedAt: -1 });
+                break;
+            case "oldest":
+                query.sort({ updatedAt: 1 });
+                break;
+            case "bestseller":
+                query.sort({ quantity_sold: -1 });
+                break;
+            case "htl":
+                query.sort({ price: -1 });
+                break;
+            case "lth":
+                query.sort({ price: 1 });
+                break;
+            default:
+                break;
+        }
     }
 
-    if (defaultConfig === "true") {
+    if (!defaultConfig) {
         query.where("status").equals("active");
-        countQuery.countDocuments({ status: "active" });
+        countQuery.where("status").equals("active");
     }
 
     // get total number of products
-    const totalProducts = await countQuery.exec();
+    const totalProducts = await countQuery.countDocuments().exec();
 
     // get products
     const products = await query.lean().exec();
@@ -272,21 +298,6 @@ const deleteProduct = async (req, res) => {
     });
 };
 
-const getPopularProducts = async (req, res) => {
-    // count products with active status
-    const products = await productModel
-        .find({ status: "active" })
-        .sort({ quantity_sold: -1 }) // Sort descending
-        .limit(5);
-
-    return res.status(200).json({
-        message: "success",
-        metadata: {
-            products,
-        },
-    });
-};
-
 const totalProducts = async (req, res) => {
     // count products with active status
     const count = await productModel
@@ -310,5 +321,4 @@ module.exports = {
     updateProduct,
     deleteProduct,
     totalProducts,
-    getPopularProducts,
 };

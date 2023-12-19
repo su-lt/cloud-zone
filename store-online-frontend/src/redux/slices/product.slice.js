@@ -44,12 +44,6 @@ const initialState = {
         status: "",
     },
     relatedProducts: [],
-    minPrice: "",
-    maxPrice: "",
-    searchString: "",
-    searchCategory: "",
-    page: 1,
-    limit: 12,
     totalPages: 0,
     pending: false,
     error: null,
@@ -116,21 +110,6 @@ export const productSlice = createSlice({
                 (field) => !state.errors[field]
             );
         },
-        setPage: (state, action) => {
-            state.page = action.payload;
-        },
-        setMaxPrice: (state, action) => {
-            state.maxPrice = action.payload;
-        },
-        setMinPrice: (state, action) => {
-            state.minPrice = action.payload;
-        },
-        setSearchString: (state, action) => {
-            state.searchString = action.payload.trim();
-        },
-        setSearchCategory: (state, action) => {
-            state.searchCategory = action.payload;
-        },
         setCreateCompleted: (state) => {
             state.createCompleted = false;
         },
@@ -167,7 +146,8 @@ export const productSlice = createSlice({
             state.product = payload.product;
         });
         builder.addCase(fetchProductBySlug.rejected, (state, { error }) => {
-            state.error = error.message;
+            if (error.message.includes("404")) state.error = "404";
+            else state.error = error.message;
         });
         // fetch product by id
         builder.addCase(fetchProductById.fulfilled, (state, { payload }) => {
@@ -190,12 +170,16 @@ export const productSlice = createSlice({
         // handle fetch all products
         builder.addCase(fetchProducts.fulfilled, (state, { payload }) => {
             state.pending = false;
+            state.error = null;
+            state.product = null;
             state.products = payload.products;
-            state.totalPages = Math.ceil(payload.totalProducts / state.limit);
+            state.totalPages = Math.ceil(
+                payload.totalProducts / process.env.REACT_APP_PRODUCT_LIMIT
+            );
         });
         builder.addCase(fetchProducts.rejected, (state, { error }) => {
             state.pending = false;
-            state.error = error.message;
+            // state.error = error.message;
         });
         builder.addCase(fetchProducts.pending, (state) => {
             state.pending = true;
@@ -258,21 +242,23 @@ export const productSlice = createSlice({
 export const fetchProducts = createAsyncThunk(
     "product/fetchProducts",
     async ({
-        page,
-        limit,
         minPrice,
         maxPrice,
         searchString,
         searchCategory,
+        sort,
+        page,
+        limit,
         defaultConfig,
     }) => {
         const query = buildQueryString({
-            page,
-            limit,
             minPrice,
             maxPrice,
             searchString,
             searchCategory,
+            sort,
+            page,
+            limit,
             defaultConfig,
         });
         const response = await api.get("/product?" + query);
@@ -350,7 +336,6 @@ export const deleteProduct = createAsyncThunk(
     "product/deleteProduct",
     async (id) => {
         const response = await api.delete("/product/" + id);
-
         return response.data.metadata;
     }
 );

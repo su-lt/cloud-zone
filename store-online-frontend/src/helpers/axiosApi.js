@@ -8,12 +8,14 @@ const api = axios.create({
 });
 api.defaults.withCredentials = true;
 
+let isRefreshing = false;
+let refreshQueue = [];
+
 // set interceptor request
 api.interceptors.request.use(async (config) => {
     if (
-        config.url.indexOf("/access/login") > -1 ||
-        config.url.indexOf("/access/signup") > -1 ||
-        config.url.indexOf("/access/refreshToken") > -1
+        config.url.indexOf("/login") > -1 ||
+        config.url.indexOf("/signup") > -1
     ) {
         return config;
     }
@@ -29,21 +31,42 @@ api.interceptors.response.use(
         const config = response.config;
         if (
             config.url.indexOf("/login") > -1 ||
-            config.url.indexOf("/signup") > -1 ||
-            config.url.indexOf("/refresh") > -1
+            config.url.indexOf("/signup") > -1
         ) {
             return response;
         }
         const { code, message } = response.data;
         if (code && code === 401) {
             if (message && message === "TokenExpiredError") {
-                const { accessToken } = await handleRefreshToken();
-                if (accessToken) {
-                    // set new access token to local storage
-                    localStorage.setItem("accessToken", accessToken);
+                if (!isRefreshing) {
+                    isRefreshing = true;
 
-                    // return -> call request again
-                    return api(config);
+                    const { newAccessToken } = await handleRefreshToken();
+                    if (newAccessToken) {
+                        console.log("lấy đc at mới", newAccessToken);
+                        // set new access token to local storage
+                        localStorage.setItem("accessToken", newAccessToken);
+
+                        // Đặt lại cờ sau khi làm mới
+                        isRefreshing = false;
+
+                        // Xử lý các yêu cầu đã được xếp hàng (nếu có)
+                        refreshQueue.forEach((resolve) => resolve());
+                        refreshQueue = [];
+
+                        // return -> call request again
+                        return api(config);
+                    } else {
+                        return Promise.reject(response);
+                    }
+                } else {
+                    return new Promise((resolve) => {
+                        refreshQueue.push(() => {
+                            response.config.headers["x-token"] =
+                                localStorage.getItem("accessToken") || null;
+                            resolve(api(response.config));
+                        });
+                    });
                 }
             }
         }

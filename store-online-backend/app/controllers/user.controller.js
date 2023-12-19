@@ -11,17 +11,45 @@ const {
 const orderModel = require("../models/order.model");
 
 const getUsers = async (req, res) => {
-    const users = await userModel
+    // get params
+    let { searchString, page } = req.query;
+    page = parseInt(page) || 1;
+
+    // set limit product
+    const limit = 12;
+    const skip = (page - 1) * limit;
+
+    // set query
+    const query = userModel
         .find()
+        .skip(skip)
+        .limit(limit)
         .select("-password")
-        .populate("role")
-        .lean();
+        .populate("role");
+    const countQuery = userModel.find();
+
+    // search name condition
+    if (searchString) {
+        const regex = new RegExp(searchString, "i");
+        query.where({
+            $or: [{ fullname: regex }, { email: regex }, { address: regex }],
+        });
+        countQuery.where({
+            $or: [{ fullname: regex }, { email: regex }, { address: regex }],
+        });
+    }
+
+    // get total number of users
+    const totalUsers = await countQuery.countDocuments().exec();
+    // get users
+    const users = await query.lean().exec();
     if (!users) throw new NotFoundError("Cannot load users");
 
     return res.status(200).json({
         message: "success",
         metadata: {
             users,
+            totalUsers,
         },
     });
 };

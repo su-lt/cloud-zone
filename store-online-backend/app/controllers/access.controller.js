@@ -12,6 +12,7 @@ const {
     NotFoundError,
     CreateDatabaseError,
     AuthFailureError,
+    ForbiddenError,
 } = require("../helpers/errorHandler");
 
 const signUp = async (req, res) => {
@@ -139,7 +140,6 @@ const refresh = async (req, res) => {
     // get refresh token
     const refreshToken = req.cookies.refreshToken;
     if (!refreshToken) throw new BadRequestError("token is required");
-
     // get user id
     const userId = req.headers["x-client-id"];
     if (!userId) throw new BadRequestError();
@@ -147,6 +147,15 @@ const refresh = async (req, res) => {
     // check keys of user
     const keyStore = await keyModel.findOne({ user: userId });
     if (!keyStore) throw new NotFoundError();
+
+    // check refresh token in refresh token used
+    if (keyStore.refreshTokensUsed.includes(refreshToken)) {
+        // if exist - remove
+        await keyModel.findByIdAndDelete(keyStore._id);
+        throw new ForbiddenError(
+            "Something wrong happened !!! Please re-login"
+        );
+    }
 
     // verify token
     const decodeUser = verifyJWT(refreshToken, keyStore.publicKey);
@@ -180,18 +189,14 @@ const refresh = async (req, res) => {
     return res.status(201).json({
         message: "success",
         metadata: {
-            accessToken: tokens.accessToken,
+            newAccessToken: tokens.accessToken,
         },
     });
 };
 
 const checkAuth = async (req, res) => {
-    // get userId in req.keystone (check authentication middleware)
-    const id = req.keyStore.user;
-
-    // get user
-    const user = await userModel.findById(id).populate("role").lean();
-    if (!user) throw new NotFoundError("User not found");
+    // get user req.user (check authentication middleware success)
+    const user = req.user;
 
     // check role
     const isAdmin = user.role.name === "ADMIN" ? true : false;

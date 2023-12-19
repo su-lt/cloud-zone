@@ -10,23 +10,31 @@ const {
     deleteOrderById,
     totalOrders,
 } = require("../../controllers/order.controller");
+const {
+    authentication,
+    isAdmin,
+} = require("../../middlewares/auth.middleware");
 
-// get categories
-router.get("/", asyncHandler(getOrders));
-
-// get categories
-router.get("/totalOrder", asyncHandler(totalOrders));
-
-// get category by id
-router.get("/:id", asyncHandler(getOrderById));
-
-// create category
+// create order
 router.post("/", asyncHandler(createOrder));
 
-// update category
+// check authentication
+router.use(asyncHandler(authentication));
+router.use(asyncHandler(isAdmin));
+
+// get orders
+router.get("/", asyncHandler(getOrders));
+
+// get total orders
+router.get("/totalOrder", asyncHandler(totalOrders));
+
+// get order by id
+router.get("/:id", asyncHandler(getOrderById));
+
+// update order
 router.patch("/:id", asyncHandler(updateOrderById));
 
-// delete category
+// delete order
 router.delete("/:id", asyncHandler(deleteOrderById));
 
 module.exports = router;

@@ -1,33 +1,53 @@
-import { useState } from "react";
+import { useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useDispatch } from "react-redux";
-import { signup } from "../../helpers/axiosApi";
-import { authSlice } from "../../redux/slices/auth.slice";
+import { useDispatch, useSelector } from "react-redux";
+import { handleOnChangeRegister, signup } from "../../redux/slices/auth.slice";
 import TitleSection from "../../components/TitleSection";
 
 const Register = () => {
-    const [fullname, setFullname] = useState("");
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
-    const [repassword, setRepassword] = useState("");
-    const [passwordValidate, setPasswordValidate] = useState(false);
-    const [signUpError, setSignUpError] = useState(null);
-
     const navigate = useNavigate();
     const dispatch = useDispatch();
 
-    const handleSignUpClick = async () => {
-        if (password === repassword) {
-            const { error, username } = await signup(fullname, email, password);
-            if (error) setSignUpError(error);
-            else {
-                dispatch(authSlice.actions.login(username));
-                navigate("/");
-            }
-        } else setPasswordValidate(true);
+    // state redux
+    const { isLogin, registerObject, completed, errors, error, lastPage } =
+        useSelector((slice) => slice.auth);
+
+    // handle onchange input
+    const handleOnChange = (field, value) => {
+        dispatch(handleOnChangeRegister({ field, value }));
     };
+
+    // handle sign up button click
+    const handleSignUpClick = () => {
+        dispatch(
+            signup({
+                fullname: registerObject.fullname,
+                email: registerObject.email,
+                phone: registerObject.phone,
+                address: registerObject.address,
+                password: registerObject.password,
+            })
+        );
+    };
+
+    useEffect(() => {
+        if (isLogin)
+            // if logged in => return home page
+            navigate("/");
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [isLogin]);
+
+    useEffect(() => {
+        if (completed)
+            if (lastPage)
+                // if lastPage exist return cart
+                navigate(lastPage);
+            else navigate("/");
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [completed]);
+
     return (
-        <main>
+        <main className="dark:bg-dark dark:text-purple-200 min-h-[calc(100vh-329px)]">
             {/* title section */}
             <TitleSection
                 title={"Register"}
@@ -45,7 +65,7 @@ const Register = () => {
                             If you already have an account please login here
                         </p>
                         <Link to="/login">
-                            <button className="button bg-white text-primary mt-8">
+                            <button className="button-outline bg-white text-primary mt-8 dark:bg-dark">
                                 Login
                             </button>
                         </Link>
@@ -56,41 +76,105 @@ const Register = () => {
                         Sign Up CloudZone Member
                     </h3>
                     <div className="mt-4 flex flex-col gap-2">
-                        {signUpError && (
+                        {error && (
                             <div className="p-3 text-center bg-red-200">
-                                {signUpError}
+                                {error}
                             </div>
                         )}
+                        {/* fullname */}
                         <input
+                            onChange={(e) =>
+                                handleOnChange("fullname", e.target.value)
+                            }
                             type="text"
                             placeholder="Your name"
-                            className="input-outline-none"
-                            onChange={(e) => setFullname(e.target.value)}
+                            className={`input-outline-none ${
+                                errors.fullname && "border-red-400"
+                            }`}
                         />
+                        {errors.fullname && (
+                            <span className="text-xs text-red-500">
+                                * {errors.fullname}
+                            </span>
+                        )}
+                        {/* email */}
                         <input
+                            onChange={(e) =>
+                                handleOnChange("email", e.target.value)
+                            }
                             type="text"
-                            placeholder="Your email"
-                            className="input-outline-none"
-                            onChange={(e) => setEmail(e.target.value)}
+                            placeholder="Email"
+                            className={`input-outline-none ${
+                                errors.email && "border-red-400"
+                            }`}
                         />
+                        {errors.email && (
+                            <span className="text-xs text-red-500">
+                                * {errors.email}
+                            </span>
+                        )}
+                        {/* phone */}
                         <input
+                            onChange={(e) =>
+                                handleOnChange("phone", e.target.value)
+                            }
+                            type="number"
+                            placeholder="Phone"
+                            className={`input-outline-none appearance-none ${
+                                errors.phone && "border-red-400"
+                            }`}
+                        />
+                        {errors.phone && (
+                            <span className="text-xs text-red-500">
+                                * {errors.phone}
+                            </span>
+                        )}
+                        {/* address */}
+                        <input
+                            onChange={(e) =>
+                                handleOnChange("address", e.target.value)
+                            }
+                            type="text"
+                            placeholder="address"
+                            className={`input-outline-none ${
+                                errors.address && "border-red-400"
+                            }`}
+                        />
+                        {errors.address && (
+                            <span className="text-xs text-red-500">
+                                * {errors.address}
+                            </span>
+                        )}
+                        {/* password */}
+                        <input
+                            onChange={(e) =>
+                                handleOnChange("password", e.target.value)
+                            }
                             type="password"
                             placeholder="Password"
-                            className="input-outline-none"
-                            onChange={(e) => setPassword(e.target.value)}
-                        />
-
-                        <input
-                            type="password"
-                            placeholder="Re-password"
                             className={`input-outline-none ${
-                                passwordValidate ? "    border-red-400" : ""
+                                errors.password && "border-red-400"
                             }`}
-                            onChange={(e) => setRepassword(e.target.value)}
                         />
-                        {passwordValidate && (
-                            <span className="text-red-400 text-xs py-2">
-                                password not match
+                        {errors.password && (
+                            <span className="text-xs text-red-500">
+                                * {errors.password}
+                            </span>
+                        )}
+                        {/* re-password */}
+                        <input
+                            onChange={(e) =>
+                                handleOnChange("repass", e.target.value)
+                            }
+                            type="password"
+                            placeholder="re-password"
+                            className={`input-outline-none ${
+                                errors.repass && "border-red-400"
+                            }`}
+                        />
+                        {errors.repass && (
+                            <span className="text-xs text-red-500">
+                                * {errors.repass}
                             </span>
                         )}
 
@@ -103,7 +187,7 @@ const Register = () => {
                         </div>
                         <div className="mt-3">
                             <button
-                                className="button w-full"
+                                className="button-primary w-full"
                                 onClick={handleSignUpClick}
                             >
                                 SIGN UP

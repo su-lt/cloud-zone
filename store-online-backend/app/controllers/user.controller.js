@@ -85,9 +85,11 @@ const getUserById = async (req, res) => {
 
 const createUser = async (req, res) => {
     // get data from request body
-    const { fullname, email, password, address } = req.body;
-    if (!fullname || !email || !password || !address)
+    let { fullname, email, phone, password, address } = req.body;
+    if (!fullname || !email || !phone || !password || !address)
         throw new BadRequestError();
+
+    phone = parseInt(phone);
 
     // check exist user
     const checkUser = await userModel.findOne({ email }).lean();
@@ -104,6 +106,7 @@ const createUser = async (req, res) => {
     const newUser = await userModel.create({
         fullname,
         email,
+        phone,
         address,
         password: passwordHash,
         role: roleMember._id,
@@ -182,6 +185,25 @@ const totalCustomer = async (req, res) => {
     });
 };
 
+// get address
+const getAddress = async (req, res) => {
+    //get id user
+    const id = req.params.id;
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+        throw new BadRequestError("Id not valid !");
+    }
+
+    // find user
+    const user = await userModel.findById(id).lean();
+
+    return res.status(200).json({
+        message: "success",
+        metadata: {
+            address: user.address,
+        },
+    });
+};
+
 module.exports = {
     getUsers,
     getUserById,
@@ -190,4 +212,5 @@ module.exports = {
     deleteUserById,
     getRoles,
     totalCustomer,
+    getAddress,
 };

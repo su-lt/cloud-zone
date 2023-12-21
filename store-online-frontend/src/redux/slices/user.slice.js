@@ -6,6 +6,7 @@ const initialState = {
     users: [],
     roles: [],
     totalCustomers: 0,
+    defaultAddress: "",
     user: null,
     userObject: { fullname: "", password: "", email: "", address: "" },
     errors: { fullname: "", password: "", email: "", address: "" },
@@ -118,8 +119,13 @@ export const userSlice = createSlice({
         builder.addCase(fetchRoles.fulfilled, (state, { payload }) => {
             state.roles = payload.roles;
         });
+        // get total customers
         builder.addCase(fetchTotalCustomers.fulfilled, (state, { payload }) => {
             state.totalCustomers = payload.count;
+        });
+        // fetch user address
+        builder.addCase(fetchUserAddress.fulfilled, (state, { payload }) => {
+            state.defaultAddress = payload.address;
         });
     },
 });
@@ -188,6 +194,15 @@ export const fetchTotalCustomers = createAsyncThunk(
     "users/fetchTotalCustomers",
     async () => {
         const response = await api.get("/user/totalCustomer");
+        return response.data.metadata;
+    }
+);
+
+// fetch user address
+export const fetchUserAddress = createAsyncThunk(
+    "users/fetchUserAddress",
+    async (id) => {
+        const response = await api.get("/user/address/" + id);
         return response.data.metadata;
     }
 );

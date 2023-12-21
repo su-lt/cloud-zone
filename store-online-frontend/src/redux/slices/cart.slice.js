@@ -1,10 +1,24 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import api from "../../helpers/axiosApi";
+import api, { provinceApi } from "../../helpers/axiosApi";
 
 const initialState = {
     cart: [],
     totalQuantity: 0,
     totalPrice: 0,
+    address: {
+        province: "",
+        district: "",
+        ward: "",
+        street: "",
+    },
+    fullAddress: "",
+    provinces: [],
+    districts: [],
+    wards: [],
+    pending: false,
+    createCompleted: false,
+    orderError: null,
+    orderCode: "",
 };
 
 export const cartSlice = createSlice({
@@ -97,11 +111,19 @@ export const cartSlice = createSlice({
             // add cart to local storage
             localStorage.setItem("cart", JSON.stringify(state.cart));
         },
-        clearState: (state) => {
-            state = initialState;
+        setAddress: (state, action) => {
+            const { field, value } = action.payload;
+            state.address[field] = value;
+        },
+        setFullAddress: (state, action) => {
+            state.fullAddress = action.payload;
+        },
+        clearCartState: (state) => {
+            return initialState;
         },
     },
     extraReducers: (builder) => {
+        // fetch product by id
         builder.addCase(fetchProductById.fulfilled, (state, { payload }) => {
             const foundIndex = state.cart.findIndex(
                 (item) => item._id === payload._id
@@ -112,6 +134,33 @@ export const cartSlice = createSlice({
                 state.cart[foundIndex].image_thumbnail =
                     payload.image_thumbnail;
             }
+        });
+        // fetch provinces
+        builder.addCase(fetchProvinces.fulfilled, (state, { payload }) => {
+            state.provinces = payload;
+        });
+        // fetch districts
+        builder.addCase(fetchDistricts.fulfilled, (state, { payload }) => {
+            state.districts = payload;
+        });
+        // fetch wards
+        builder.addCase(fetchWards.fulfilled, (state, { payload }) => {
+            state.wards = payload;
+        });
+        // create order
+        builder.addCase(createOrder.fulfilled, (state, { payload }) => {
+            const { order } = payload;
+            state.orderCode = order.code;
+            state.createCompleted = true;
+            // clear state
+            state.cart = initialState.cart;
+            state.totalPrice = initialState.totalPrice;
+            state.totalQuantity = initialState.totalQuantity;
+            // clear cart in local storage
+            localStorage.removeItem("cart");
+        });
+        builder.addCase(createOrder.rejected, (state, { error }) => {
+            state.orderCode = error.message;
         });
     },
 });
@@ -125,4 +174,55 @@ export const fetchProductById = createAsyncThunk(
     }
 );
 
-export const { addToCart } = cartSlice.actions;
+// get provinces
+export const fetchProvinces = createAsyncThunk(
+    "cart/fetchProvinces",
+    async () => {
+        const response = await provinceApi.get();
+        return response.data;
+    }
+);
+
+// get districts
+export const fetchDistricts = createAsyncThunk(
+    "cart/fetchDistricts",
+    async (code) => {
+        const response = await provinceApi.get(`/p/${code}?depth=2`);
+        return response.data.districts;
+    }
+);
+
+// get districts
+export const fetchWards = createAsyncThunk("cart/fetchWards", async (code) => {
+    const response = await provinceApi.get(`/d/${code}?depth=2`);
+    return response.data.wards;
+});
+
+// create order
+export const createOrder = createAsyncThunk(
+    "cart/createOrder",
+    async ({ cart, id, address, totalPrice }) => {
+        // create items object
+        const items = cart.map((item) => ({
+            product: item._id,
+            quantity: item.quantity,
+            price: item.price,
+        }));
+        // post api create order
+        const response = await api.post("/order/", {
+            user: id,
+            address,
+            items,
+            totalPrice,
+        });
+        return response.data.metadata;
+    }
+);
+
+export const {
+    addToCart,
+    setAddress,
+    setFullAddress,
+    updateQuantity,
+    clearCartState,
+} = cartSlice.actions;

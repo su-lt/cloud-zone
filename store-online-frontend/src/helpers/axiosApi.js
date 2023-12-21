@@ -1,5 +1,9 @@
 import axios from "axios";
 
+export const provinceApi = axios.create({
+    baseURL: process.env.REACT_APP_PROVINCE_API_URL,
+});
+
 const api = axios.create({
     baseURL: process.env.REACT_APP_API_URL,
     headers: {
@@ -43,7 +47,6 @@ api.interceptors.response.use(
 
                     const { newAccessToken } = await handleRefreshToken();
                     if (newAccessToken) {
-                        console.log("lấy đc at mới", newAccessToken);
                         // set new access token to local storage
                         localStorage.setItem("accessToken", newAccessToken);
 

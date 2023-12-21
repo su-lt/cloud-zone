@@ -83,12 +83,12 @@ const FilterSection = () => {
     }, [minPrice, maxPrice, searchCategory, sort]);
 
     useEffect(() => {
-        dispatch(fetchCategories());
+        dispatch(fetchCategories({}));
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     return (
-        <div className="mt-4 text-right">
+        <div className="mt-4 text-right dark:text-custom-1000">
             <div>
                 <button
                     className="button-outline text-xs"
@@ -164,7 +164,7 @@ const FilterSection = () => {
                                         searchCategory.findIndex(
                                             (category) => category === cat._id
                                         ) !== -1
-                                            ? "border-b-2 border-primary"
+                                            ? "border-b-2 border-primary dark:border-purple-300"
                                             : null
                                     }
                                 >
@@ -199,7 +199,7 @@ const FilterSection = () => {
                                     key={item.name}
                                     className={
                                         sort === item.value
-                                            ? "border-b-2 border-primary"
+                                            ? "border-b-2 border-primary dark:border-purple-300"
                                             : null
                                     }
                                 >
@@ -227,7 +227,7 @@ const FilterSection = () => {
                             <h4>Prices</h4>
                             <div>
                                 <button
-                                    className="w-[168px] py-2 text-gray-500 border border-primary shadow-sm rounded-lg "
+                                    className="w-[168px] py-2 text-gray-500 border border-primary shadow-sm rounded-lg dark:border-purple-100"
                                     onClick={() => handlePricesClick(0, 100)}
                                 >
                                     $.0 - $100
@@ -235,7 +235,7 @@ const FilterSection = () => {
                             </div>
                             <div>
                                 <button
-                                    className="w-[168px] py-2 text-gray-500 border border-primary shadow-sm rounded-lg "
+                                    className="w-[168px] py-2 text-gray-500 border border-primary shadow-sm rounded-lg dark:border-purple-100"
                                     onClick={() => handlePricesClick(100, 300)}
                                 >
                                     $.100 - $.300
@@ -243,7 +243,7 @@ const FilterSection = () => {
                             </div>
                             <div>
                                 <button
-                                    className="w-[168px]  py-2 text-gray-500 border border-primary shadow-sm rounded-lg "
+                                    className="w-[168px]  py-2 text-gray-500 border border-primary shadow-sm rounded-lg dark:border-purple-100"
                                     onClick={() => handlePricesClick(300, 0)}
                                 >
                                     $.300+

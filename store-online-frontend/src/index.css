@@ -31,6 +31,14 @@
     th {
         @apply font-semibold;
     }
+    input {
+        @apply dark:bg-dark;
+    }
+    input[type="number"]::-webkit-inner-spin-button,
+    input[type="number"]::-webkit-outer-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
 }
 
 @layer components {
@@ -38,18 +46,18 @@
         @apply before:content-[''] before:absolute before:h-[2px]  before:w-0 before:-bottom-[5px] before:pointer-events-none before:bg-white before:duration-700 group-hover:before:w-full;
     }
     .shadow-text {
-        @apply before:content-[''] before:absolute before:h-10  before:w-full before:bottom-0 before:pointer-events-none before:bg-gradient-to-b before:from-transparent before:to-white;
+        @apply before:content-[''] before:absolute before:h-10  before:w-full before:bottom-0 before:pointer-events-none before:bg-gradient-to-b before:from-transparent before:to-white dark:before:to-dark;
     }
     .cart-badge {
         @apply absolute top-[-8px] right-[-8px] h-3 w-3 rounded-full bg-black text-white text-[8px] leading-3 text-center;
     }
     .button-primary {
-        @apply px-4 py-2 text-white rounded uppercase cursor-pointer bg-primary shadow-sm shadow-primary
-            hover:bg-white hover:text-primary hover:border hover:border-primary hover:shadow-md hover:shadow-primary;
+        @apply px-4 py-2 text-white rounded uppercase cursor-pointer bg-primary 
+            hover:bg-white hover:text-primary hover:border hover:border-primary dark:border-purple-300;
     }
     .button-outline {
-        @apply px-4 py-2 text-primary rounded uppercase cursor-pointer border border-primary shadow-sm shadow-primary
-            hover:bg-primary hover:text-white hover:shadow-md hover:shadow-primary;
+        @apply px-4 py-2 text-primary rounded uppercase cursor-pointer border border-primary
+            hover:bg-primary hover:text-white dark:text-custom-1000 dark:border-purple-300;
     }
     .wrapper-scroll {
         @apply grid gap-8 grid-flow-col auto-cols-[80%] overflow-x-auto no-scrollbar snap-mandatory snap-x snap-always md:grid-cols-3;

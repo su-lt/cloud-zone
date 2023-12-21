@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 
 const Breadcrumb = ({ items }) => {
     return (
-        <div className="flex flex-wrap text-md">
+        <div className="flex flex-wrap text-md dark:text-custom-1000">
             {items.map((item, index) =>
                 index === items.length - 1 ? (
                     <div className="font-nomal" key={`last-item-${index}`}>

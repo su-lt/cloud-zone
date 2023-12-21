@@ -7,8 +7,13 @@ import { useSelector, useDispatch } from "react-redux";
 import { motion, AnimatePresence } from "framer-motion";
 import { MenuToggle } from "../../../components/MenuToggle";
 import { formattedPrice } from "../../../helpers/ultil";
-import { clearState, logout } from "../../../redux/slices/auth.slice";
+import {
+    clearAuthState,
+    logout,
+    toggleDarkMode,
+} from "../../../redux/slices/auth.slice";
 import DarkModeToggle from "react-dark-mode-toggle";
+import { clearCartState } from "../../../redux/slices/cart.slice";
 
 const menuItems = [
     { text: "Home", link: "/" },
@@ -21,10 +26,11 @@ const Header = () => {
     const dispatch = useDispatch();
     const [open, setOpen] = useState(false); // check toggle menu
     const [isFixed, setIsFixed] = useState(false); // check fixed navbar
-    const [isDarkMode, setIsDarkMode] = useState(false); // check darkmode
 
     // redux state
-    const { fullname, isLogin, isAdmin } = useSelector((slice) => slice.auth);
+    const { fullname, isLogin, isAdmin, isDarkMode } = useSelector(
+        (slice) => slice.auth
+    );
     const { totalQuantity, totalPrice } = useSelector((slice) => slice.cart);
 
     // close menu toggle if menu toggle open and resize
@@ -44,7 +50,8 @@ const Header = () => {
     //handle logout
     const handleLogout = () => {
         dispatch(logout());
-        dispatch(clearState());
+        dispatch(clearAuthState());
+        dispatch(clearCartState());
         navigate("/");
     };
 
@@ -145,7 +152,7 @@ const Header = () => {
                     )}
                     <div className="px-4 md:pr-0 flex items-center">
                         <DarkModeToggle
-                            onChange={() => setIsDarkMode(!isDarkMode)}
+                            onChange={() => dispatch(toggleDarkMode())}
                             checked={isDarkMode}
                             size={40}
                             className={
@@ -162,7 +169,11 @@ const Header = () => {
                     top: isFixed ? 0 : 40,
                     position: isFixed ? "fixed" : "absolute",
                     backgroundColor: isFixed
-                        ? "rgba(255, 255, 255, 1)"
+                        ? isDarkMode
+                            ? "rgba(15, 23, 42, 1)"
+                            : "rgba(255, 255, 255, 1)"
+                        : isDarkMode
+                        ? "rgb(12, 12, 30, 1)"
                         : "rgba(255, 255, 255, 0)",
                     boxShadow: isFixed ? "0 0px 3px 0px rgba(0,0,0,0.2)" : "0",
                 }}
@@ -170,7 +181,7 @@ const Header = () => {
                 className="w-full h-14 left-1/2 -translate-x-1/2 z-50 items-center hidden md:flex"
             >
                 <div className="px-4 w-full flex items-center justify-between md:container">
-                    <div className="flex items-center">
+                    <div className="flex items-center dark:text-custom-1000">
                         {/* brand logo */}
                         <Link to="/" className="flex items-center">
                             <h2 className="font-bold">Cloud</h2>
@@ -179,11 +190,11 @@ const Header = () => {
                         </Link>
 
                         {/* menu - desktop */}
-                        <div className="ml-16 hidden md:block">
+                        <div className="ml-16 hidden md:block dark:text-custom-1000">
                             <ul className="flex gap-5">
                                 {menuItems.map((item) => (
                                     <li key={item.text} className="py-2">
-                                        <a href={item.link}>{item.text}</a>
+                                        <Link to={item.link}>{item.text}</Link>
                                     </li>
                                 ))}
                             </ul>
@@ -191,14 +202,14 @@ const Header = () => {
                     </div>
 
                     {/* cart - menu */}
-                    <div className="flex gap-4 items-center">
+                    <div className="flex gap-4 items-center dark:text-custom-1000">
                         {/* cart */}
                         <Link className="relative" to="/cart">
                             <div>
                                 <HiShoppingCart size={20} />
                             </div>
                             {totalQuantity ? (
-                                <span className="cart-badge">
+                                <span className="cart-badge dark:bg-white dark:text-black">
                                     {totalQuantity}
                                 </span>
                             ) : null}
@@ -209,7 +220,7 @@ const Header = () => {
             </motion.nav>
 
             {/* navbar mobile */}
-            <nav className="px-4 h-14 shadow-b shadow-nav flex items-center justify-between md:hidden">
+            <nav className="px-4 h-14 shadow-b shadow-nav flex items-center justify-between md:hidden dark:bg-dark dark:text-custom-1000">
                 {/* brand logo */}
                 <Link to="/" className="flex items-center">
                     <h2 className="font-bold">Cloud</h2>
@@ -239,7 +250,10 @@ const Header = () => {
                         animate={open ? "open" : "closed"}
                         className="flex md:hidden"
                     >
-                        <MenuToggle toggle={() => setOpen((prev) => !prev)} />
+                        <MenuToggle
+                            isDarkMode={isDarkMode}
+                            toggle={() => setOpen((prev) => !prev)}
+                        />
                     </motion.div>
                 </div>
             </nav>
@@ -257,7 +271,7 @@ const Header = () => {
                         <ul>
                             {menuItems.map((item) => (
                                 <li key={item.text} className="py-2">
-                                    <a href={item.link}>{item.text}</a>
+                                    <Link to={item.link}>{item.text}</Link>
                                 </li>
                             ))}
                         </ul>

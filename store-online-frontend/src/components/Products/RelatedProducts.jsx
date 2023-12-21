@@ -13,7 +13,7 @@ const RelatedProducts = ({ id }) => {
     }, []);
     return (
         <div className="mt-10">
-            <h2>Related Products</h2>
+            <h2 className="dark:text-custom-1000">Related Products</h2>
             <div className="my-4 gap-x-4 gap-y-10 grid grid-cols-2 transition-all ease-in-out duration-1000 md:gap-x-8 lg:grid-cols-4">
                 {relatedProducts.map((product) => (
                     <ProductCard item={product} key={product._id} />

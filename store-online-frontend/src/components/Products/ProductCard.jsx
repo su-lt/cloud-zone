@@ -14,7 +14,7 @@ const ProductCard = ({ item }) => {
                     />
                 </Link>
             </div>
-            <div className="mx-1 flex justify-between text-gray3 text-sm">
+            <div className="mx-1 flex justify-between text-gray3 text-sm dark:text-purple-100">
                 <span className="cursor-pointer">
                     <Link to={`/products/${item.slug}`}>{item.name}</Link>
                 </span>
@@ -22,7 +22,7 @@ const ProductCard = ({ item }) => {
                     <FaRegHeart size={14} />
                 </span>
             </div>
-            <div className="mx-1 flex justify-between text-gray2 text-sm">
+            <div className="mx-1 flex justify-between text-gray2 text-sm dark:text-purple-100">
                 <span>Price: {formattedPrice(item.price)}</span>
                 <span>Sold: {item.quantity_sold}</span>
             </div>

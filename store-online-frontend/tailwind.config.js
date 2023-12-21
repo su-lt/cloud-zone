@@ -1,11 +1,18 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
+    darkMode: "class",
     content: ["./src/**/*.{js,jsx,ts,tsx}"],
     theme: {
         container: {
             center: true,
         },
         extend: {
+            textColor: {
+                dark: "rgba(178, 178, 178, 1)",
+            },
+            backgroundColor: {
+                dark: "rgba(15, 23, 42, 1)",
+            },
             screens: {
                 "2xl": "1280px",
             },
@@ -24,6 +31,7 @@ module.exports = {
                     500: "rgba(178, 178, 178, 0.5)",
                     1000: "rgba(178, 178, 178, 1)",
                 },
+                dark: "rgba(15, 23, 42, 1)",
             },
             boxShadow: {
                 neon: "0 0 5px theme('colors.purple.200'), 0 0 20px theme(colors.purple.700)",

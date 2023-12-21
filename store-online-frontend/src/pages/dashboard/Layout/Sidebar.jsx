@@ -8,15 +8,23 @@ import { useDispatch } from "react-redux";
 import { routes_dashboard } from "../../../routes";
 import { Link, useLocation } from "react-router-dom";
 import { setSearchString } from "../../../redux/slices/filter.slice";
+import { clearAuthState, logout } from "../../../redux/slices/auth.slice";
 
 const Sidebar = () => {
     const dispatch = useDispatch();
     const { pathname } = useLocation();
-    const [open, setOpen] = useState(false);
 
+    const [open, setOpen] = useState(false);
     // close menu toggle if menu toggle open and resize
     const handlerCloseSidebar = () => {
         if (window.innerWidth < 1440 && open) setOpen(() => false);
+    };
+
+    //handle logout
+    const handleLogout = () => {
+        dispatch(logout());
+        dispatch(setSearchString(""));
+        dispatch(clearAuthState());
     };
 
     useEffect(() => {
@@ -48,7 +56,7 @@ const Sidebar = () => {
             <Link
                 to={"/"}
                 onClick={() => dispatch(setSearchString(""))}
-                className="flex items-center gap-2 px-1 py-3"
+                className="flex items-center gap-2 px-1 py-3 cursor-pointer"
             >
                 <div>
                     <HiCloud size={40} className="text-green-600" />
@@ -86,10 +94,14 @@ const Sidebar = () => {
                     </Link>
                 ))}
             </div>
-            <div className="flex items-center gap-2 px-3 py-2 text-red-500 cursor-pointer">
+            <Link
+                to={"/"}
+                onClick={handleLogout}
+                className="flex items-center gap-2 px-3 py-2 text-red-500 cursor-pointer"
+            >
                 <HiOutlineLogout size={32} />
                 <div className={`${!open && "hidden"}`}>Logout</div>
-            </div>
+            </Link>
         </div>
     );
 };

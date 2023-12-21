@@ -2,17 +2,33 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import api from "../../helpers/axiosApi";
 
 const initialState = {
+    id: "",
     fullname: "",
     isLogin: false,
     isAdmin: false,
+    isDarkMode: false,
     loginObject: {
         email: "",
         password: "",
     },
-    errors: {
+    registerObject: {
+        fullname: "",
         email: "",
+        phone: "",
+        address: "",
         password: "",
+        repass: "",
     },
+    errors: {
+        fullname: "",
+        email: "",
+        phone: "",
+        address: "",
+        password: "",
+        repass: "",
+    },
+
+    lastPage: "",
     completed: false,
     pending: false,
     error: null,
@@ -27,6 +43,11 @@ export const authSlice = createSlice({
             state.loginObject[field] = value;
             state.errors[field] = "";
         },
+        handleOnChangeRegister: (state, action) => {
+            const { field, value } = action.payload;
+            state.registerObject[field] = value;
+            state.errors[field] = "";
+        },
         checkValidation: (state) => {
             // check all field before submit
             Object.keys(state.loginObject).forEach((field) => {
@@ -39,10 +60,53 @@ export const authSlice = createSlice({
                 (error) => !error
             );
         },
+        checkValidationSignUp: (state) => {
+            // check empty
+            Object.keys(state.registerObject).forEach((field) => {
+                state.errors[field] = String(state.registerObject[field]).trim()
+                    ? ""
+                    : "This field is required";
+            });
+            // match password
+            if (
+                state.registerObject["password"] !==
+                state.registerObject["repass"]
+            ) {
+                state.errors["repass"] = "Password not match";
+            }
+            // check phone number
+            if (
+                state.registerObject["phone"] &&
+                !validatePhone(state.registerObject["phone"])
+            ) {
+                state.errors["phone"] = "Invalid phone number";
+            }
+            // check email
+            if (
+                state.registerObject["email"] &&
+                !validateEmail(state.registerObject["email"])
+            ) {
+                state.errors["email"] = "Invalid email";
+            }
+            // add errors
+            const regObjectFields = Object.keys(state.registerObject);
+            state.isValid = regObjectFields.every(
+                (field) => !state.errors[field]
+            );
+        },
         setCurrentUser: (state, action) => {
             state.fullname = action.payload;
         },
-        clearState: (state) => {
+        setLastPage: (state, action) => {
+            state.lastPage = action.payload;
+        },
+        toggleDarkMode: (state) => {
+            state.isDarkMode = !state.isDarkMode;
+            // toggle dark mode to body class
+            document.body.classList.toggle("dark", state.isDarkMode);
+            localStorage.setItem("darkMode", state.isDarkMode);
+        },
+        clearAuthState: (state) => {
             return initialState;
         },
     },
@@ -50,7 +114,8 @@ export const authSlice = createSlice({
         // login
         builder.addCase(login.fulfilled, (state, { payload }) => {
             if (payload) {
-                const { username, isAdmin, id, accessToken } = payload;
+                const { id, username, isAdmin, accessToken } = payload;
+                state.id = id;
                 state.isLogin = true;
                 state.fullname = username;
                 state.isAdmin = isAdmin;
@@ -64,6 +129,24 @@ export const authSlice = createSlice({
         builder.addCase(login.rejected, (state, action) => {
             state.error = "Login failed, please try again !";
         });
+        // signup
+        builder.addCase(signup.fulfilled, (state, { payload }) => {
+            if (payload) {
+                const { id, username, isAdmin, accessToken } = payload;
+                state.id = id;
+                state.isLogin = true;
+                state.fullname = username;
+                state.isAdmin = isAdmin;
+                state.completed = true;
+
+                // set local storage
+                localStorage.setItem("id", id);
+                localStorage.setItem("accessToken", accessToken);
+            }
+        });
+        builder.addCase(signup.rejected, (state, action) => {
+            state.error = "Sign up failed, please try again !";
+        });
         // logout
         builder.addCase(logout.fulfilled, (state) => {
             localStorage.removeItem("id");
@@ -73,7 +156,8 @@ export const authSlice = createSlice({
         // check authentication
         builder.addCase(checkAuth.fulfilled, (state, { payload }) => {
             if (payload) {
-                const { username, isAdmin } = payload;
+                const { id, username, isAdmin } = payload;
+                state.id = id;
                 state.isLogin = true;
                 state.fullname = username;
                 state.isAdmin = isAdmin;
@@ -100,6 +184,30 @@ export const login = createAsyncThunk(
     }
 );
 
+// signup
+export const signup = createAsyncThunk(
+    "auth/signup",
+    async (
+        { fullname, email, phone, address, password },
+        { getState, dispatch }
+    ) => {
+        dispatch(checkValidationSignUp());
+        const state = getState()["auth"];
+
+        if (state.isValid) {
+            const response = await api.post("/access/signup", {
+                fullname,
+                email,
+                phone,
+                address,
+                password,
+            });
+            return response.data.metadata;
+        }
+        return null;
+    }
+);
+
 // logout
 export const logout = createAsyncThunk("auth/logout", async () => {
     const response = await api.get("/access/logout");
@@ -112,5 +220,33 @@ export const checkAuth = createAsyncThunk("auth/checkAuth", async () => {
     return response.data.metadata;
 });
 
-export const { handleOnChange, checkValidation, clearState } =
-    authSlice.actions;
+// check phone number
+const validatePhone = (paramPhone) => {
+    var vValidRegex = /((0|\+)+([0-9]{9,11})\b)/g;
+    if (paramPhone.match(vValidRegex)) {
+        return true;
+    } else {
+        return false;
+    }
+};
+
+// check email
+const validateEmail = (paramEmail) => {
+    var vValidRegex =
+        /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|.(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+    if (paramEmail.match(vValidRegex)) {
+        return true;
+    } else {
+        return false;
+    }
+};
+
+export const {
+    handleOnChange,
+    handleOnChangeRegister,
+    checkValidation,
+    checkValidationSignUp,
+    setLastPage,
+    toggleDarkMode,
+    clearAuthState,
+} = authSlice.actions;

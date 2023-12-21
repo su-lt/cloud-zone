@@ -8,7 +8,7 @@ import { ToastContainer } from "react-toastify";
 import { BrowserRouter } from "react-router-dom";
 import { Provider } from "react-redux";
 import { store } from "./redux/store";
-import { checkAuth } from "./redux/slices/auth.slice";
+import { checkAuth, toggleDarkMode } from "./redux/slices/auth.slice";
 import { cartSlice } from "./redux/slices/cart.slice";
 const root = ReactDOM.createRoot(document.getElementById("root"));
 
@@ -20,6 +20,10 @@ if (existedUserId) store.dispatch(checkAuth());
 const existCart = localStorage.getItem("cart");
 if (existCart)
     store.dispatch(cartSlice.actions.loadCart(JSON.parse(existCart)));
+
+// check darkmode
+const darkMode = localStorage.getItem("darkMode");
+if (darkMode) store.dispatch(toggleDarkMode());
 
 root.render(
     <React.StrictMode>

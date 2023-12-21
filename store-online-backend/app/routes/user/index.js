@@ -10,6 +10,7 @@ const {
     deleteUserById,
     getRoles,
     totalCustomer,
+    getAddress,
 } = require("../../controllers/user.controller");
 const {
     authentication,
@@ -18,6 +19,9 @@ const {
 
 // check authentication
 router.use(asyncHandler(authentication));
+// get user address
+router.get("/address/:id", asyncHandler(getAddress));
+
 router.use(asyncHandler(isAdmin));
 
 // get users

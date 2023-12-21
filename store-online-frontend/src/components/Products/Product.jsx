@@ -70,7 +70,7 @@ const Product = ({ product }) => {
                             <h5 className="mt-1 text-custom-1000">
                                 Brand: {product.productDetail.brand}
                             </h5>
-                            <h3 className="mt-14 mb-4 text-primary font-semibold tracking-wider">
+                            <h3 className="mt-14 mb-4 text-primary font-semibold tracking-wider dark:text-purple-100">
                                 {formattedPrice(product.price)}
                             </h3>
 

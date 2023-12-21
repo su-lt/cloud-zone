@@ -8,12 +8,20 @@ import {
 } from "react-icons/hi";
 import { useSelector, useDispatch } from "react-redux";
 import { setSearchString } from "../../../redux/slices/filter.slice";
+import { clearAuthState, logout } from "../../../redux/slices/auth.slice";
 
 const Header = () => {
     const navigate = useNavigate();
     const dispatch = useDispatch();
-
+    // state redux
     const { searchString } = useSelector((slice) => slice.filter);
+
+    //handle logout
+    const handleLogout = () => {
+        dispatch(logout());
+        dispatch(clearAuthState());
+        navigate("/");
+    };
 
     return (
         <section className="bg-white h-16 px-4 flex justify-between items-center shadow-nav">
@@ -95,7 +103,7 @@ const Header = () => {
                                         className={`${
                                             active && "bg-gray-100"
                                         } px-4 py-2 text-gray-700 cursor-pointer rounded-sm focus:bg-gray-200`}
-                                        onClick={() => navigate("/logout")}
+                                        onClick={handleLogout}
                                     >
                                         Logout
                                     </div>

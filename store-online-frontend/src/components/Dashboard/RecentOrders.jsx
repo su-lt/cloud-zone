@@ -2,49 +2,6 @@ import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchOrders } from "../../redux/slices/order.slice";
 
-const recentData = [
-    {
-        id: "1",
-        product_id: "123",
-        customer_id: "234",
-        customer_name: "John Smith",
-        order_date: "2023-05-12",
-        order_total: "123",
-        order_status: "Completed",
-        shipping_address: "01 Nguyen Hue",
-    },
-    {
-        id: "2",
-        product_id: "123",
-        customer_id: "234",
-        customer_name: "John Smith",
-        order_date: "2023-05-12",
-        order_total: "123",
-        order_status: "Completed",
-        shipping_address: "01 Nguyen Hue",
-    },
-    {
-        id: "3",
-        product_id: "123",
-        customer_id: "234",
-        customer_name: "John Smith",
-        order_date: "2023-05-12",
-        order_total: "123",
-        order_status: "open",
-        shipping_address: "01 Nguyen Hue",
-    },
-    {
-        id: "4",
-        product_id: "123",
-        customer_id: "234",
-        customer_name: "John Smith",
-        order_date: "2023-05-12",
-        order_total: "123",
-        order_status: "cancel",
-        shipping_address: "01 Nguyen Hue",
-    },
-];
-
 const RecentOrders = () => {
     const dispatch = useDispatch();
     // states redux

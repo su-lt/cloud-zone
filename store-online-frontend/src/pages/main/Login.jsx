@@ -34,7 +34,7 @@ const Login = () => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [completed]);
     return (
-        <main>
+        <main className="dark:bg-dark dark:text-purple-200 min-h-[calc(100vh-329px)]">
             {/* title section */}
             <TitleSection
                 title={"Login"}
@@ -54,7 +54,7 @@ const Login = () => {
                             the
                         </p>
                         <Link to="/register">
-                            <button className="button-outline mt-8 text-xs bg-white text-primary md:text-lg">
+                            <button className="button-outline mt-8 text-xs bg-white text-primary md:text-lg dark:bg-primary">
                                 create an account
                             </button>
                         </Link>

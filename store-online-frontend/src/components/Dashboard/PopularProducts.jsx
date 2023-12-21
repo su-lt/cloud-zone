@@ -1,9 +1,6 @@
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import {
-    fetchPopularProducts,
-    fetchProducts,
-} from "../../redux/slices/product.slice";
+import { fetchProducts } from "../../redux/slices/product.slice";
 import { formattedPrice } from "../../helpers/ultil";
 
 const PopularProducts = () => {

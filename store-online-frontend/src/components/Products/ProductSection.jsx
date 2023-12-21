@@ -9,8 +9,7 @@ const ProductSection = () => {
     const { products } = useSelector((slice) => slice.product);
 
     useEffect(() => {
-        dispatch(fetchProducts());
-
+        // dispatch(fetchProducts());
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 

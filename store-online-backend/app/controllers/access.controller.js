@@ -17,9 +17,8 @@ const {
 
 const signUp = async (req, res) => {
     // get data from request body
-    const { fullname, email, password, address } = req.body;
-
-    if (!fullname || !email || !password || !address)
+    let { fullname, email, phone, password, address } = req.body;
+    if (!fullname || !email || !phone || !password || !address)
         throw new BadRequestError();
 
     // check exist user
@@ -37,9 +36,10 @@ const signUp = async (req, res) => {
     const newUser = await userModel.create({
         fullname,
         email,
+        phone,
         address,
         password: passwordHash,
-        roles: [roleMember._id],
+        roles: roleMember._id,
     });
 
     if (newUser) {
@@ -59,12 +59,9 @@ const signUp = async (req, res) => {
         });
         if (!keyStore) throw CreateDatabaseError("Cant not create keyStore");
 
-        // set accessToken, refreshToken in cookie headers
-        res.cookie("accessToken", tokens.accessToken, {
-            maxAge: 300 * 1000, // 5m - milisecond
-            httpOnly: true,
-        }).cookie("refreshToken", tokens.refreshToken, {
-            maxAge: 86400 * 1000, // 1d - milisecond
+        // set refreshToken in cookie headers
+        res.cookie("refreshToken", tokens.refreshToken, {
+            maxAge: 86400 * 1000, // 3d - milisecond
             httpOnly: true,
         });
 
@@ -72,6 +69,9 @@ const signUp = async (req, res) => {
             message: "Registed successfully !",
             metadata: {
                 id: newUser._id,
+                accessToken: tokens.accessToken,
+                username: newUser.fullname,
+                isAdmin: false,
             },
         });
     }
@@ -88,9 +88,9 @@ const login = async (req, res) => {
         .populate("role")
         .lean();
     if (!foundUser) throw new BadRequestError("User not registered !");
-
+    console.log(foundUser);
     // match password
-    const match = bcrypt.compare(password, foundUser.password);
+    const match = await bcrypt.compare(password, foundUser.password);
     if (!match) throw new AuthFailureError("Authentication failed");
 
     // create access token and refresh token and save
@@ -150,7 +150,10 @@ const refresh = async (req, res) => {
 
     // check refresh token in refresh token used
     if (keyStore.refreshTokensUsed.includes(refreshToken)) {
-        // if exist - remove
+        // if exist
+        // clear cookies
+        res.clearCookie("refreshToken");
+        // remove key store
         await keyModel.findByIdAndDelete(keyStore._id);
         throw new ForbiddenError(
             "Something wrong happened !!! Please re-login"
@@ -203,6 +206,7 @@ const checkAuth = async (req, res) => {
     return res.status(200).json({
         message: "check-authentication",
         metadata: {
+            id: user._id,
             isAdmin,
             username: user.fullname,
         },

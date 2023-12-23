@@ -12,13 +12,14 @@ import LoginPage from "./pages/main/Login";
 import Products from "./pages/main/Products";
 import ProductDetail from "./pages/main/ProductDetail";
 import Cart from "./pages/main/Cart";
+import NotFound from "./pages/main/404";
+import Contact from "./pages/main/Contact";
 // dashboard pages
 import Dashboard from "./pages/dashboard/";
 import User from "./pages/dashboard/User";
 import Category from "./pages/dashboard/Category";
 import Product from "./pages/dashboard/Product";
 import Order from "./pages/dashboard/Order";
-import NotFound from "./pages/main/404";
 
 const routes_main = [
     { path: "/", element: <HomePage /> },
@@ -27,6 +28,7 @@ const routes_main = [
     { path: "/register", element: <RegisterPage /> },
     { path: "/login", element: <LoginPage /> },
     { path: "/cart", element: <Cart /> },
+    { path: "/contact", element: <Contact /> },
     { path: "*", element: <NotFound /> },
 ];
 

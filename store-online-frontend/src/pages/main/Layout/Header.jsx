@@ -18,7 +18,7 @@ import { clearCartState } from "../../../redux/slices/cart.slice";
 const menuItems = [
     { text: "Home", link: "/" },
     { text: "Shop", link: "/products" },
-    { text: "Contact", link: "#" },
+    { text: "Contact", link: "/contact" },
 ];
 
 const Header = () => {

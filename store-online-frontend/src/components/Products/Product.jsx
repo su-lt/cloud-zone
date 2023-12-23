@@ -99,12 +99,21 @@ const Product = ({ product }) => {
                                 </div>
                             </div>
                             <div>
-                                <button
-                                    className="button-primary bg-primary text-white mt-8"
-                                    onClick={handleAddToCart}
-                                >
-                                    Add to cart
-                                </button>
+                                {product.quantity > 0 ? (
+                                    <button
+                                        className="button-primary bg-primary text-white mt-8"
+                                        onClick={handleAddToCart}
+                                    >
+                                        Add to cart
+                                    </button>
+                                ) : (
+                                    <button
+                                        className="button-primary bg-red-300 text-white mt-8 select-none"
+                                        disabled
+                                    >
+                                        Out of stock
+                                    </button>
+                                )}
                             </div>
                         </div>
                     </div>

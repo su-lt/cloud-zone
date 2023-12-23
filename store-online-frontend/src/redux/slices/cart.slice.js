@@ -136,6 +136,8 @@ export const cartSlice = createSlice({
                 state.cart[foundIndex].name = payload.name;
                 state.cart[foundIndex].image_thumbnail =
                     payload.image_thumbnail;
+                state.cart[foundIndex].out_of_stock =
+                    payload.quantity > 0 ? false : true;
             }
         });
         // fetch cities

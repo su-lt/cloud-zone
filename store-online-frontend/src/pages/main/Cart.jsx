@@ -23,6 +23,7 @@ import {
 } from "../../redux/slices/auth.slice";
 import { fetchUserAddress } from "../../redux/slices/user.slice";
 import AutocompleteBox from "../../components/AutocompleteBox";
+import Modal from "../../components/CartModal";
 
 const breadcrumbItems = [
     { label: "Home", link: "/" },
@@ -55,6 +56,7 @@ const Cart = () => {
     const [showCheckout, setShowCheckout] = useState(true);
     const [showLogin, setShowLogin] = useState(false);
     const [showConfirm, setShowConfirm] = useState(false);
+    const [showModal, setShowModal] = useState(false);
 
     // handle change items
     const handleChange = (quantity, _id) => {
@@ -84,6 +86,35 @@ const Cart = () => {
 
     // handle processing
     const handleProcess = () => {
+        // check out of stock items
+        const isOutOfStock = cart.some((item) => item.out_of_stock !== false);
+        if (isOutOfStock) {
+            setShowModal(true);
+            return;
+        }
+
+        setShowCheckout(false);
+        if (isLogin) {
+            dispatch(fetchUserAddress(id));
+            dispatch(
+                setFullAddress(
+                    `${address.street} ${address.ward} ${address.district} ${address.city}`
+                )
+            );
+            setShowConfirm(true);
+        } else setShowLogin(true);
+    };
+
+    // handle got it button click
+    const handleClickButton = () => {
+        // remove out of stock items
+        const outOfStockItems = cart.filter((item) => item.out_of_stock);
+        outOfStockItems.forEach((item) => {
+            handleDelete(item._id);
+        });
+        setShowModal(false);
+
+        // continue processing
         setShowCheckout(false);
         if (isLogin) {
             dispatch(fetchUserAddress(id));
@@ -160,6 +191,11 @@ const Cart = () => {
 
     return (
         <main className="dark:bg-dark dark:text-custom-1000">
+            <Modal
+                open={showModal}
+                close={() => setShowModal(false)}
+                handleClickButton={handleClickButton}
+            />
             <div className="min-h-[calc(100vh-369px)] md:mt-10 p-4 md:container">
                 <Breadcrumb items={breadcrumbItems} />
                 <div className="mt-4">
@@ -190,7 +226,12 @@ const Cart = () => {
                                                 className="p-5 flex gap-x-5 border border-b-0 border-custom-500 relative group"
                                                 key={item._id}
                                             >
-                                                <div className="absolute -top-3 -right-2 w-5 h-5 hidden group-hover:block">
+                                                {item.out_of_stock && (
+                                                    <div className="absolute top-1 left-1 p-1 bg-red-300 text-white text-xs leading-3 rounded-md">
+                                                        Out of stock
+                                                    </div>
+                                                )}
+                                                <div className="absolute -top-3 -right-2 w-5 h-5 md:hidden group-hover:block">
                                                     <button
                                                         className="w-full h-full bg-red-300 text-white text-xs leading-3 rounded-full "
                                                         onClick={() =>

@@ -6,13 +6,13 @@ const initialState = {
     totalQuantity: 0,
     totalPrice: 0,
     address: {
-        province: "",
-        district: "",
-        ward: "",
+        city: "Province / City",
+        district: "City / District",
+        ward: "Township / Ward",
         street: "",
     },
     fullAddress: "",
-    provinces: [],
+    cities: [],
     districts: [],
     wards: [],
     pending: false,
@@ -118,6 +118,9 @@ export const cartSlice = createSlice({
         setFullAddress: (state, action) => {
             state.fullAddress = action.payload;
         },
+        clearAddress: (state, action) => {
+            state.address = initialState.address;
+        },
         clearCartState: (state) => {
             return initialState;
         },
@@ -135,9 +138,9 @@ export const cartSlice = createSlice({
                     payload.image_thumbnail;
             }
         });
-        // fetch provinces
-        builder.addCase(fetchProvinces.fulfilled, (state, { payload }) => {
-            state.provinces = payload;
+        // fetch cities
+        builder.addCase(fetchCities.fulfilled, (state, { payload }) => {
+            state.cities = payload;
         });
         // fetch districts
         builder.addCase(fetchDistricts.fulfilled, (state, { payload }) => {
@@ -174,14 +177,11 @@ export const fetchProductById = createAsyncThunk(
     }
 );
 
-// get provinces
-export const fetchProvinces = createAsyncThunk(
-    "cart/fetchProvinces",
-    async () => {
-        const response = await provinceApi.get();
-        return response.data;
-    }
-);
+// get cities
+export const fetchCities = createAsyncThunk("cart/fetchCities", async () => {
+    const response = await provinceApi.get();
+    return response.data;
+});
 
 // get districts
 export const fetchDistricts = createAsyncThunk(
@@ -224,5 +224,6 @@ export const {
     setAddress,
     setFullAddress,
     updateQuantity,
+    clearAddress,
     clearCartState,
 } = cartSlice.actions;

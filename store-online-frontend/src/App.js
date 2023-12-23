@@ -3,6 +3,7 @@ import { routes_main, routes_dashboard } from "./routes";
 import { useSelector } from "react-redux";
 import DashboardLayout from "./pages/dashboard/Layout";
 import MainLayout from "./pages/main/Layout";
+import Profile from "./pages/main/Profile";
 
 function App() {
     // redux state
@@ -23,6 +24,7 @@ function App() {
                             />
                         );
                     })}
+                    {isLogin && <Route path="/profile" element={<Profile />} />}
                 </Route>
                 {isLogin && isAdmin && (
                     /* dashboard */

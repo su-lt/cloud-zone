@@ -13,22 +13,22 @@ const Footer = () => {
                     <div className="px-4 ">
                         <h4 className="text-white font-semibold">Categories</h4>
                         <ul className="mt-4 text-sm">
-                            <li className="py-1">
+                            <li className="py-1 select-none">
                                 <a href="##" className="">
                                     Women
                                 </a>
                             </li>
-                            <li className="py-1">
+                            <li className="py-1 select-none">
                                 <a href="##" className="">
                                     Men
                                 </a>
                             </li>
-                            <li className="py-1">
+                            <li className="py-1 select-none">
                                 <a href="##" className="">
                                     Shoes
                                 </a>
                             </li>
-                            <li className="py-1">
+                            <li className="py-1 select-none">
                                 <a href="##" className="">
                                     Watches
                                 </a>
@@ -81,7 +81,7 @@ const Footer = () => {
                     </div>
                 </div>
                 <div className="mt-4 text-sm md:container">
-                    <div className="mx-4 pt-4 text-center border-t border-custom-100">
+                    <div className="mx-4 pt-4 text-center border-t border-custom-100 select-none">
                         Copyright © 2023 CloudZone - Luxury store.
                     </div>
                 </div>

@@ -6,11 +6,13 @@ import { cartSlice } from "./slices/cart.slice";
 import { categorySlice } from "./slices/category.slice";
 import { userSlice } from "./slices/user.slice";
 import { orderSlice } from "./slices/order.slice";
+import { profileSlice } from "./slices/profile.slice";
 
 export const store = configureStore({
     reducer: {
         auth: authSlice.reducer,
         user: userSlice.reducer,
+        profile: profileSlice.reducer,
         product: productSlice.reducer,
         filter: filterSlice.reducer,
         cart: cartSlice.reducer,

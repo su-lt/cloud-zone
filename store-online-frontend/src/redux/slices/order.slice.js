@@ -116,7 +116,7 @@ export const fetchOrders = createAsyncThunk(
     }
 );
 
-// get orders
+// get order
 export const fetchOrderById = createAsyncThunk(
     "category/fetchOrderById",
     async (id) => {

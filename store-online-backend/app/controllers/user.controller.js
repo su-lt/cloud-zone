@@ -73,12 +73,17 @@ const getUserById = async (req, res) => {
     }
 
     const user = await userModel.findById(id);
-    if (!user) throw new NotFoundError("category not found");
+    if (!user) throw new NotFoundError("user not found");
 
     return res.status(200).json({
         message: "success",
         metadata: {
-            user,
+            user: {
+                fullname: user.fullname,
+                email: user.email,
+                phone: user.phone,
+                address: user.address,
+            },
         },
     });
 };
@@ -137,6 +142,73 @@ const updateUserById = async (req, res) => {
     const update = await userModel.findByIdAndUpdate(
         id,
         { role, status },
+        { new: true }
+    );
+    if (!update) throw new CreateDatabaseError();
+
+    return res.status(200).json({
+        message: "success",
+    });
+};
+
+const updateInfoById = async (req, res) => {
+    // get id
+    const id = req.params.id;
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+        throw new BadRequestError("Id not valid !");
+    }
+
+    // check data null
+    const { fullname, email, phone, address } = req.body;
+    if (!fullname || !email || !phone || !address) throw new BadRequestError();
+
+    // update
+    const update = await userModel.findByIdAndUpdate(
+        id,
+        { fullname, email, phone, address },
+        { new: true }
+    );
+    if (!update) throw new CreateDatabaseError();
+
+    return res.status(200).json({
+        message: "success",
+        metadata: {
+            user: {
+                fullname: update.fullname,
+                email: update.email,
+                phone: update.phone,
+                address: update.address,
+            },
+        },
+    });
+};
+
+const updatePasswordById = async (req, res) => {
+    // get id
+    const id = req.params.id;
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+        throw new BadRequestError("Id not valid !");
+    }
+
+    // check data null
+    const { currentpass, newpass } = req.body;
+    if (!currentpass || !newpass) throw new BadRequestError();
+
+    // check exist
+    const foundUser = await userModel.findById(id).lean();
+    if (!foundUser) throw new BadRequestError("User not registered !");
+
+    // verify password
+    const match = bcrypt.compare(currentpass, foundUser.password);
+    if (!match) throw new AuthFailureError("Authentication failed");
+
+    // encryption password
+    const passwordHash = await bcrypt.hash(newpass, 10);
+
+    // update
+    const update = await userModel.findByIdAndUpdate(
+        id,
+        { password: passwordHash },
         { new: true }
     );
     if (!update) throw new CreateDatabaseError();
@@ -213,4 +285,6 @@ module.exports = {
     getRoles,
     totalCustomer,
     getAddress,
+    updateInfoById,
+    updatePasswordById,
 };

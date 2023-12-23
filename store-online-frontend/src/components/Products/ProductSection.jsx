@@ -1,17 +1,9 @@
-import React, { useEffect } from "react";
 import ProductCard from "./ProductCard";
-import { useDispatch, useSelector } from "react-redux";
-import { fetchProducts } from "../../redux/slices/product.slice";
+import { useSelector } from "react-redux";
 import Pagination from "../Pagination";
 
 const ProductSection = () => {
-    const dispatch = useDispatch();
     const { products } = useSelector((slice) => slice.product);
-
-    useEffect(() => {
-        // dispatch(fetchProducts());
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
 
     return (
         <div className="my-4 transition-all ease-linear duration-500">

@@ -4,13 +4,14 @@ import { SiShopify } from "react-icons/si";
 import {
     cartSlice,
     createOrder,
-    fetchDistricts,
     fetchProductById,
-    fetchProvinces,
+    fetchCities,
+    fetchDistricts,
     fetchWards,
     setAddress,
     setFullAddress,
     updateQuantity,
+    clearAddress,
 } from "../../redux/slices/cart.slice";
 import Breadcrumb from "../../components/Breadcrumb";
 import { Link } from "react-router-dom";
@@ -21,6 +22,7 @@ import {
     setLastPage,
 } from "../../redux/slices/auth.slice";
 import { fetchUserAddress } from "../../redux/slices/user.slice";
+import AutocompleteBox from "../../components/AutocompleteBox";
 
 const breadcrumbItems = [
     { label: "Home", link: "/" },
@@ -34,7 +36,7 @@ const Cart = () => {
     const {
         cart,
         totalPrice,
-        provinces,
+        cities,
         districts,
         wards,
         address,
@@ -64,29 +66,20 @@ const Cart = () => {
         dispatch(updateQuantity(obj));
     };
 
-    // handle province change
-    const handleProvince = (item) => {
-        // parse to object
-        const obj = JSON.parse(item);
-
-        dispatch(fetchDistricts(obj.code));
-        dispatch(setAddress({ field: "province", value: obj.name }));
+    // handle city change
+    const handleCity = (item) => {
+        dispatch(fetchDistricts(item.code));
+        dispatch(setAddress({ field: "city", value: item.name }));
     };
 
     // handle district change
     const handleDistrict = (item) => {
-        // parse to object
-        const obj = JSON.parse(item);
-
-        dispatch(fetchWards(obj.code));
-        dispatch(setAddress({ field: "district", value: obj.name }));
+        dispatch(fetchWards(item.code));
+        dispatch(setAddress({ field: "district", value: item.name }));
     };
     // handle ward change
     const handleWard = (item) => {
-        // parse to object
-        const obj = JSON.parse(item);
-
-        dispatch(setAddress({ field: "ward", value: obj.name }));
+        dispatch(setAddress({ field: "ward", value: item.name }));
     };
 
     // handle processing
@@ -96,7 +89,7 @@ const Cart = () => {
             dispatch(fetchUserAddress(id));
             dispatch(
                 setFullAddress(
-                    `${address.street} ${address.ward} ${address.district} ${address.province}`
+                    `${address.street} ${address.ward} ${address.district} ${address.city}`
                 )
             );
             setShowConfirm(true);
@@ -130,13 +123,13 @@ const Cart = () => {
         });
     }, [cart, dispatch]);
 
-    // fetch provinces
+    // fetch default user address
     useEffect(() => {
         if (completed) {
             dispatch(fetchUserAddress(id));
             dispatch(
                 setFullAddress(
-                    `${address.street} ${address.ward} ${address.district} ${address.province}`
+                    `${address.street} ${address.ward} ${address.district} ${address.city}`
                 )
             );
             setShowLogin(false);
@@ -154,9 +147,14 @@ const Cart = () => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [createCompleted]);
 
-    // fetch provinces
+    // fetch cities
     useEffect(() => {
-        dispatch(fetchProvinces());
+        dispatch(fetchCities());
+
+        // clearup
+        return () => {
+            dispatch(clearAddress());
+        };
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
@@ -186,7 +184,7 @@ const Cart = () => {
                             <h3>Cart list</h3>
                             <div className="my-4 grid xl:grid-cols-3 xl:gap-x-10">
                                 <div className="xl:col-span-2">
-                                    {cart.length > 0 && cart[0].name ? (
+                                    {cart.length > 0 &&
                                         cart.map((item) => (
                                             <div
                                                 className="p-5 flex gap-x-5 border border-b-0 border-custom-500 relative group"
@@ -267,8 +265,9 @@ const Cart = () => {
                                                     </div>
                                                 </div>
                                             </div>
-                                        ))
-                                    ) : (
+                                        ))}
+
+                                    {cart.length === 0 && (
                                         <Link
                                             to="/products"
                                             className="p-5 text-center"
@@ -334,100 +333,38 @@ const Cart = () => {
                                                         <h4 className="uppercase mt-3">
                                                             CALCULATE SHIPPING
                                                         </h4>
-                                                        {/* provinces */}
-                                                        <select
-                                                            onChange={(e) =>
-                                                                handleProvince(
-                                                                    e.target
-                                                                        .value
-                                                                )
+                                                        {/* citis */}
+                                                        <AutocompleteBox
+                                                            items={cities}
+                                                            setSelected={
+                                                                handleCity
                                                             }
-                                                            type="text"
-                                                            className="mt-3 w-full p-2 border border-custom-500 rounded-sm"
-                                                        >
-                                                            <option value={0}>
-                                                                Provinces / City
-                                                            </option>
-                                                            {provinces.map(
-                                                                (item) => (
-                                                                    <option
-                                                                        key={
-                                                                            item.code
-                                                                        }
-                                                                        value={JSON.stringify(
-                                                                            item
-                                                                        )}
-                                                                    >
-                                                                        {
-                                                                            item.name
-                                                                        }
-                                                                    </option>
-                                                                )
-                                                            )}
-                                                        </select>
+                                                            selected={
+                                                                address.city
+                                                            }
+                                                        />
 
                                                         {/* districts */}
-                                                        <select
-                                                            onChange={(e) =>
-                                                                handleDistrict(
-                                                                    e.target
-                                                                        .value
-                                                                )
+                                                        <AutocompleteBox
+                                                            items={districts}
+                                                            setSelected={
+                                                                handleDistrict
                                                             }
-                                                            type="text"
-                                                            className="mt-3 w-full p-2 border border-custom-500 rounded-sm"
-                                                        >
-                                                            <option value={0}>
-                                                                City / district
-                                                            </option>
-                                                            {districts.map(
-                                                                (item) => (
-                                                                    <option
-                                                                        key={
-                                                                            item.code
-                                                                        }
-                                                                        value={JSON.stringify(
-                                                                            item
-                                                                        )}
-                                                                    >
-                                                                        {
-                                                                            item.name
-                                                                        }
-                                                                    </option>
-                                                                )
-                                                            )}
-                                                        </select>
+                                                            selected={
+                                                                address.district
+                                                            }
+                                                        />
+
                                                         {/* wards */}
-                                                        <select
-                                                            onChange={(e) =>
-                                                                handleWard(
-                                                                    e.target
-                                                                        .value
-                                                                )
+                                                        <AutocompleteBox
+                                                            items={wards}
+                                                            setSelected={
+                                                                handleWard
                                                             }
-                                                            type="text"
-                                                            className="mt-3 w-full p-2 border border-custom-500 rounded-sm"
-                                                        >
-                                                            <option value={0}>
-                                                                Township / Ward
-                                                            </option>
-                                                            {wards.map(
-                                                                (item) => (
-                                                                    <option
-                                                                        key={
-                                                                            item.code
-                                                                        }
-                                                                        value={JSON.stringify(
-                                                                            item
-                                                                        )}
-                                                                    >
-                                                                        {
-                                                                            item.name
-                                                                        }
-                                                                    </option>
-                                                                )
-                                                            )}
-                                                        </select>
+                                                            selected={
+                                                                address.ward
+                                                            }
+                                                        />
                                                         {/* street */}
                                                         <input
                                                             onChange={(e) =>
@@ -446,9 +383,10 @@ const Cart = () => {
                                                         />
                                                     </div>
                                                 </div>
-                                                {address.province &&
+                                                {address.city &&
                                                     address.district &&
-                                                    address.ward && (
+                                                    address.ward &&
+                                                    address.street && (
                                                         <div className="flex">
                                                             <h4 className="w-[110px]">
                                                                 Shiping fee:
@@ -480,7 +418,7 @@ const Cart = () => {
                                         </div>
                                     )}
                                 {/* show login form */}
-                                {showLogin && (
+                                {showLogin && cart.length > 0 && (
                                     <div className="mt-10 xl:mt-0 max-w-[600px] w-full mx-auto">
                                         <div className="p-7 flex flex-col gap-2 border border-custom-500">
                                             {error && (
@@ -558,7 +496,7 @@ const Cart = () => {
                                 )}
 
                                 {/* show confirm form */}
-                                {isLogin && showConfirm && (
+                                {isLogin && showConfirm && cart.length > 0 && (
                                     <div className="p-7 mt-10 xl:mt-0 max-w-[600px] w-full mx-auto border border-custom-500">
                                         <h3>Shipping Address:</h3>
                                         {defaultAddress && (
@@ -599,13 +537,13 @@ const Cart = () => {
                                                         )
                                                     );
                                                 }}
-                                                value={`${address.street} ${address.ward} ${address.district} ${address.province}`}
+                                                value={`${address.street} ${address.ward} ${address.district} ${address.city}`}
                                                 defaultChecked
                                             />
                                             <label htmlFor="address">
                                                 <p>
                                                     Order address:
-                                                    {` ${address.street} ${address.ward} ${address.district} ${address.province}`}
+                                                    {` ${address.street} ${address.ward} ${address.district} ${address.city}`}
                                                 </p>
                                             </label>
                                         </div>

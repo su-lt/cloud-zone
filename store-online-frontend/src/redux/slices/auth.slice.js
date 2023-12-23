@@ -107,7 +107,7 @@ export const authSlice = createSlice({
             localStorage.setItem("darkMode", state.isDarkMode);
         },
         clearAuthState: (state) => {
-            return initialState;
+            return { ...initialState, isDarkMode: state.isDarkMode };
         },
     },
     extraReducers: (builder) => {

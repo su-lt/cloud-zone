@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const orderModel = require("../models/order.model");
 const productModel = require("../models/product.model");
+const { NotFoundError } = require("../helpers/errorHandler");
 require("../models/user.model");
 
 const getOrders = async (req, res) => {
@@ -166,6 +167,26 @@ const updateOrderById = async (req, res) => {
     });
 };
 
+// get orders by user id
+const getOrdersByUserId = async (req, res) => {
+    // get_id
+    const id = req.params.id;
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+        throw new BadRequestError("Id not valid !");
+    }
+
+    // get orders by user_id
+    const orders = await orderModel.find({ user: id });
+    if (!orders) throw new NotFoundError();
+
+    return res.status(200).json({
+        message: "success",
+        metadata: {
+            orders: orders,
+        },
+    });
+};
+
 const deleteOrderById = async (req, res) => {
     // get _id
     const id = req.params.id;
@@ -237,6 +258,7 @@ function generateOrderCode() {
 module.exports = {
     getOrders,
     getOrderById,
+    getOrdersByUserId,
     createOrder,
     updateOrderById,
     deleteOrderById,

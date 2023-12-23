@@ -55,7 +55,7 @@ const Register = () => {
             />
 
             {/* content */}
-            <div className="p-4 grid md:grid-cols-2 md:my-24 md:container">
+            <div className="p-4 grid md:grid-cols-2 md:py-12 md:container">
                 <div className="p-14 bg-gradient-to-r from-primary to-black flex justify-center items-center md:p-10 lg:p-20">
                     <div className="text-center text-white">
                         <h3 className="text-2xl font-bold md:text-3xl">

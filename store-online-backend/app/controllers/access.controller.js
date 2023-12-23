@@ -88,9 +88,9 @@ const login = async (req, res) => {
         .populate("role")
         .lean();
     if (!foundUser) throw new BadRequestError("User not registered !");
-    console.log(foundUser);
+
     // match password
-    const match = await bcrypt.compare(password, foundUser.password);
+    const match = bcrypt.compare(password, foundUser.password);
     if (!match) throw new AuthFailureError("Authentication failed");
 
     // create access token and refresh token and save

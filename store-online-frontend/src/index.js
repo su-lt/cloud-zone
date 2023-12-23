@@ -23,7 +23,7 @@ if (existCart)
 
 // check darkmode
 const darkMode = localStorage.getItem("darkMode");
-if (darkMode) store.dispatch(toggleDarkMode());
+if (darkMode === "true") store.dispatch(toggleDarkMode());
 
 root.render(
     <React.StrictMode>

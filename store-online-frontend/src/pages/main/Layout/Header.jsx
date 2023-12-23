@@ -79,9 +79,9 @@ const Header = () => {
                             as="div"
                             className="relative inline-block text-left"
                         >
-                            <Menu.Button className="my-2 px-4 leading-6 text-xs border-x border-custom-300 hover:bg-slate-700 hover:rounded-md">
+                            <Menu.Button className="my-2 px-4 leading-6 text-xs border-x border-custom-300 select-none hover:bg-slate-700 hover:rounded-md">
                                 Welcome
-                                <h6 className="text-red-300 inline-block ml-1 hover:text-re">
+                                <h6 className="text-red-300 inline-block ml-1">
                                     {fullname}
                                 </h6>
                             </Menu.Button>
@@ -102,9 +102,9 @@ const Header = () => {
                                                 className={`${
                                                     active && "bg-gray-100"
                                                 } px-4 text-gray-700 cursor-pointer rounded-sm focus:bg-gray-200`}
-                                                // onClick={() =>
-                                                //     navigate("/logout")
-                                                // }
+                                                onClick={() =>
+                                                    navigate("/profile")
+                                                }
                                             >
                                                 Profile
                                             </div>

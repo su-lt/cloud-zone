@@ -67,7 +67,7 @@ const Login = () => {
                     </h3>
                     <div className="mt-8 flex flex-col gap-2">
                         {error && (
-                            <div className="p-3 text-center bg-red-200">
+                            <div className="p-3 text-center bg-red-200 dark:text-primary">
                                 {error}
                             </div>
                         )}

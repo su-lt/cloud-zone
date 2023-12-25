@@ -17,6 +17,7 @@ export const buildQueryString = (params) => {
     for (const key in params) {
         if (
             params[key] !== undefined &&
+            params[key] !== null &&
             params[key] !== "" &&
             !(Array.isArray(params[key]) && params[key].length === 0)
         ) {

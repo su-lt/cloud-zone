@@ -6,34 +6,125 @@ require("../models/user.model");
 
 const getOrders = async (req, res) => {
     // get params
-    let { searchString, page, limit } = req.query;
+    let { searchString, page, limit, status, startDate, endDate } = req.query;
     page = parseInt(page) || 1;
     limit = parseInt(limit) || 12;
 
     const skip = (page - 1) * limit;
 
+    // check search string condition
+    if (searchString) {
+        // search name condition
+        const regex = new RegExp(searchString, "i");
+        const orders = await orderModel.aggregate([
+            {
+                $facet: {
+                    orders: [
+                        {
+                            $lookup: {
+                                from: "users",
+                                localField: "user",
+                                foreignField: "_id",
+                                as: "user",
+                            },
+                        },
+                        {
+                            $unwind: "$user", // Unwind user array
+                        },
+                        {
+                            $match: {
+                                $or: [
+                                    { code: regex },
+                                    { "user.fullname": regex },
+                                    { address: regex },
+                                ],
+                            },
+                        },
+                        { $skip: skip },
+                        { $limit: limit },
+                        {
+                            $project: {
+                                code: 1,
+                                user: { fullname: "$user.fullname" }, //get only field fullname of user
+                                address: 1,
+                                items: 1,
+                                totalPrice: 1,
+                                status: 1,
+                                createdAt: 1,
+                                updatedAt: 1,
+                            },
+                        },
+                    ],
+                    // count documents
+                    totalOrders: [
+                        {
+                            $lookup: {
+                                from: "users",
+                                localField: "user",
+                                foreignField: "_id",
+                                as: "user",
+                            },
+                        },
+                        {
+                            $match: {
+                                $or: [
+                                    { code: regex },
+                                    { "user.fullname": regex },
+                                    { address: regex },
+                                ],
+                            },
+                        },
+                        { $count: "total" },
+                    ],
+                },
+            },
+            {
+                //export results
+                $project: {
+                    orders: 1,
+                    totalOrders: { $arrayElemAt: ["$totalOrders.total", 0] },
+                },
+            },
+        ]);
+        return res.status(200).json({
+            message: "success",
+            metadata: {
+                orders: orders[0].orders,
+                totalOrders: orders[0].totalOrders,
+            },
+        });
+    }
+
     // set query
-    const query = orderModel.find().skip(skip).limit(limit).populate({
-        path: "user",
-        select: "fullname",
-    });
+    const query = orderModel.find().skip(skip).limit(limit);
     const countQuery = orderModel.find();
 
-    // search name condition
-    if (searchString) {
-        const regex = new RegExp(searchString, "i");
-        query.where({
-            $or: [{ code: regex }, { address: regex }],
+    // get orders by status
+    if (status) {
+        query.find({ status: status });
+        countQuery.find({ status: status });
+    }
+
+    // get orders by startDate
+    if (startDate) {
+        query.find({ createdAt: { $gte: new Date(startDate) } });
+        countQuery.find({ createdAt: { $gte: new Date(startDate) } });
+    }
+
+    // get orders by endDate
+    if (endDate) {
+        query.find({
+            createdAt: { $lte: new Date(endDate).setHours(23, 59, 59, 999) },
         });
-        countQuery.where({
-            $or: [{ code: regex }, { address: regex }],
+        countQuery.find({
+            createdAt: { $lte: new Date(endDate).setHours(23, 59, 59, 999) },
         });
     }
 
     // get total number of products
-    const totalOrders = await countQuery.countDocuments().exec();
+    let totalOrders = await countQuery.countDocuments();
     // get products
-    const orders = await query.lean().exec();
+    let orders = await query.find().lean().exec();
     if (!orders) throw new NotFoundError("Cannot load orders");
 
     return res.status(200).json({

@@ -12,6 +12,7 @@ import {
     setError,
 } from "../../../redux/slices/order.slice";
 import { useDebounce } from "../../../helpers/ultil";
+import Datepicker from "react-tailwindcss-datepicker";
 
 const Orders = () => {
     const dispatch = useDispatch();
@@ -25,6 +26,15 @@ const Orders = () => {
     const [page, setPage] = useState(1);
     const [isOpenUpdate, setIsOpenUpdate] = useState(false);
     const [isOpenDelete, setIsOpenDelete] = useState(false);
+
+    // filter state
+    // datetime picker value
+    const [date, setDate] = useState({
+        startDate: null,
+        endDate: null,
+    });
+    // status
+    const [status, setStatus] = useState("");
 
     const handleUpdate = (id) => {
         dispatch(fetchOrderById(id));
@@ -56,17 +66,30 @@ const Orders = () => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [updateCompleted, deleteCompleted, error]);
 
-    // search products
+    // search orders
     useEffect(() => {
         dispatch(fetchOrders({ searchString: debounceSearch }));
+        setStatus("");
+        setDate({
+            startDate: null,
+            endDate: null,
+        });
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [debounceSearch]);
 
-    // fetch products
+    // fetch orders
     useEffect(() => {
-        dispatch(fetchOrders({ searchString, page }));
+        dispatch(
+            fetchOrders({
+                searchString,
+                status,
+                startDate: date.startDate,
+                endDate: date.endDate,
+                page,
+            })
+        );
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [page]);
+    }, [page, status, date]);
 
     return (
         <div className="px-4 mt-3">
@@ -82,6 +105,33 @@ const Orders = () => {
             <div className="mt-3 items-start justify-between flex flex-col gap-3 md:flex-row">
                 <div className="text-lg md:text-2xl text-gray-700 font-medium">
                     Orders management
+                </div>
+            </div>
+            {/* filter */}
+            <div className="mt-3 flex flex-col md:flex-row gap-2">
+                <div>
+                    <select
+                        className="p-2 min-w-[120px] border text-custom-1000 rounded-md"
+                        onChange={(e) => setStatus(e.target.value)}
+                        value={status}
+                    >
+                        <option value="">All status</option>
+                        <option value="pending">Pending</option>
+                        <option value="processing">Processing</option>
+                        <option value="shipping">Shipping</option>
+                        <option value="delivered">Delivered</option>
+                        <option value="cancel">Cancel</option>
+                    </select>
+                </div>
+                <div className="">
+                    <Datepicker
+                        inputClassName="p-2 w-full md:w-[280px] rounded-md border text-custom-1000"
+                        value={date}
+                        onChange={setDate}
+                        useRange={false}
+                        displayFormat={"DD/MM/YYYY"}
+                        maxDate={new Date()}
+                    />
                 </div>
             </div>
             <div className="mt-3 shadow-sm border rounded-lg overflow-x-auto">

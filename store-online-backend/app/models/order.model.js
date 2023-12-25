@@ -6,14 +6,8 @@ const orderItemSchema = new Schema({
         ref: "Product",
         required: true,
     },
-    quantity: {
-        type: Number,
-        required: true,
-    },
-    price: {
-        type: Number,
-        required: true,
-    },
+    quantity: { type: Number, required: true },
+    price: { type: Number, required: true },
 });
 
 // Declare the Schema of the Mongo model
@@ -37,7 +31,10 @@ const orderSchema = new Schema(
 );
 
 orderSchema.pre("find", function (next) {
-    this.sort({
+    this.populate({
+        path: "user",
+        select: "fullname",
+    }).sort({
         updatedAt: -1,
     });
     next();

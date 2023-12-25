@@ -105,11 +105,14 @@ export const orderSlice = createSlice({
 // get orders
 export const fetchOrders = createAsyncThunk(
     "category/fetchOrders",
-    async ({ searchString, page, limit }) => {
+    async ({ searchString, page, limit, status, startDate, endDate }) => {
         const query = buildQueryString({
             searchString,
-            page,
             limit,
+            status,
+            startDate,
+            endDate,
+            page,
         });
         const response = await api.get("/order?" + query);
         return response.data.metadata;

@@ -12,7 +12,7 @@ const getOrders = async (req, res) => {
 
     const skip = (page - 1) * limit;
 
-    // check search string condition
+    // check search string
     if (searchString) {
         // search name condition
         const regex = new RegExp(searchString, "i");

@@ -24,7 +24,6 @@ app.use(
     })
 );
 
-require("./models/product.model.js");
 // init db
 require("./databases/db.mongo.js");
 
@@ -33,6 +32,7 @@ app.use("/", require("./routes"));
 
 // static routes for images
 app.use("/images", express.static(path.join(__dirname, "/uploads/images/")));
+
 // handling errors
 app.use((error, req, res, next) => {
     // cleanup - remove image upload on cloudinary server

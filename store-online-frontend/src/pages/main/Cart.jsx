@@ -13,7 +13,7 @@ import {
     updateQuantity,
     clearAddress,
 } from "../../redux/slices/cart.slice";
-import Breadcrumb from "../../components/Breadcrumb";
+import { fetchUserAddress } from "../../redux/slices/user.slice";
 import { Link } from "react-router-dom";
 import { formattedPrice } from "../../helpers/ultil";
 import {
@@ -21,9 +21,9 @@ import {
     login,
     setLastPage,
 } from "../../redux/slices/auth.slice";
-import { fetchUserAddress } from "../../redux/slices/user.slice";
 import AutocompleteBox from "../../components/AutocompleteBox";
 import Modal from "../../components/CartModal";
+import Breadcrumb from "../../components/Breadcrumb";
 
 const breadcrumbItems = [
     { label: "Home", link: "/" },
@@ -87,7 +87,9 @@ const Cart = () => {
     // handle processing
     const handleProcess = () => {
         // check out of stock items
-        const isOutOfStock = cart.some((item) => item.out_of_stock !== false);
+        const isOutOfStock = cart.some(
+            (item) => item.out_of_stock || item.quantity > item.stock
+        );
         if (isOutOfStock) {
             setShowModal(true);
             return;
@@ -108,7 +110,9 @@ const Cart = () => {
     // handle got it button click
     const handleClickButton = () => {
         // remove out of stock items
-        const outOfStockItems = cart.filter((item) => item.out_of_stock);
+        const outOfStockItems = cart.filter(
+            (item) => item.out_of_stock || item.quantity > item.stock
+        );
         outOfStockItems.forEach((item) => {
             handleDelete(item._id);
         });
@@ -229,6 +233,11 @@ const Cart = () => {
                                                 {item.out_of_stock && (
                                                     <div className="absolute top-1 left-1 p-1 bg-red-300 text-white text-xs leading-3 rounded-md">
                                                         Out of stock
+                                                    </div>
+                                                )}
+                                                {item.quantity > item.stock && (
+                                                    <div className="absolute top-1 left-1 p-1 bg-red-300 text-white text-xs leading-3 rounded-md">
+                                                        {`Only ${item.stock} items in stock`}
                                                     </div>
                                                 )}
                                                 <div className="absolute -top-3 -right-2 w-5 h-5 md:hidden group-hover:block">

@@ -8,9 +8,9 @@ import { motion, AnimatePresence } from "framer-motion";
 import { MenuToggle } from "../../../components/MenuToggle";
 import { formattedPrice } from "../../../helpers/ultil";
 import {
-    clearAuthState,
     logout,
     toggleDarkMode,
+    clearAuthState,
 } from "../../../redux/slices/auth.slice";
 import DarkModeToggle from "react-dark-mode-toggle";
 import { clearCartState } from "../../../redux/slices/cart.slice";
@@ -271,7 +271,12 @@ const Header = () => {
                         <ul>
                             {menuItems.map((item) => (
                                 <li key={item.text} className="py-2">
-                                    <Link to={item.link}>{item.text}</Link>
+                                    <Link
+                                        to={item.link}
+                                        onClick={() => setOpen(false)}
+                                    >
+                                        {item.text}
+                                    </Link>
                                 </li>
                             ))}
                         </ul>

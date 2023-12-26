@@ -99,7 +99,7 @@ const Orders = () => {
     // fetch categories
     useEffect(() => {
         // dispatch(fetchProducts({ defaultConfig: true }));
-        dispatch(fetchCategories());
+        dispatch(fetchCategories({}));
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
@@ -138,6 +138,7 @@ const Orders = () => {
                             <th className="py-3 px-2">#</th>
                             <th className="py-3 px-6">Name</th>
                             <th className="py-3 px-3">Thumbnail</th>
+                            <th className="py-3 px-3">Quantity</th>
                             <th className="py-3 px-2">Price</th>
                             <th className="py-3 px-2">Status</th>
                             <th className="py-3 px-6"></th>
@@ -165,6 +166,14 @@ const Orders = () => {
                                         alt=""
                                         className="h-16 w-auto object-cover"
                                     />
+                                </td>
+                                <td
+                                    className={`w-full px-6 py-4 whitespace-nowrap ${
+                                        item.quantity === 0 &&
+                                        "text-red-400 font-semibold"
+                                    }`}
+                                >
+                                    {item.quantity}
                                 </td>
                                 <td className="px-2 py-4 whitespace-nowrap">
                                     $ {item.price}

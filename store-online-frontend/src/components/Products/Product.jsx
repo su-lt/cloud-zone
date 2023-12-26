@@ -17,17 +17,22 @@ const Product = ({ product }) => {
     };
 
     const handleAddToCart = () => {
-        const orderObject = {
-            _id: product._id,
-            price: product.price,
-            quantity,
-        };
+        if (quantity <= product.quantity) {
+            const orderObject = {
+                _id: product._id,
+                price: product.price,
+                quantity,
+            };
 
-        // save cart to localStorage, redux state
-        dispatch(addToCart(orderObject));
+            // save cart to localStorage, redux state
+            dispatch(addToCart(orderObject));
 
-        toast.success("Product added to cart.");
-        setQuantity(1);
+            toast.success(`Product added to cart.`);
+            setQuantity(1);
+        } else {
+            toast.warning(`Only ${product.quantity} products left in stock`);
+            setQuantity(product.quantity);
+        }
     };
 
     useEffect(() => {
@@ -75,28 +80,37 @@ const Product = ({ product }) => {
                             </h3>
 
                             <div className="w-[135px] h-[40px] flex items-center border border-custom-300 rounded-sm text-center">
-                                <div
+                                <button
                                     className="flex-grow leading-10 cursor-pointer hover:bg-primary hover:text-white select-none"
                                     onClick={
                                         quantity > 1
                                             ? () => setQuantity(quantity - 1)
                                             : () => {}
                                     }
+                                    disabled={
+                                        product.quantity > 0 ? false : true
+                                    }
                                 >
                                     &#45;
-                                </div>
+                                </button>
                                 <input
                                     className="bg-custom-100 border-r border-l border-custom-300 w-[45px] focus:outline-none h-[38px] text-center"
                                     type="number"
                                     value={quantity}
                                     onChange={handleQuantityChange}
+                                    disabled={
+                                        product.quantity > 0 ? false : true
+                                    }
                                 />
-                                <div
+                                <button
                                     className="flex-grow leading-10 cursor-pointer hover:bg-primary hover:text-white select-none"
                                     onClick={() => setQuantity(quantity + 1)}
+                                    disabled={
+                                        product.quantity > 0 ? false : true
+                                    }
                                 >
                                     &#43;
-                                </div>
+                                </button>
                             </div>
                             <div>
                                 {product.quantity > 0 ? (

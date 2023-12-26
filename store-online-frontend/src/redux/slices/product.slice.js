@@ -20,7 +20,6 @@ const initialState = {
         description: "",
         category: "",
         productDetail: "",
-        color: "",
         status: "",
         images: [],
     },
@@ -31,7 +30,6 @@ const initialState = {
         quantity: "",
         brand: "",
         description: "",
-        color: "",
     },
     errors: {
         name: "",
@@ -75,13 +73,11 @@ export const productSlice = createSlice({
         checkValidation: (state) => {
             // check all field before submit
             Object.keys(state.productObject).forEach((field) => {
-                if (field !== "color") {
-                    state.errors[field] =
-                        String(state.productObject[field]).trim() &&
-                        String(state.productObject[field]) !== "0"
-                            ? ""
-                            : "This field is required";
-                }
+                state.errors[field] =
+                    String(state.productObject[field]).trim() &&
+                    String(state.productObject[field]) !== "0"
+                        ? ""
+                        : "This field is required";
             });
             // add errors
             const userObjectFields = Object.keys(state.productObject);
@@ -93,7 +89,6 @@ export const productSlice = createSlice({
             Object.keys(state.updateObject).forEach((field) => {
                 if (
                     field !== "id" &&
-                    field !== "color" &&
                     field !== "images" &&
                     field !== "status"
                 ) {
@@ -163,7 +158,6 @@ export const productSlice = createSlice({
                     brand: product.productDetail.brand,
                     description: product.productDetail.description,
                     productDetail: product.productDetail._id,
-                    color: product.productDetail.color,
                     images: product.productDetail.images,
                 };
         });

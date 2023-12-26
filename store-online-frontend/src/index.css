@@ -60,7 +60,7 @@
             hover:bg-primary hover:text-white dark:text-custom-1000 dark:border-purple-300;
     }
     .wrapper-scroll {
-        @apply grid gap-8 grid-flow-col auto-cols-[80%] overflow-x-auto no-scrollbar snap-mandatory snap-x snap-always md:grid-cols-3;
+        @apply grid gap-8 grid-flow-col auto-cols-[80%] overflow-x-auto no-scrollbar snap-mandatory snap-x snap-always;
     }
     .input-outline-none {
         @apply py-4 border-b focus:outline-none;

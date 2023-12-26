@@ -124,14 +124,18 @@ const Category = () => {
                 <table className="w-full table-auto text-sm text-left">
                     <thead className="bg-gray-50 text-gray-600 font-medium border-b">
                         <tr>
-                            <th className="py-3 px-6">Name</th>
+                            <th className="py-3 px-2">#</th>
+                            <th className="py-3 px-3">Name</th>
                             <th className="py-3 px-6"></th>
                         </tr>
                     </thead>
                     <tbody className="text-gray-600 divide-y">
-                        {categories.map((item) => (
+                        {categories.map((item, index) => (
                             <tr key={item._id}>
-                                <td className="px-6 py-4 whitespace-nowrap">
+                                <td className="px-3 py-4 whitespace-nowrap">
+                                    {index + 1}
+                                </td>
+                                <td className="px-3 py-4 whitespace-nowrap">
                                     {item.name}
                                 </td>
                                 <td className="text-right px-6 whitespace-nowrap">

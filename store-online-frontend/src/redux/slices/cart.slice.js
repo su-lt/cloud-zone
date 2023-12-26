@@ -134,6 +134,7 @@ export const cartSlice = createSlice({
             // if product found, increase quantity
             if (foundIndex !== -1) {
                 state.cart[foundIndex].name = payload.name;
+                state.cart[foundIndex].stock = payload.quantity;
                 state.cart[foundIndex].image_thumbnail =
                     payload.image_thumbnail;
                 state.cart[foundIndex].out_of_stock =

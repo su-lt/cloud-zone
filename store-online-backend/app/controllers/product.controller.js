@@ -161,7 +161,7 @@ const getRelatedProducts = async (req, res) => {
 
 const createProduct = async (req, res) => {
     const { name, price, category, quantity, brand, description } = req.body;
-    const color = req.body.color || "none";
+
     // get images by multer
     const images = req.files.map((file) => {
         return {
@@ -171,17 +171,16 @@ const createProduct = async (req, res) => {
     });
     // create product details
     const productDetails = await productDetailModel.create({
-        quantity,
         brand,
         description,
         images,
-        color,
     });
     if (!productDetails) throw new CreateDatabaseError();
     // create product
     const product = await productModel.create({
         name,
         price,
+        quantity,
         image_thumbnail: productDetails.images[0]?.path,
         productDetail: productDetails._id,
         category: new Types.ObjectId(category),
@@ -210,7 +209,6 @@ const updateProduct = async (req, res) => {
         status,
         productDetail,
     } = req.body;
-    const color = req.body.color || "none";
     // get images by multer
     const images = req.files.map((file) => {
         return {
@@ -221,10 +219,8 @@ const updateProduct = async (req, res) => {
     // update product details
     const detail = await productDetailModel.findByIdAndUpdate(productDetail, {
         $push: { images: { $each: images } },
-        quantity,
         brand,
         description,
-        color,
     });
     if (!detail) throw new CreateDatabaseError();
     // update product
@@ -234,6 +230,7 @@ const updateProduct = async (req, res) => {
             name,
             price,
             image_thumbnail: detail.images[0]?.path,
+            quantity,
             category: new Types.ObjectId(category),
             status,
         },

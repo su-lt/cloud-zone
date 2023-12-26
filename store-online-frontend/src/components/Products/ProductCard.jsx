@@ -14,7 +14,7 @@ const ProductCard = ({ item }) => {
                     />
                 </Link>
             </div>
-            <div className="mx-1 flex justify-between text-gray3 text-sm dark:text-purple-100">
+            <div className="mx-1 flex-1 flex justify-between text-gray3 text-sm dark:text-purple-100">
                 <span className="cursor-pointer">
                     <Link to={`/products/${item.slug}`}>{item.name}</Link>
                 </span>

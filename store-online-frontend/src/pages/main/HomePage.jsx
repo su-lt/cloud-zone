@@ -16,7 +16,7 @@ const HomePage = () => {
             {/* collection section */}
             <section className="px-4 py-10 md:container dark:text-custom-1000 ">
                 <h3 className="text-3xl md:text-center">Collection</h3>
-                <div className="mt-4 wrapper-scroll ">
+                <div className="mt-4 wrapper-scroll md:grid-cols-3">
                     {/* collection 1 */}
                     <div className="relative h-44 md:h-72 border border-custom-500 snap-start group">
                         <img

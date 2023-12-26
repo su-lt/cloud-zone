@@ -12,7 +12,6 @@ const productDetailSchema = new Schema(
                 },
             },
         ],
-        color: { type: String, default: "none" },
     },
     {
         timestamps: true,

@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import Breadcrumb from "../../components/Breadcrumb";
 import { useSelector, useDispatch } from "react-redux";
 import { formattedPrice } from "../../helpers/ultil";
 import {
@@ -12,6 +11,7 @@ import {
     updatePass,
 } from "../../redux/slices/profile.slice";
 import { toast } from "react-toastify";
+import Breadcrumb from "../../components/Breadcrumb";
 
 const breadcrumbItems = [
     { label: "Home", link: "/" },

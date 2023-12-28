@@ -313,7 +313,16 @@ const Profile = () => {
                                             {item.address}
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap">
-                                            {formattedPrice(400)}
+                                            {item.discout
+                                                ? formattedPrice(
+                                                      item.totalPrice -
+                                                          (item.totalPrice *
+                                                              item.discout) /
+                                                              100
+                                                  )
+                                                : formattedPrice(
+                                                      item.totalPrice
+                                                  )}
                                         </td>
                                         <td className="px-2 py-4 whitespace-nowrap">
                                             <div>

@@ -2,6 +2,8 @@ const mongoose = require("mongoose");
 const orderModel = require("../models/order.model");
 const productModel = require("../models/product.model");
 const { NotFoundError } = require("../helpers/errorHandler");
+const generateCode = require("../helpers/generateCode");
+const voucherModel = require("../models/voucher.model");
 require("../models/user.model");
 
 const getOrders = async (req, res) => {
@@ -165,7 +167,7 @@ const getOrderById = async (req, res) => {
 };
 
 const createOrder = async (req, res) => {
-    const { user, address, items, totalPrice } = req.body;
+    const { user, address, items, totalPrice, voucherCode } = req.body;
     if (!user && !address && !items && !totalPrice) throw new BadRequestError();
 
     // check items is array
@@ -177,14 +179,32 @@ const createOrder = async (req, res) => {
         }
     }
 
-    // create order
-    const order = await orderModel.create({
-        code: generateOrderCode(),
+    // create order object
+    const orderObject = {
+        code: generateCode(),
         user,
         address,
         items,
         totalPrice,
-    });
+    };
+
+    // check discount exists
+    if (voucherCode) {
+        const voucher = await voucherModel.findOneAndUpdate(
+            { code: voucherCode },
+            { status: "used" },
+            { new: true }
+        );
+        if (!voucher) throw new CreateDatabaseError();
+
+        // add discount
+        orderObject.discount = voucher.discount;
+        orderObject.totalPrice =
+            orderObject.totalPrice -
+            (orderObject.totalPrice * voucher.discount) / 100;
+    }
+    // create order
+    const order = await orderModel.create(orderObject);
     if (!order) throw new CreateDatabaseError();
 
     return res.status(200).json({
@@ -331,20 +351,6 @@ const totalOrders = async (req, res) => {
         },
     });
 };
-
-// generate ordercode
-function generateOrderCode() {
-    const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-    const codeLength = 8;
-
-    let orderCode = "";
-    for (let i = 0; i < codeLength; i++) {
-        const randomIndex = Math.floor(Math.random() * characters.length);
-        orderCode += characters[randomIndex];
-    }
-
-    return orderCode;
-}
 
 module.exports = {
     getOrders,

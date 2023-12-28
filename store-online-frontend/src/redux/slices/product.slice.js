@@ -70,6 +70,11 @@ export const productSlice = createSlice({
             state.deleteObject["id"] = id;
             state.deleteObject["name"] = name;
         },
+        removeImageObject: (state, action) => {
+            state.updateObject.images = state.updateObject.images.filter(
+                (i) => i.filename !== action.payload
+            );
+        },
         checkValidation: (state) => {
             // check all field before submit
             Object.keys(state.productObject).forEach((field) => {
@@ -334,6 +339,17 @@ export const deleteProduct = createAsyncThunk(
     }
 );
 
+// delete image from server side
+export const deleteImage = createAsyncThunk(
+    "product/deleteImage",
+    async ({ id, image }) => {
+        const response = await api.delete(
+            "/product/remove/" + id + "?filename=" + image
+        );
+        return response.data;
+    }
+);
+
 // get product by id
 export const fetchProductById = createAsyncThunk(
     "product/fetchProductById",
@@ -383,6 +399,7 @@ export const {
     setProductObject,
     setUpdateObject,
     setDeleteObject,
+    removeImageObject,
     checkValidation,
     checkUpdateValidation,
     setCreateCompleted,

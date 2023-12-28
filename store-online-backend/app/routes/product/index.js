@@ -12,6 +12,7 @@ const {
     updateProduct,
     deleteProduct,
     totalProducts,
+    removeImage,
 } = require("../../controllers/product.controller");
 const {
     authentication,
@@ -39,11 +40,11 @@ router.use(asyncHandler(isAdmin));
 
 // create product
 router.post("/", upload.array("images", 10), asyncHandler(createProduct));
-
 // update product
 router.put("/:id", upload.array("images", 10), asyncHandler(updateProduct));
-
 // delete product
 router.delete("/:id", asyncHandler(deleteProduct));
+// remove image
+router.delete("/remove/:id", asyncHandler(removeImage));
 
 module.exports = router;

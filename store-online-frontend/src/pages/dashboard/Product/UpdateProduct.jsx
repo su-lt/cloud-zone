@@ -3,6 +3,8 @@ import { Dialog, Transition } from "@headlessui/react";
 import { useDispatch, useSelector } from "react-redux";
 import {
     clearState,
+    deleteImage,
+    removeImageObject,
     setUpdateObject,
     updateProduct,
 } from "../../../redux/slices/product.slice";
@@ -34,9 +36,16 @@ const CreateOrder = ({ isOpen, onClose }) => {
         }
     };
 
+    // remove image from client side
     const removeImage = (image) => {
         setImages(images.filter((e) => e !== image));
         URL.revokeObjectURL(image.preview);
+    };
+
+    // remove image from server side
+    const removeImageServer = (id, image) => {
+        dispatch(removeImageObject(image));
+        dispatch(deleteImage({ id, image }));
     };
 
     // create click button
@@ -300,7 +309,12 @@ const CreateOrder = ({ isOpen, onClose }) => {
                                                             className="w-full h-full object-cover"
                                                         />
                                                         <span
-                                                            onClick={null}
+                                                            onClick={() =>
+                                                                removeImageServer(
+                                                                    updateObject.productDetail,
+                                                                    image.filename
+                                                                )
+                                                            }
                                                             className="w-4 h-4 text-center bg-red-200 text-xs text-red-500 rounded-full absolute -right-1 -top-2 select-none"
                                                         >
                                                             X

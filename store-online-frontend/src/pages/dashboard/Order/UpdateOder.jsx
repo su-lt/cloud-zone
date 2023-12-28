@@ -150,8 +150,7 @@ const UpdateOrder = ({ isOpen, onClose }) => {
                                                                     .status !==
                                                                     "active" && (
                                                                     <span className="absolute -top-2 -right-2 px-2 bg-red-300 text-white rounded-md">
-                                                                        Out of
-                                                                        stock
+                                                                        Deactived
                                                                     </span>
                                                                 )}
                                                                 <div className="flex-1 p-2">

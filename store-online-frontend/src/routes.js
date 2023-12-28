@@ -4,6 +4,7 @@ import {
     HiOutlineShoppingCart,
     HiOutlineAdjustments,
     HiOutlineUsers,
+    HiOutlineTicket,
 } from "react-icons/hi";
 // main pages
 import HomePage from "./pages/main/HomePage";
@@ -20,6 +21,7 @@ import User from "./pages/dashboard/User";
 import Category from "./pages/dashboard/Category";
 import Product from "./pages/dashboard/Product";
 import Order from "./pages/dashboard/Order";
+import Voucher from "./pages/dashboard/Voucher";
 
 const routes_main = [
     { path: "/", element: <HomePage /> },
@@ -67,6 +69,13 @@ const routes_dashboard = [
         path: "/admin/orders",
         icon: <HiOutlineShoppingCart size={32} />,
         element: <Order />,
+    },
+    {
+        key: "vouchers",
+        label: "Vouchers",
+        path: "/admin/vouchers",
+        icon: <HiOutlineTicket size={32} />,
+        element: <Voucher />,
     },
 ];
 

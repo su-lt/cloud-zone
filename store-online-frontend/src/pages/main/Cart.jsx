@@ -12,6 +12,8 @@ import {
     setFullAddress,
     updateQuantity,
     clearAddress,
+    handleVoucherOnChange,
+    fetchVoucherByCode,
 } from "../../redux/slices/cart.slice";
 import { fetchUserAddress } from "../../redux/slices/user.slice";
 import { Link } from "react-router-dom";
@@ -37,6 +39,8 @@ const Cart = () => {
     const {
         cart,
         totalPrice,
+        voucher,
+        discount,
         cities,
         districts,
         wards,
@@ -143,7 +147,15 @@ const Cart = () => {
 
     // handle confirm button
     const handleConfirmClick = async () => {
-        dispatch(createOrder({ cart, id, address: fullAddress, totalPrice }));
+        dispatch(
+            createOrder({
+                cart,
+                id,
+                address: fullAddress,
+                totalPrice,
+                voucherCode: voucher,
+            })
+        );
     };
 
     // remove items
@@ -337,8 +349,24 @@ const Cart = () => {
                                                 type="text"
                                                 className="pl-2 border border-custom-500 rounded-xl focus:outline-orange-400"
                                                 placeholder="voucher code"
+                                                onChange={(e) =>
+                                                    dispatch(
+                                                        handleVoucherOnChange(
+                                                            e.target.value
+                                                        )
+                                                    )
+                                                }
                                             />
-                                            <button className="px-4 sm:text-lg sm:px-8 sm:py-4 py-3 text-xs border border-custom-500 rounded-xl">
+                                            <button
+                                                className="px-4 sm:text-lg sm:px-8 sm:py-4 py-3 text-xs border border-custom-500 rounded-xl"
+                                                onClick={() =>
+                                                    dispatch(
+                                                        fetchVoucherByCode(
+                                                            voucher
+                                                        )
+                                                    )
+                                                }
+                                            >
                                                 Apply voucher
                                             </button>
                                         </div>
@@ -448,13 +476,25 @@ const Cart = () => {
                                                             </h4>
                                                         </div>
                                                     )}
+
+                                                {discount > 0 && (
+                                                    <div className="flex">
+                                                        <h4 className="w-[110px]">
+                                                            Discount:
+                                                        </h4>
+                                                        <h4>{discount}%</h4>
+                                                    </div>
+                                                )}
                                                 <div className="flex">
                                                     <h4 className="w-[110px]">
                                                         Total:
                                                     </h4>
                                                     <h4>
                                                         {formattedPrice(
-                                                            totalPrice
+                                                            totalPrice -
+                                                                (totalPrice *
+                                                                    discount) /
+                                                                    100
                                                         )}
                                                     </h4>
                                                 </div>
@@ -548,7 +588,45 @@ const Cart = () => {
                                 {/* show confirm form */}
                                 {isLogin && showConfirm && cart.length > 0 && (
                                     <div className="p-7 mt-10 xl:mt-0 max-w-[600px] w-full mx-auto border border-custom-500">
-                                        <h3>Shipping Address:</h3>
+                                        <h3>Receipts:</h3>
+                                        <div className="mt-3 w-full flex justify-between font-semibold">
+                                            <p>Description</p>
+                                            <p>Price</p>
+                                        </div>
+                                        {cart.map((item) => (
+                                            <div className="w-full flex justify-between">
+                                                <div>{item.name}</div>
+                                                <div>
+                                                    {`${formattedPrice(
+                                                        item.price
+                                                    )} x${item.quantity}`}
+                                                </div>
+                                            </div>
+                                        ))}
+                                        {discount > 0 && (
+                                            <div className="mt-3 w-full flex justify-between font-semibold">
+                                                <p>Discount</p>
+                                                <p>{discount}%</p>
+                                            </div>
+                                        )}
+                                        <div className="mt-3 w-full flex justify-between font-semibold">
+                                            <p>Total</p>
+                                            <p>
+                                                {discount
+                                                    ? formattedPrice(
+                                                          totalPrice -
+                                                              (totalPrice *
+                                                                  discount) /
+                                                                  100
+                                                      )
+                                                    : formattedPrice(
+                                                          totalPrice
+                                                      )}
+                                            </p>
+                                        </div>
+                                        <h3 className="mt-5">
+                                            Shipping Address:
+                                        </h3>
                                         {defaultAddress && (
                                             <div className="mt-4 flex items-start gap-4">
                                                 <input

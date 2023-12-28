@@ -85,6 +85,7 @@ const login = async (req, res) => {
     // check exist
     const foundUser = await userModel
         .findOne({ email })
+        .where({ status: "active" })
         .populate("role")
         .lean();
     if (!foundUser) throw new BadRequestError("User not registered !");

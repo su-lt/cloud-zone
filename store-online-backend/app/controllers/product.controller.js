@@ -121,7 +121,7 @@ const getProductById = async (req, res) => {
 };
 
 const getProductBySlug = async (req, res) => {
-    // get _id
+    // get slug
     const slug = req.params.slug;
     if (!slug) throw new BadRequestError();
     // get product by slug
@@ -197,7 +197,9 @@ const createProduct = async (req, res) => {
 
 const updateProduct = async (req, res) => {
     const id = req.params.id;
-    if (!id) throw new BadRequestError();
+    if (!Types.ObjectId.isValid(id)) {
+        throw new BadRequestError("Id not valid !");
+    }
 
     const {
         name,
@@ -248,7 +250,9 @@ const updateProduct = async (req, res) => {
 
 const deleteProduct = async (req, res) => {
     const id = req.params.id;
-    if (!id) throw new BadRequestError();
+    if (!Types.ObjectId.isValid(id)) {
+        throw new BadRequestError("Id not valid !");
+    }
 
     // get product to get images
     const product = await productModel
@@ -309,6 +313,39 @@ const totalProducts = async (req, res) => {
     });
 };
 
+const removeImage = async (req, res) => {
+    const id = req.params.id;
+    if (!Types.ObjectId.isValid(id))
+        throw new BadRequestError("Id not valid !");
+
+    const { filename } = req.query;
+    if (!filename) throw new BadRequestError();
+
+    // remove image of product from server
+    // check existing image
+    fs.access("./app/uploads/images/" + filename, fs.constants.F_OK, (err) => {
+        if (err) {
+            throw new NotFoundError();
+        }
+        // if existed -> remove it
+        fs.unlink("./app/uploads/images/" + filename, async (unlinkErr) => {
+            if (unlinkErr) {
+                throw new BadRequestError();
+            }
+
+            // remove file suceess
+            // remove log db
+            await productDetailModel.findByIdAndUpdate(id, {
+                $pull: { images: { filename } },
+            });
+
+            return res.status(200).json({
+                message: "remove image successfully",
+            });
+        });
+    });
+};
+
 module.exports = {
     getAllProducts,
     getProductById,
@@ -318,4 +355,5 @@ module.exports = {
     updateProduct,
     deleteProduct,
     totalProducts,
+    removeImage,
 };

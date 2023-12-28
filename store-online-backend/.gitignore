@@ -6,4 +6,4 @@ src/configs/config.mongodb.js
 
 package-lock.json
 
-/uploads
+/app/uploads

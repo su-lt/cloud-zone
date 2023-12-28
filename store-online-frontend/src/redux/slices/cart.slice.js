@@ -5,6 +5,8 @@ const initialState = {
     cart: [],
     totalQuantity: 0,
     totalPrice: 0,
+    voucher: "",
+    discount: 0,
     address: {
         city: "Province / City",
         district: "City / District",
@@ -68,6 +70,9 @@ export const cartSlice = createSlice({
 
             // add cart to local storage
             localStorage.setItem("cart", JSON.stringify(state.cart));
+        },
+        handleVoucherOnChange: (state, action) => {
+            state.voucher = action.payload;
         },
         updateQuantity: (state, action) => {
             const cartObject = action.payload;
@@ -141,6 +146,10 @@ export const cartSlice = createSlice({
                     payload.quantity > 0 ? false : true;
             }
         });
+        // fetch voucher by code
+        builder.addCase(fetchVoucherByCode.fulfilled, (state, { payload }) => {
+            state.discount = payload.voucher.discount;
+        });
         // fetch cities
         builder.addCase(fetchCities.fulfilled, (state, { payload }) => {
             state.cities = payload;
@@ -180,6 +189,15 @@ export const fetchProductById = createAsyncThunk(
     }
 );
 
+// get voucher by code
+export const fetchVoucherByCode = createAsyncThunk(
+    "cart/fetchVoucher",
+    async (code) => {
+        const response = await api.get(`/voucher/${code}`);
+        return response.data.metadata;
+    }
+);
+
 // get cities
 export const fetchCities = createAsyncThunk("cart/fetchCities", async () => {
     const response = await provinceApi.get();
@@ -204,7 +222,7 @@ export const fetchWards = createAsyncThunk("cart/fetchWards", async (code) => {
 // create order
 export const createOrder = createAsyncThunk(
     "cart/createOrder",
-    async ({ cart, id, address, totalPrice }) => {
+    async ({ cart, id, address, totalPrice, voucherCode }) => {
         // create items object
         const items = cart.map((item) => ({
             product: item._id,
@@ -217,6 +235,7 @@ export const createOrder = createAsyncThunk(
             address,
             items,
             totalPrice,
+            voucherCode,
         });
         return response.data.metadata;
     }
@@ -225,6 +244,7 @@ export const createOrder = createAsyncThunk(
 export const {
     addToCart,
     setAddress,
+    handleVoucherOnChange,
     setFullAddress,
     updateQuantity,
     clearAddress,

@@ -1,7 +1,11 @@
 import { useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { handleOnChangeRegister, signup } from "../../redux/slices/auth.slice";
+import {
+    clearObjectState,
+    handleOnChangeRegister,
+    signup,
+} from "../../redux/slices/auth.slice";
 import TitleSection from "../../components/TitleSection";
 
 const Register = () => {
@@ -45,6 +49,13 @@ const Register = () => {
             else navigate("/");
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [completed]);
+
+    useEffect(() => {
+        return () => {
+            dispatch(clearObjectState());
+        };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     return (
         <main className="dark:bg-dark dark:text-purple-200 min-h-[calc(100vh-329px)]">

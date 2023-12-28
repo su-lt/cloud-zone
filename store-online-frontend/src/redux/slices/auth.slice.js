@@ -27,7 +27,6 @@ const initialState = {
         password: "",
         repass: "",
     },
-
     lastPage: "",
     completed: false,
     pending: false,
@@ -55,6 +54,13 @@ export const authSlice = createSlice({
                     ? ""
                     : "This field is required";
             });
+            // check email
+            if (
+                state.loginObject["email"] &&
+                !validateEmail(state.loginObject["email"])
+            ) {
+                state.errors["email"] = "Invalid email";
+            }
             // add errors
             state.isValid = Object.values(state.errors).every(
                 (error) => !error
@@ -106,8 +112,18 @@ export const authSlice = createSlice({
             document.body.classList.toggle("dark", state.isDarkMode);
             localStorage.setItem("darkMode", state.isDarkMode);
         },
+        clearObjectState: (state) => {
+            state.loginObject = initialState.loginObject;
+            state.registerObject = initialState.registerObject;
+            state.errors = initialState.errors;
+            state.error = initialState.error;
+            state.isValid = initialState.isValid;
+        },
         clearAuthState: (state) => {
-            return { ...initialState, isDarkMode: state.isDarkMode };
+            return {
+                ...initialState,
+                isDarkMode: state.isDarkMode,
+            };
         },
     },
     extraReducers: (builder) => {
@@ -248,5 +264,6 @@ export const {
     checkValidationSignUp,
     setLastPage,
     toggleDarkMode,
+    clearObjectState,
     clearAuthState,
 } = authSlice.actions;

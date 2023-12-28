@@ -594,12 +594,17 @@ const Cart = () => {
                                             <p>Price</p>
                                         </div>
                                         {cart.map((item) => (
-                                            <div className="w-full flex justify-between">
+                                            <div
+                                                key={item._id}
+                                                className="w-full flex justify-between"
+                                            >
                                                 <div>{item.name}</div>
                                                 <div>
-                                                    {`${formattedPrice(
+                                                    {`${
+                                                        item.quantity
+                                                    } x ${formattedPrice(
                                                         item.price
-                                                    )} x${item.quantity}`}
+                                                    )}`}
                                                 </div>
                                             </div>
                                         ))}

@@ -10,6 +10,9 @@ import {
     setUpdateCompleted,
     setDeleteCompleted,
     setError,
+    exportOrders,
+    setExportCompleted,
+    clearState,
 } from "../../../redux/slices/order.slice";
 import { useDebounce } from "../../../helpers/ultil";
 import Datepicker from "react-tailwindcss-datepicker";
@@ -17,8 +20,14 @@ import Datepicker from "react-tailwindcss-datepicker";
 const Orders = () => {
     const dispatch = useDispatch();
     // states redux
-    const { orders, totalPages, updateCompleted, deleteCompleted, error } =
-        useSelector((slice) => slice.order);
+    const {
+        orders,
+        totalPages,
+        updateCompleted,
+        deleteCompleted,
+        exportCompleted,
+        error,
+    } = useSelector((slice) => slice.order);
     const { searchString } = useSelector((slice) => slice.filter);
     // use custom hook
     const debounceSearch = useDebounce(searchString);
@@ -49,14 +58,34 @@ const Orders = () => {
     useEffect(() => {
         if (updateCompleted) {
             toast.success("Update user successfully !");
-            dispatch(fetchOrders());
+            dispatch(
+                fetchOrders({
+                    searchString,
+                    status,
+                    startDate: date.startDate,
+                    endDate: date.endDate,
+                    page,
+                })
+            );
             dispatch(setUpdateCompleted());
         }
 
         if (deleteCompleted) {
             toast.success("Delete user successfully !");
-            dispatch(fetchOrders());
+            dispatch(
+                fetchOrders({
+                    searchString,
+                    status,
+                    startDate: date.startDate,
+                    endDate: date.endDate,
+                    page,
+                })
+            );
             dispatch(setDeleteCompleted());
+        }
+        if (exportCompleted) {
+            toast.success("Export successfully !");
+            dispatch(setExportCompleted());
         }
 
         if (error) {
@@ -64,7 +93,7 @@ const Orders = () => {
             dispatch(setError());
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [updateCompleted, deleteCompleted, error]);
+    }, [updateCompleted, deleteCompleted, exportCompleted, error]);
 
     // search orders
     useEffect(() => {
@@ -90,6 +119,14 @@ const Orders = () => {
         );
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [page, status, date]);
+
+    // clear state
+    useEffect(() => {
+        return () => {
+            dispatch(clearState());
+        };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     return (
         <div className="px-4 mt-3">
@@ -132,6 +169,24 @@ const Orders = () => {
                         displayFormat={"DD/MM/YYYY"}
                         maxDate={new Date()}
                     />
+                </div>
+                <div className="flex-1 flex md:justify-end items-center">
+                    <button
+                        className="px-4 py-2 text-sm text-white select-none duration-150 font-medium bg-indigo-600 rounded-lg hover:bg-indigo-500 active:bg-indigo-700 md:text-md"
+                        onClick={() =>
+                            dispatch(
+                                exportOrders({
+                                    searchString,
+                                    status,
+                                    startDate: date.startDate,
+                                    endDate: date.endDate,
+                                    page,
+                                })
+                            )
+                        }
+                    >
+                        Export orders
+                    </button>
                 </div>
             </div>
             <div className="mt-3 shadow-sm border rounded-lg overflow-x-auto">

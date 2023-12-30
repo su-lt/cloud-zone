@@ -1,139 +1,114 @@
+// packages
 const mongoose = require("mongoose");
+const ExcelJS = require("exceljs");
+const fs = require("fs/promises");
+// models
 const orderModel = require("../models/order.model");
 const productModel = require("../models/product.model");
-const { NotFoundError } = require("../helpers/errorHandler");
-const generateCode = require("../helpers/generateCode");
 const voucherModel = require("../models/voucher.model");
 require("../models/user.model");
+// modules
+const { NotFoundError, BadRequestError } = require("../helpers/errorHandler");
+const generateCode = require("../helpers/generateCode");
 
 const getOrders = async (req, res) => {
     // get params
     let { searchString, page, limit, status, startDate, endDate } = req.query;
     page = parseInt(page) || 1;
     limit = parseInt(limit) || 12;
-
     const skip = (page - 1) * limit;
+
+    // match object
+    const orderMatch = {};
 
     // check search string
     if (searchString) {
-        // search name condition
-        const regex = new RegExp(searchString, "i");
-        const orders = await orderModel.aggregate([
-            {
-                $facet: {
-                    orders: [
-                        {
-                            $lookup: {
-                                from: "users",
-                                localField: "user",
-                                foreignField: "_id",
-                                as: "user",
-                            },
-                        },
-                        {
-                            $unwind: "$user", // Unwind user array
-                        },
-                        {
-                            $match: {
-                                $or: [
-                                    { code: regex },
-                                    { "user.fullname": regex },
-                                    { address: regex },
-                                ],
-                            },
-                        },
-                        { $skip: skip },
-                        { $limit: limit },
-                        {
-                            $project: {
-                                code: 1,
-                                user: { fullname: "$user.fullname" }, //get only field fullname of user
-                                address: 1,
-                                items: 1,
-                                totalPrice: 1,
-                                status: 1,
-                                createdAt: 1,
-                                updatedAt: 1,
-                            },
-                        },
-                    ],
-                    // count documents
-                    totalOrders: [
-                        {
-                            $lookup: {
-                                from: "users",
-                                localField: "user",
-                                foreignField: "_id",
-                                as: "user",
-                            },
-                        },
-                        {
-                            $match: {
-                                $or: [
-                                    { code: regex },
-                                    { "user.fullname": regex },
-                                    { address: regex },
-                                ],
-                            },
-                        },
-                        { $count: "total" },
-                    ],
-                },
-            },
-            {
-                //export results
-                $project: {
-                    orders: 1,
-                    totalOrders: { $arrayElemAt: ["$totalOrders.total", 0] },
-                },
-            },
-        ]);
-        return res.status(200).json({
-            message: "success",
-            metadata: {
-                orders: orders[0].orders,
-                totalOrders: orders[0].totalOrders,
-            },
-        });
+        const codeRegex = new RegExp(searchString, "i");
+        orderMatch.$or = [
+            { code: codeRegex },
+            { "user.fullname": codeRegex },
+            { address: codeRegex },
+        ];
     }
 
-    // set query
-    const query = orderModel.find().skip(skip).limit(limit);
-    const countQuery = orderModel.find();
-
-    // get orders by status
+    // check status
     if (status) {
-        query.find({ status: status });
-        countQuery.find({ status: status });
+        orderMatch.status = status;
     }
 
-    // get orders by startDate
-    if (startDate) {
-        query.find({ createdAt: { $gte: new Date(startDate) } });
-        countQuery.find({ createdAt: { $gte: new Date(startDate) } });
+    // check date time
+    if (startDate || endDate) {
+        orderMatch.createdAt = {};
+        if (startDate) {
+            orderMatch.createdAt.$gte = new Date(startDate);
+        }
+        if (endDate) {
+            const endOfDay = new Date(endDate);
+            endOfDay.setHours(23, 59, 59, 999);
+            orderMatch.createdAt.$lte = endOfDay;
+        }
     }
 
-    // get orders by endDate
-    if (endDate) {
-        query.find({
-            createdAt: { $lte: new Date(endDate).setHours(23, 59, 59, 999) },
-        });
-        countQuery.find({
-            createdAt: { $lte: new Date(endDate).setHours(23, 59, 59, 999) },
-        });
-    }
-
-    // get total number of products
-    let totalOrders = await countQuery.countDocuments();
-    // get products
-    let orders = await query.find().lean().exec();
-    if (!orders) throw new NotFoundError("Cannot load orders");
+    const orders = await orderModel.aggregate([
+        {
+            $facet: {
+                orders: [
+                    {
+                        $lookup: {
+                            from: "users",
+                            localField: "user",
+                            foreignField: "_id",
+                            as: "user",
+                        },
+                    },
+                    { $unwind: "$user" },
+                    {
+                        $match: orderMatch,
+                    },
+                    { $skip: skip },
+                    { $limit: limit },
+                    {
+                        $project: {
+                            code: 1,
+                            user: { fullname: "$user.fullname" },
+                            address: 1,
+                            items: 1,
+                            totalPrice: 1,
+                            status: 1,
+                            createdAt: 1,
+                            updatedAt: 1,
+                        },
+                    },
+                ],
+                totalOrders: [
+                    {
+                        $lookup: {
+                            from: "users",
+                            localField: "user",
+                            foreignField: "_id",
+                            as: "user",
+                        },
+                    },
+                    {
+                        $match: orderMatch,
+                    },
+                    { $count: "total" },
+                ],
+            },
+        },
+        {
+            $project: {
+                orders: 1,
+                totalOrders: { $arrayElemAt: ["$totalOrders.total", 0] },
+            },
+        },
+    ]);
 
     return res.status(200).json({
         message: "success",
         metadata: {
-            orders,
-            totalOrders,
+            orders: orders[0].orders,
+            totalOrders: orders[0].totalOrders,
         },
     });
 };
@@ -352,6 +327,87 @@ const totalOrders = async (req, res) => {
     });
 };
 
+const exportData = async (req, res) => {
+    // get params
+    let { searchString, status, startDate, endDate } = req.query;
+
+    // match object
+    const orderMatch = {};
+
+    // check search string
+    if (searchString) {
+        const codeRegex = new RegExp(searchString, "i");
+        orderMatch.$or = [
+            { code: codeRegex },
+            { "user.fullname": codeRegex },
+            { address: codeRegex },
+        ];
+    }
+
+    // check status
+    if (status) {
+        orderMatch.status = status;
+    }
+
+    // check date time
+    if (startDate || endDate) {
+        orderMatch.createdAt = {};
+        if (startDate) {
+            orderMatch.createdAt.$gte = new Date(startDate);
+        }
+        if (endDate) {
+            const endOfDay = new Date(endDate);
+            endOfDay.setHours(23, 59, 59, 999);
+            orderMatch.createdAt.$lte = endOfDay;
+        }
+    }
+
+    const orders = await orderModel.aggregate([
+        {
+            $facet: {
+                orders: [
+                    {
+                        $lookup: {
+                            from: "users",
+                            localField: "user",
+                            foreignField: "_id",
+                            as: "user",
+                        },
+                    },
+                    { $unwind: "$user" },
+                    {
+                        $match: orderMatch,
+                    },
+                    {
+                        $project: {
+                            code: 1,
+                            user: { fullname: "$user.fullname" },
+                            address: 1,
+                            items: 1,
+                            totalPrice: 1,
+                            status: 1,
+                            createdAt: 1,
+                            updatedAt: 1,
+                        },
+                    },
+                ],
+            },
+        },
+        {
+            $project: {
+                orders: 1,
+            },
+        },
+    ]);
+
+    return res.status(200).json({
+        message: "export success",
+        metadata: {
+            orders: orders[0].orders,
+        },
+    });
+};
+
 module.exports = {
     getOrders,
     getOrderById,
@@ -360,4 +416,5 @@ module.exports = {
     updateOrderById,
     deleteOrderById,
     totalOrders,
+    exportData,
 };

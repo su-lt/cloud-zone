@@ -72,13 +72,14 @@ const createCategory = async (req, res) => {
     const name = req.body.name;
     if (!name) throw new BadRequestError("name is required");
 
+    console.log(">>>>>>>>>", name);
     // create a new category
     const category = await categoryModel.create({
         name,
     });
     if (!category) throw new CreateDatabaseError();
 
-    return res.status(200).json({
+    return res.status(201).json({
         message: "success",
         metadata: {
             category,

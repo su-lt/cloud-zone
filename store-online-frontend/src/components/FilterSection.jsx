@@ -152,11 +152,11 @@ const FilterSection = () => {
                         animate={{ opacity: 1, height: "auto" }}
                         exit={{ opacity: 0, height: 0 }}
                         transition={{ duration: 0.75 }}
-                        className="mt-4 p-5 bg-custom-300 grid grid-cols-3 rounded-lg overflow-hidden"
+                        className="mt-4 p-5 bg-custom-300 grid gap-y-5 md:grid-cols-3 rounded-lg overflow-hidden"
                     >
                         {/* filter by categories */}
                         <div className="flex flex-col items-start gap-4 select-none">
-                            <h4>Categories</h4>
+                            <h4 className="font-semibold">Categories</h4>
                             {categories.map((cat) => (
                                 <div
                                     key={cat._id}
@@ -193,7 +193,7 @@ const FilterSection = () => {
                         </div>
                         {/* sort */}
                         <div className="flex flex-col items-start gap-4 select-none">
-                            <h4>Sort by</h4>
+                            <h4 className="font-semibold">Sort by</h4>
                             {sortby.map((item) => (
                                 <div
                                     key={item.name}
@@ -224,7 +224,7 @@ const FilterSection = () => {
                         </div>
                         {/* filter by prices */}
                         <div className="flex flex-col items-start gap-4">
-                            <h4>Prices</h4>
+                            <h4 className="font-semibold">Prices</h4>
                             <div>
                                 <button
                                     className="w-[168px] py-2 text-gray-500 border border-primary shadow-sm rounded-lg dark:border-purple-100"

@@ -10,6 +10,7 @@ const {
     updateOrderById,
     deleteOrderById,
     totalOrders,
+    exportData,
 } = require("../../controllers/order.controller");
 const {
     authentication,
@@ -26,6 +27,8 @@ router.get("/profile/:id", asyncHandler(getOrdersByUserId));
 router.use(asyncHandler(isAdmin));
 // get orders
 router.get("/", asyncHandler(getOrders));
+// get report
+router.get("/report", asyncHandler(exportData));
 // get total orders
 router.get("/totalOrder", asyncHandler(totalOrders));
 // get order by id

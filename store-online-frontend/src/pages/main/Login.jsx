@@ -40,7 +40,7 @@ const Login = () => {
     }, []);
 
     return (
-        <main className="dark:bg-dark dark:text-purple-200 min-h-[calc(100vh-329px)]">
+        <main>
             {/* title section */}
             <TitleSection
                 title={"Login"}
@@ -111,13 +111,12 @@ const Login = () => {
                                 </span>
                             )}
                         </div>
-                        {/* <div className="text-xs flex items-center gap-2">
-                            <input
-                                type="checkbox"
-                                className="checked:bg-primary "
-                            />
-                            Remember me
-                        </div> */}
+                        <Link
+                            className="text-xs flex gap-2 items-center justify-end"
+                            to="/forgot-password"
+                        >
+                            Forgot password
+                        </Link>
                         <div className="mt-3">
                             <button
                                 className="button-primary w-full"

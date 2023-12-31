@@ -21,12 +21,14 @@
         "dotenv": "^16.3.1",
         "exceljs": "^4.4.0",
         "express": "^4.18.2",
+        "google-auth-library": "^9.4.1",
         "jsonwebtoken": "^9.0.2",
         "mocha": "^10.2.0",
         "mongoose": "^8.0.0",
         "mongoose-slug-generator": "^1.0.4",
         "mongoose-slug-updater": "^3.3.0",
         "multer": "^1.4.5-lts.1",
+        "nodemailer": "^6.9.7",
         "sinon": "^17.0.1"
     }
 }

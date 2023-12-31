@@ -72,7 +72,6 @@ const createCategory = async (req, res) => {
     const name = req.body.name;
     if (!name) throw new BadRequestError("name is required");
 
-    console.log(">>>>>>>>>", name);
     // create a new category
     const category = await categoryModel.create({
         name,

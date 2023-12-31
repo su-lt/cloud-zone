@@ -115,6 +115,7 @@ export const authSlice = createSlice({
         clearObjectState: (state) => {
             state.loginObject = initialState.loginObject;
             state.registerObject = initialState.registerObject;
+            state.completed = initialState.completed;
             state.errors = initialState.errors;
             state.error = initialState.error;
             state.isValid = initialState.isValid;
@@ -168,6 +169,27 @@ export const authSlice = createSlice({
             localStorage.removeItem("id");
             localStorage.removeItem("accessToken");
             localStorage.removeItem("cart");
+        });
+        // forgotPassword
+        builder.addCase(forgotPassword.fulfilled, (state, { payload }) => {
+            state.pending = false;
+            state.completed = true;
+            state.error = null;
+        });
+        builder.addCase(forgotPassword.pending, (state, { error }) => {
+            state.pending = true;
+        });
+        builder.addCase(forgotPassword.rejected, (state, { error }) => {
+            state.pending = false;
+            state.error = "Request failed, please try again !!!";
+        });
+        // resetPassword
+        builder.addCase(resetPassword.fulfilled, (state, { payload }) => {
+            state.completed = true;
+            state.error = null;
+        });
+        builder.addCase(resetPassword.rejected, (state, { error }) => {
+            state.error = "Request failed, please try again !!!";
         });
         // check authentication
         builder.addCase(checkAuth.fulfilled, (state, { payload }) => {
@@ -229,6 +251,27 @@ export const logout = createAsyncThunk("auth/logout", async () => {
     const response = await api.get("/access/logout");
     return response.data;
 });
+
+// forgot password
+export const forgotPassword = createAsyncThunk(
+    "auth/forgotPassword",
+    async (email) => {
+        const response = await api.post("/access/forgot", { email });
+        return response.data;
+    }
+);
+
+// reset password
+export const resetPassword = createAsyncThunk(
+    "auth/resetPassword",
+    async ({ id, password, token }) => {
+        const response = await api.post("/access/reset/" + id, {
+            password,
+            token,
+        });
+        return response.data;
+    }
+);
 
 // check authentication
 export const checkAuth = createAsyncThunk("auth/checkAuth", async () => {

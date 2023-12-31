@@ -62,6 +62,15 @@ class CreateDatabaseError extends ErrorResponse {
     }
 }
 
+class ServerError extends ErrorResponse {
+    constructor(
+        message = responStatus.INTERNAL_SERVER_ERROR,
+        statusCode = statusCodes.INTERNAL_SERVER_ERROR
+    ) {
+        super(message, statusCode);
+    }
+}
+
 module.exports = {
     BadRequestError,
     AuthFailureError,
@@ -69,4 +78,5 @@ module.exports = {
     NotFoundError,
     ForbiddenError,
     CreateDatabaseError,
+    ServerError,
 };

@@ -10,6 +10,8 @@ import {
 import HomePage from "./pages/main/HomePage";
 import RegisterPage from "./pages/main/Register";
 import LoginPage from "./pages/main/Login";
+import ForgotPassword from "./pages/main/ForgotPassword";
+import ResetPassword from "./pages/main/ResetPassword";
 import Products from "./pages/main/Products";
 import ProductDetail from "./pages/main/ProductDetail";
 import Cart from "./pages/main/Cart";
@@ -29,6 +31,8 @@ const routes_main = [
     { path: "/products/:slug", element: <ProductDetail /> },
     { path: "/register", element: <RegisterPage /> },
     { path: "/login", element: <LoginPage /> },
+    { path: "/forgot-password", element: <ForgotPassword /> },
+    { path: "/reset-password/:token/:id/:expired", element: <ResetPassword /> },
     { path: "/cart", element: <Cart /> },
     { path: "/contact", element: <Contact /> },
     { path: "*", element: <NotFound /> },

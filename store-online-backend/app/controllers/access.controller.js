@@ -1,11 +1,14 @@
+const mongoose = require("mongoose");
 const keyModel = require("../models/key.model");
 const roleModel = require("../models/role.model");
 const userModel = require("../models/user.model");
 const bcrypt = require("bcrypt");
+const transporter = require("../helpers/emailHelper");
 const {
     generateKeyPairSync,
     createTokenPair,
     verifyJWT,
+    createToken,
 } = require("../auth/ulti.auth");
 const {
     BadRequestError,
@@ -13,6 +16,7 @@ const {
     CreateDatabaseError,
     AuthFailureError,
     ForbiddenError,
+    ServerError,
 } = require("../helpers/errorHandler");
 
 const signUp = async (req, res) => {
@@ -80,7 +84,9 @@ const signUp = async (req, res) => {
 };
 
 const login = async (req, res) => {
+    // check params
     const { email, password } = req.body;
+    if (!email || !password) throw new BadRequestError();
 
     // check exist
     const foundUser = await userModel
@@ -91,7 +97,7 @@ const login = async (req, res) => {
     if (!foundUser) throw new BadRequestError("User not registered !");
 
     // match password
-    const match = bcrypt.compare(password, foundUser.password);
+    const match = await bcrypt.compare(password, foundUser.password);
     if (!match) throw new AuthFailureError("Authentication failed");
 
     // create access token and refresh token and save
@@ -214,10 +220,111 @@ const checkAuth = async (req, res) => {
     });
 };
 
+// forgot password
+const forgot = async (req, res) => {
+    // get email
+    const { email } = req.body;
+    if (!email) throw new BadRequestError();
+
+    // check exist
+    const foundUser = await userModel
+        .findOne({ email })
+        .where({ status: "active" })
+        .lean();
+    if (!foundUser) throw new BadRequestError("User not registered !");
+
+    // create access token and refresh token and save
+    // create keys pair - asymmetric
+    const { privateKey, publicKey } = generateKeyPairSync();
+
+    // create reset-token
+    const { _id: userId } = foundUser;
+    const token = createToken({ userId }, privateKey);
+    const expiredAt = Date.now() + 15 * 60 * 1000; // 15m
+
+    // update store key
+    const filter = { user: userId };
+    const update = { resetKey: publicKey.toString() };
+    const keyStore = await keyModel.findOneAndUpdate(filter, update, {
+        upsert: true,
+        new: true,
+    });
+    if (!keyStore) throw CreateDatabaseError("Cant not create keyStore");
+
+    // get nodemailder config
+    const nodemailer = await transporter();
+
+    // email message
+    const mailOptions = {
+        from: "CloudZone. <cloudzone.noreply@gmail.com>",
+        to: email,
+        subject: "Forgot Password",
+        html: `Hi <b>${foundUser.fullname}</b>,<br>
+               You've recently asked to reset password for this CloudZone account: ${email}<br>
+               Please click <a href='http://localhost:3000/reset-password/${token}/${userId}/${expiredAt}'>this link</a> to reset the password. This link will expire in 15 minutes.<br>
+               If you did not initiate this password reset request, you can safely ignore this email.`,
+    };
+
+    // send email
+    nodemailer.sendMail(mailOptions, (error, info) => {
+        if (error) throw new ServerError("Send email failed");
+
+        return res.status(200).json({
+            message: "send reset email successfully",
+        });
+    });
+};
+
+// reset password
+const reset = async (req, res) => {
+    // get _id
+    const id = req.params.id;
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+        throw new BadRequestError("Id not valid !");
+    }
+
+    // get params
+    let { password, token } = req.body;
+    if (!password || !token) throw new BadRequestError();
+
+    // get keyStore
+    const keyStore = await keyModel.findOne({ user: id });
+    if (!keyStore) throw new NotFoundError();
+
+    // get resetKey
+    const { resetKey } = keyStore;
+    if (!resetKey) throw new BadRequestError();
+
+    // verify token
+    const decode = verifyJWT(token, resetKey);
+    if (decode.userId !== id) throw new AuthFailureError("Invalid UserID");
+
+    // encryption password
+    const passwordHash = await bcrypt.hash(password, 10);
+
+    // update password
+    const foundUser = await userModel.findByIdAndUpdate(
+        id,
+        { password: passwordHash },
+        { new: true }
+    );
+    if (!foundUser) throw new CreateDatabaseError();
+
+    // remove restKey
+    keyStore.resetKey = null;
+    await keyStore.save();
+
+    return res.status(200).json({
+        message: "reset password successfully",
+    });
+};
+
 module.exports = {
     signUp,
     login,
     logout,
     refresh,
     checkAuth,
+    forgot,
+    reset,
 };

@@ -9,6 +9,7 @@ const generateKeyPairSync = () => {
     });
 };
 
+// create token pair
 const createTokenPair = async (payload, privateKey) => {
     try {
         //accessToken
@@ -28,12 +29,28 @@ const createTokenPair = async (payload, privateKey) => {
     }
 };
 
+// create sign token
+const createToken = (payload, privateKey) => {
+    try {
+        //accessToken
+        const token = JWT.sign(payload, privateKey, {
+            algorithm: "RS256",
+            expiresIn: "15m",
+        });
+
+        return token;
+    } catch (error) {
+        return error.message;
+    }
+};
+
 const verifyJWT = (token, keySecret) => {
     return JWT.verify(token, keySecret);
 };
 
 module.exports = {
     generateKeyPairSync,
+    createToken,
     createTokenPair,
     verifyJWT,
 };

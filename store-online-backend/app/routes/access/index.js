@@ -6,6 +6,8 @@ const {
     logout,
     refresh,
     checkAuth,
+    forgot,
+    reset,
 } = require("../../controllers/access.controller");
 
 // services
@@ -14,19 +16,20 @@ const { authentication } = require("../../middlewares/auth.middleware");
 
 // login
 router.post("/login", asyncHandler(login));
-
 // signup
 router.post("/signup", asyncHandler(signUp));
-
 // refresh
 router.get("/refresh", asyncHandler(refresh));
+// forgot password
+router.post("/forgot", asyncHandler(forgot));
+// reset password
+router.post("/reset/:id", asyncHandler(reset));
 
 // check auth
 router.use(asyncHandler(authentication));
 
 // check role
 router.get("/checkAuth", asyncHandler(checkAuth));
-
 // logout
 router.get("/logout", asyncHandler(logout));
 

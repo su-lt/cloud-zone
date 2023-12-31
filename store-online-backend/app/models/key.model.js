@@ -16,6 +16,9 @@ var keySchema = new Schema(
             type: Array,
             default: [], // refresh tokens used
         },
+        resetKey: {
+            type: String,
+        },
     },
     {
         timestamps: true,

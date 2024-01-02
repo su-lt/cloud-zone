@@ -58,7 +58,7 @@ const Register = () => {
     }, []);
 
     return (
-        <main className="dark:bg-dark dark:text-purple-200 min-h-[calc(100vh-329px)]">
+        <main className="flex-1">
             {/* title section */}
             <TitleSection
                 title={"Register"}

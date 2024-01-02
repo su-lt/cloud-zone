@@ -41,7 +41,7 @@ const ProductDetail = () => {
 
     return (
         product && (
-            <main className="dark:bg-dark dark:text-purple-100">
+            <main className="flex-1">
                 <div className="p-4 md:mt-10 md:container">
                     <Breadcrumb items={breadcrumbItems} />
                     <Product product={product} />

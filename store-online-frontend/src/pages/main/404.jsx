@@ -3,7 +3,7 @@ import imageNotFound from "../../assets/images/notfound.png";
 
 const NotFound = () => {
     return (
-        <main className="dark:bg-dark dark:text-custom-1000 min-h-[calc(100vh-369px)]">
+        <main className="flex-1 dark:text-custom-1000">
             <div className="md:mt-10 p-4 md:container">
                 <div className="mt-8 grid sm:grid-cols-2">
                     <div>

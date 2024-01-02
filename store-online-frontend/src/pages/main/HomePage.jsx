@@ -9,12 +9,12 @@ import { TbDatabaseX } from "react-icons/tb";
 
 const HomePage = () => {
     return (
-        <div className="dark:bg-dark">
+        <div className="flex-1">
             {/* hero section */}
             <HeroSection />
 
             {/* collection section */}
-            <section className="px-4 py-10 md:container dark:text-custom-1000 ">
+            <section className="px-4 py-10 md:container dark:text-custom-1000">
                 <h3 className="text-3xl md:text-center">Collection</h3>
                 <div className="mt-4 wrapper-scroll md:grid-cols-3">
                     {/* collection 1 */}

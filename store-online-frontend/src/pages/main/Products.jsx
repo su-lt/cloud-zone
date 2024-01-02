@@ -10,7 +10,7 @@ const Products = () => {
     ];
 
     return (
-        <main className="dark:bg-dark dark:text-customer-1000">
+        <main className="flex-1 dark:text-customer-1000">
             <div className="p-4 md:pt-14 md:container ">
                 <Breadcrumb items={breadcrumbItems} />
                 <FilterSection />

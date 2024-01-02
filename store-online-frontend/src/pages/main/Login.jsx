@@ -40,7 +40,7 @@ const Login = () => {
     }, []);
 
     return (
-        <main>
+        <main className="flex-1">
             {/* title section */}
             <TitleSection
                 title={"Login"}

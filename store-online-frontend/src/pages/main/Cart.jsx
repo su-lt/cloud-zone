@@ -206,13 +206,13 @@ const Cart = () => {
     }, []);
 
     return (
-        <main className="dark:bg-dark dark:text-custom-1000">
+        <main className="flex-1 dark:text-custom-1000">
             <Modal
                 open={showModal}
                 close={() => setShowModal(false)}
                 handleClickButton={handleClickButton}
             />
-            <div className="min-h-[calc(100vh-369px)] md:mt-10 p-4 md:container">
+            <div className="md:mt-10 p-4 md:container">
                 <Breadcrumb items={breadcrumbItems} />
                 <div className="mt-4">
                     {/* create order fail */}

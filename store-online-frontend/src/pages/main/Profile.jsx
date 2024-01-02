@@ -85,7 +85,7 @@ const Profile = () => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
     return (
-        <main className="dark:bg-dark dark:text-custom-1000 min-h-[calc(100vh-329px)]">
+        <main className="flex-1">
             <div className="p-4 md:pt-16 md:container">
                 <Breadcrumb items={breadcrumbItems} />
                 {!user && (
@@ -302,7 +302,7 @@ const Profile = () => {
                             </thead>
                             <tbody className="text-gray-600 divide-y dark:text-custom-1000">
                                 {orders.map((item, index) => (
-                                    <tr>
+                                    <tr key={item._id}>
                                         <td className="px-2 py-4 whitespace-nowrap">
                                             {index + 1}
                                         </td>

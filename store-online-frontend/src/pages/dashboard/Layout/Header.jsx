@@ -35,7 +35,7 @@ const Header = () => {
                     placeholder="Search..."
                     value={searchString}
                     onChange={(e) => dispatch(setSearchString(e.target.value))}
-                    className="px-4 pl-10 h-10 w-28 sm:w-72 lg:w-96 text-sm border border-custom-500 rounded-sm focus:outline-none active:outline-none"
+                    className="px-4 pl-10 h-10 w-28 dark:bg-white sm:w-72 lg:w-96 text-sm border border-custom-500 rounded-sm focus:outline-none active:outline-none"
                 />
             </div>
             <div className="flex items-center gap-2 mr-2">

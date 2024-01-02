@@ -4,7 +4,7 @@ import Footer from "./Footer";
 
 const DashboardLayout = () => {
     return (
-        <main className="dark:bg-dark dark:text-purple-200">
+        <main className="min-h-screen flex flex-col dark:bg-dark dark:text-purple-200">
             {/* header */}
             <Header />
             {/* content */}

@@ -1,6 +1,7 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
+import { RiEyeLine, RiEyeCloseLine } from "react-icons/ri";
 import {
     clearObjectState,
     handleOnChangeRegister,
@@ -15,6 +16,8 @@ const Register = () => {
     // state redux
     const { isLogin, registerObject, completed, errors, error, lastPage } =
         useSelector((slice) => slice.auth);
+    // use state
+    const [isVisiablePassword, setIsVisiablePassword] = useState(false);
 
     // handle onchange input
     const handleOnChange = (field, value) => {
@@ -157,32 +160,60 @@ const Register = () => {
                             </span>
                         )}
                         {/* password */}
-                        <input
-                            onChange={(e) =>
-                                handleOnChange("password", e.target.value)
-                            }
-                            type="password"
-                            placeholder="Password"
-                            className={`input-outline-none ${
-                                errors.password && "border-red-400"
-                            }`}
-                        />
+                        <div className="relative">
+                            <input
+                                type={isVisiablePassword ? "text" : "password"}
+                                onChange={(e) =>
+                                    handleOnChange("password", e.target.value)
+                                }
+                                placeholder="Password"
+                                className={`w-full input-outline-none ${
+                                    errors.password && "border-red-400"
+                                }`}
+                            />
+                            <button
+                                className="absolute right-0 top-0 translate-y-1/2"
+                                onClick={() =>
+                                    setIsVisiablePassword((pre) => !pre)
+                                }
+                            >
+                                {isVisiablePassword ? (
+                                    <RiEyeLine size={24} />
+                                ) : (
+                                    <RiEyeCloseLine size={24} />
+                                )}
+                            </button>
+                        </div>
                         {errors.password && (
                             <span className="text-xs text-red-500">
                                 * {errors.password}
                             </span>
                         )}
                         {/* re-password */}
-                        <input
-                            onChange={(e) =>
-                                handleOnChange("repass", e.target.value)
-                            }
-                            type="password"
-                            placeholder="re-password"
-                            className={`input-outline-none ${
-                                errors.repass && "border-red-400"
-                            }`}
-                        />
+                        <div className="relative">
+                            <input
+                                type={isVisiablePassword ? "text" : "password"}
+                                onChange={(e) =>
+                                    handleOnChange("repass", e.target.value)
+                                }
+                                placeholder="re-password"
+                                className={`w-full input-outline-none ${
+                                    errors.repass && "border-red-400"
+                                }`}
+                            />
+                            <button
+                                className="absolute right-0 top-0 translate-y-1/2"
+                                onClick={() =>
+                                    setIsVisiablePassword((pre) => !pre)
+                                }
+                            >
+                                {isVisiablePassword ? (
+                                    <RiEyeLine size={24} />
+                                ) : (
+                                    <RiEyeCloseLine size={24} />
+                                )}
+                            </button>
+                        </div>
                         {errors.repass && (
                             <span className="text-xs text-red-500">
                                 * {errors.repass}

@@ -81,7 +81,7 @@ const Footer = () => {
                     </div>
                 </div>
                 <div className="mt-4 text-sm md:container">
-                    <div className="mx-4 pt-4 text-center border-t border-custom-100 select-none">
+                    <div className="mx-4 pt-5 text-center border-t border-custom-100 select-none">
                         Copyright © 2023 CloudZone - Luxury store.
                     </div>
                 </div>

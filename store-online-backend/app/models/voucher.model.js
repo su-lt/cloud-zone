@@ -25,5 +25,12 @@ const voucherSchema = new Schema(
     }
 );
 
+voucherSchema.pre("find", function (next) {
+    this.sort({
+        updatedAt: -1,
+    });
+    next();
+});
+
 //Export the model
 module.exports = mongoose.model("Voucher", voucherSchema);

@@ -25,7 +25,7 @@ app.use(
 );
 
 // init db
-require("./databases/db.mongo.js");
+require("./databases/db.mongodb.js");
 
 // init routers
 app.use("/", require("./routes"));

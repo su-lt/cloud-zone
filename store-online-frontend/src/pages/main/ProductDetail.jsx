@@ -14,13 +14,11 @@ const ProductDetail = () => {
 
     const breadcrumbItems = product
         ? [
-              { label: "Home", link: "/" },
-              { label: "Shop", link: "/products" },
+              { label: "Home" },
+              { label: "Shop" },
               {
                   label: product.category.name,
-                  link: `/category/${product.category.name}`,
               },
-              { label: product.name, link: "" },
           ]
         : null;
 

@@ -62,6 +62,7 @@ const getOrders = async (req, res) => {
                         },
                     },
                     { $unwind: "$user" },
+                    { $sort: { createdAt: -1 } },
                     {
                         $match: orderMatch,
                     },
@@ -293,7 +294,7 @@ const deleteOrderById = async (req, res) => {
             $inc: { quantity: item.quantity },
         });
     }
-    order.delete;
+
     // delete order
     const result = await order.deleteOne();
     if (result.deletedCount !== 1) throw new CreateDatabaseError();
@@ -375,6 +376,7 @@ const exportData = async (req, res) => {
                         },
                     },
                     { $unwind: "$user" },
+                    { $sort: { createdAt: -1 } },
                     {
                         $match: orderMatch,
                     },

@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { clearObjectState, resetPassword } from "../../redux/slices/auth.slice";
+import { RiEyeLine, RiEyeCloseLine } from "react-icons/ri";
 
 const ResetPassword = () => {
     const navigate = useNavigate();
@@ -15,6 +16,7 @@ const ResetPassword = () => {
     const [repass, setRepass] = useState("");
     const [errorPass, setErrorPass] = useState("");
     const [errorRepass, setErrorRepass] = useState("");
+    const [isVisiablePassword, setIsVisiablePassword] = useState(false);
 
     // validate
     const validate = () => {
@@ -60,7 +62,7 @@ const ResetPassword = () => {
     };
 
     useEffect(() => {
-        // if (Date.now() > expired) navigate("/404");
+        if (Date.now() > expired) navigate("/404");
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [expired]);
 
@@ -88,16 +90,13 @@ const ResetPassword = () => {
                             {error}
                         </div>
                     )}
-
                     {completed ? (
                         <div className="p-3 w-full text-center bg-blue-50 dark:text-primary">
                             <div className="flex gap-2 justify-center items-center ">
-                                <div className="flex gap-2">
-                                    <div>
-                                        Reset password successful, please
-                                        re-login
-                                    </div>
+                                <div>
+                                    Reset password successful, please re-login
                                     <Link to="/login" className="text-blue-500">
+                                        {" "}
                                         HERE
                                     </Link>
                                     .
@@ -113,14 +112,34 @@ const ResetPassword = () => {
                                 <label className="font-medium">
                                     New password
                                 </label>
-                                <input
-                                    type="password"
-                                    placeholder="enter new password"
-                                    className={`w-full mt-2 px-3 py-2 text-gray-500 bg-transparent outline-none border focus:border-gray-800 shadow-sm rounded-md ${
-                                        errorPass && "border-red-400"
-                                    }`}
-                                    onChange={(e) => handlePass(e.target.value)}
-                                />
+                                <div className="relative">
+                                    <input
+                                        type={
+                                            isVisiablePassword
+                                                ? "text"
+                                                : "password"
+                                        }
+                                        placeholder="enter new password"
+                                        className={`w-full mt-2 px-3 py-2 text-gray-500 bg-transparent outline-none border focus:border-gray-800 shadow-sm rounded-md ${
+                                            errorPass && "border-red-400"
+                                        }`}
+                                        onChange={(e) =>
+                                            handlePass(e.target.value)
+                                        }
+                                    />
+                                    <button
+                                        className="absolute right-2 top-1 translate-y-1/2"
+                                        onClick={() =>
+                                            setIsVisiablePassword((pre) => !pre)
+                                        }
+                                    >
+                                        {isVisiablePassword ? (
+                                            <RiEyeLine size={24} />
+                                        ) : (
+                                            <RiEyeCloseLine size={24} />
+                                        )}
+                                    </button>
+                                </div>
                                 {errorPass && (
                                     <span className="text-xs text-red-500">
                                         * {errorPass}
@@ -131,16 +150,34 @@ const ResetPassword = () => {
                                 <label className="font-medium">
                                     Confim password
                                 </label>
-                                <input
-                                    type="password"
-                                    placeholder="confirm password"
-                                    className={`w-full mt-2 px-3 py-2 text-gray-500 bg-transparent outline-none border focus:border-gray-800 shadow-sm rounded-md ${
-                                        errorRepass && "border-red-400"
-                                    }`}
-                                    onChange={(e) =>
-                                        handleRePass(e.target.value)
-                                    }
-                                />
+                                <div className="relative">
+                                    <input
+                                        type={
+                                            isVisiablePassword
+                                                ? "text"
+                                                : "password"
+                                        }
+                                        placeholder="confirm password"
+                                        className={`w-full mt-2 px-3 py-2 text-gray-500 bg-transparent outline-none border focus:border-gray-800 shadow-sm rounded-md ${
+                                            errorRepass && "border-red-400"
+                                        }`}
+                                        onChange={(e) =>
+                                            handleRePass(e.target.value)
+                                        }
+                                    />
+                                    <button
+                                        className="absolute right-2 top-1 translate-y-1/2"
+                                        onClick={() =>
+                                            setIsVisiablePassword((pre) => !pre)
+                                        }
+                                    >
+                                        {isVisiablePassword ? (
+                                            <RiEyeLine size={24} />
+                                        ) : (
+                                            <RiEyeCloseLine size={24} />
+                                        )}
+                                    </button>
+                                </div>
                                 {errorRepass && (
                                     <span className="text-xs text-red-500">
                                         * {errorRepass}

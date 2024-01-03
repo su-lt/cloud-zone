@@ -1,5 +1,4 @@
 import { FaAnglesRight } from "react-icons/fa6";
-import { Link } from "react-router-dom";
 
 const Breadcrumb = ({ items }) => {
     return (
@@ -14,7 +13,7 @@ const Breadcrumb = ({ items }) => {
                         className="flex items-center font-light"
                         key={`item-${item.label}-${index}`}
                     >
-                        <Link to={item.link}>{item.label}</Link>
+                        {item.label}
                         <FaAnglesRight size={12} className="mx-4" />
                     </div>
                 )

@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -6,6 +6,7 @@ import {
     handleOnChange,
     login,
 } from "../../redux/slices/auth.slice";
+import { RiEyeLine, RiEyeCloseLine } from "react-icons/ri";
 
 // component
 import TitleSection from "../../components/TitleSection";
@@ -13,10 +14,12 @@ import TitleSection from "../../components/TitleSection";
 const Login = () => {
     const navigate = useNavigate();
     const dispatch = useDispatch();
-
+    // redux state
     const { loginObject, completed, errors, error } = useSelector(
         (slice) => slice.auth
     );
+    // use state
+    const [isVisiablePassword, setIsVisiablePassword] = useState(false);
 
     const handleChange = (field, value) => {
         dispatch(handleOnChange({ field, value }));
@@ -95,16 +98,33 @@ const Login = () => {
                             )}
                         </div>
                         <div className="flex flex-col">
-                            <input
-                                type="password"
-                                placeholder="Password"
-                                className={`input-outline-none ${
-                                    errors.password && "border-red-400"
-                                }`}
-                                onChange={(e) =>
-                                    handleChange("password", e.target.value)
-                                }
-                            />
+                            <div className="relative">
+                                <input
+                                    type={
+                                        isVisiablePassword ? "text" : "password"
+                                    }
+                                    placeholder="Password"
+                                    className={`w-full input-outline-none ${
+                                        errors.password && "border-red-400"
+                                    }`}
+                                    onChange={(e) =>
+                                        handleChange("password", e.target.value)
+                                    }
+                                />
+                                <button
+                                    className="absolute right-0 top-0 translate-y-1/2"
+                                    onClick={() =>
+                                        setIsVisiablePassword((pre) => !pre)
+                                    }
+                                >
+                                    {isVisiablePassword ? (
+                                        <RiEyeLine size={24} />
+                                    ) : (
+                                        <RiEyeCloseLine size={24} />
+                                    )}
+                                </button>
+                            </div>
+
                             {errors.password && (
                                 <span className="text-xs text-red-500">
                                     * {errors.password}

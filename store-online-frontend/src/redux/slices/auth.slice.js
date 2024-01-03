@@ -29,6 +29,7 @@ const initialState = {
     },
     lastPage: "",
     completed: false,
+    resetCompleted: false,
     pending: false,
     error: null,
     isValid: false,
@@ -116,6 +117,7 @@ export const authSlice = createSlice({
             state.loginObject = initialState.loginObject;
             state.registerObject = initialState.registerObject;
             state.completed = initialState.completed;
+            state.resetCompleted = initialState.resetCompleted;
             state.errors = initialState.errors;
             state.error = initialState.error;
             state.isValid = initialState.isValid;
@@ -181,15 +183,15 @@ export const authSlice = createSlice({
         });
         builder.addCase(forgotPassword.rejected, (state, { error }) => {
             state.pending = false;
-            state.error = "Request failed, please try again !!!";
+            state.error = "Reset failed, please try again !!!";
         });
         // resetPassword
         builder.addCase(resetPassword.fulfilled, (state, { payload }) => {
-            state.completed = true;
+            state.resetCompleted = true;
             state.error = null;
         });
         builder.addCase(resetPassword.rejected, (state, { error }) => {
-            state.error = "Request failed, please try again !!!";
+            state.error = "Reset failed, please try again !!!";
         });
         // check authentication
         builder.addCase(checkAuth.fulfilled, (state, { payload }) => {

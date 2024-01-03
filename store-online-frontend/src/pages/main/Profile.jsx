@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { formattedPrice } from "../../helpers/ultil";
+import { RiEyeLine, RiEyeCloseLine } from "react-icons/ri";
 import {
     clearState,
     fetchOrdersByUserId,
@@ -13,10 +14,7 @@ import {
 import { toast } from "react-toastify";
 import Breadcrumb from "../../components/Breadcrumb";
 
-const breadcrumbItems = [
-    { label: "Home", link: "/" },
-    { label: "Profile", link: "" },
-];
+const breadcrumbItems = [{ label: "Home" }, { label: "Profile" }];
 
 const Profile = () => {
     const dispatch = useDispatch();
@@ -37,6 +35,7 @@ const Profile = () => {
     // useState
     const [openUpdateInfo, setUpdateInfo] = useState(false);
     const [openUpdatePass, setUpdatePass] = useState(false);
+    const [isVisiablePassword, setIsVisiablePassword] = useState(false);
 
     // handle update info
     const handleUpdateInfo = () => {
@@ -248,35 +247,75 @@ const Profile = () => {
                                     <h4 className="w-[160px] text-sm sm:text-lg">
                                         Curent password
                                     </h4>
-                                    <input
-                                        type="password"
-                                        onChange={(e) =>
-                                            dispatch(
-                                                handleOnChangePass({
-                                                    field: "currentpass",
-                                                    value: e.target.value,
-                                                })
-                                            )
-                                        }
-                                        className="max-w-lg w-full p-2 border border-custom-500 rounded-sm"
-                                    />
+                                    <div className="relative w-full">
+                                        <input
+                                            type={
+                                                isVisiablePassword
+                                                    ? "text"
+                                                    : "password"
+                                            }
+                                            onChange={(e) =>
+                                                dispatch(
+                                                    handleOnChangePass({
+                                                        field: "currentpass",
+                                                        value: e.target.value,
+                                                    })
+                                                )
+                                            }
+                                            className="max-w-lg w-full p-2 pr-10 border border-custom-500 rounded-sm"
+                                        />
+                                        <button
+                                            className="absolute right-2 top-0 translate-y-1/2"
+                                            onClick={() =>
+                                                setIsVisiablePassword(
+                                                    (pre) => !pre
+                                                )
+                                            }
+                                        >
+                                            {isVisiablePassword ? (
+                                                <RiEyeLine size={24} />
+                                            ) : (
+                                                <RiEyeCloseLine size={24} />
+                                            )}
+                                        </button>
+                                    </div>
                                 </div>
                                 <div className="mt-1 flex items-center">
                                     <h4 className="w-[160px] text-sm sm:text-lg">
                                         New password
                                     </h4>
-                                    <input
-                                        type="password"
-                                        onChange={(e) =>
-                                            dispatch(
-                                                handleOnChangePass({
-                                                    field: "newpass",
-                                                    value: e.target.value,
-                                                })
-                                            )
-                                        }
-                                        className="max-w-lg w-full p-2 border border-custom-500 rounded-sm"
-                                    />
+                                    <div className="relative w-full">
+                                        <input
+                                            type={
+                                                isVisiablePassword
+                                                    ? "text"
+                                                    : "password"
+                                            }
+                                            onChange={(e) =>
+                                                dispatch(
+                                                    handleOnChangePass({
+                                                        field: "newpass",
+                                                        value: e.target.value,
+                                                    })
+                                                )
+                                            }
+                                            className="max-w-lg w-full p-2 pr-10 border border-custom-500 rounded-sm"
+                                        />
+                                        <button
+                                            className="absolute right-2 top-0 translate-y-1/2"
+                                            onClick={() =>
+                                                setIsVisiablePassword(
+                                                    (pre) => !pre
+                                                )
+                                            }
+                                        >
+                                            {isVisiablePassword ? (
+                                                <RiEyeLine size={24} />
+                                            ) : (
+                                                <RiEyeCloseLine size={24} />
+                                            )}
+                                        </button>
+                                    </div>
                                 </div>
                             </>
                         )}

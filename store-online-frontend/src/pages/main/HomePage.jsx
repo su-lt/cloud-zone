@@ -2,7 +2,7 @@ import HeroSection from "../../components/HeroSection";
 import imageCollection_01 from "../../assets/images/collection-01.jpg";
 import imageCollection_02 from "../../assets/images/collection-02.jpg";
 import imageCollection_03 from "../../assets/images/collection-03.jpg";
-import RelatedProducts from "../../components/Products/RelatedProducts";
+import PopularProducts from "../../components/Products/PopularProducts";
 import { FaTruck, FaArrowsRotate } from "react-icons/fa6";
 import { MdSupportAgent } from "react-icons/md";
 import { TbDatabaseX } from "react-icons/tb";
@@ -112,7 +112,7 @@ const HomePage = () => {
 
             {/* preview products */}
             <section className="p-4 md:container">
-                <RelatedProducts id={"655ca7151e2d61a6aa0c921c"} />
+                <PopularProducts />
             </section>
         </div>
     );

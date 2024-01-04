@@ -21,16 +21,12 @@ const {
 
 // get products
 router.get("/", asyncHandler(getAllProducts));
-
 // count products
 router.get("/totalProducts", asyncHandler(totalProducts));
-
 // get product
 router.get("/:id", asyncHandler(getProductById));
-
 //get product by slug
 router.get("/slug/:slug", asyncHandler(getProductBySlug));
-
 // get related products
 router.post("/related/:id", asyncHandler(getRelatedProducts));
 

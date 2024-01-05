@@ -9,7 +9,7 @@ const voucherModel = require("../models/voucher.model");
 require("../models/user.model");
 // modules
 const { NotFoundError, BadRequestError } = require("../helpers/errorHandler");
-const generateCode = require("../helpers/generateCode");
+const { generateCode } = require("../helpers");
 
 const getOrders = async (req, res) => {
     // get params

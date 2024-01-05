@@ -19,12 +19,15 @@ const {
 
 // check authentication
 router.use(asyncHandler(authentication));
+
 // create order
 router.post("/", asyncHandler(createOrder));
 // get orders by user id
 router.get("/profile/:id", asyncHandler(getOrdersByUserId));
+
 // check admin role
 router.use(asyncHandler(isAdmin));
+
 // get orders
 router.get("/", asyncHandler(getOrders));
 // get report

@@ -5,7 +5,7 @@ const {
     CreateDatabaseError,
 } = require("../helpers/errorHandler");
 const voucherModel = require("../models/voucher.model");
-const generateCode = require("../helpers/generateCode");
+const { generateCode } = require("../helpers");
 
 const getVouchers = async (req, res) => {
     // get params

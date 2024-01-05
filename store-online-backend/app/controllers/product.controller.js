@@ -1,7 +1,7 @@
 const fs = require("fs");
 const productModel = require("../models/product.model");
 require("../models/productDetail.model");
-
+const { baseUrl } = require("../configs");
 const { Types } = require("mongoose");
 const {
     NotFoundError,
@@ -27,7 +27,7 @@ const getAllProducts = async (req, res) => {
     minPrice = parseInt(minPrice) || 0;
     maxPrice = parseInt(maxPrice) || 0;
     page = parseInt(page) || 1;
-    limit = parseInt(limit) || 12;
+    limit = parseInt(limit) || 4;
 
     const skip = (page - 1) * limit;
     const query = productModel.find().skip(skip).limit(limit);
@@ -165,7 +165,7 @@ const createProduct = async (req, res) => {
     // get images by multer
     const images = req.files.map((file) => {
         return {
-            path: "http://localhost:8088/images/" + file.filename,
+            path: `${baseUrl}/images/` + file.filename,
             filename: file.filename,
         };
     });
@@ -214,7 +214,7 @@ const updateProduct = async (req, res) => {
     // get images by multer
     const images = req.files.map((file) => {
         return {
-            path: "http://localhost:8088/images/" + file.filename,
+            path: `${baseUrl}/images/` + file.filename,
             filename: file.filename,
         };
     });

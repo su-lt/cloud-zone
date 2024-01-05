@@ -3,7 +3,6 @@ const keyModel = require("../models/key.model");
 const roleModel = require("../models/role.model");
 const userModel = require("../models/user.model");
 const bcrypt = require("bcrypt");
-const transporter = require("../helpers/emailHelper");
 const {
     generateKeyPairSync,
     createTokenPair,
@@ -18,12 +17,24 @@ const {
     ForbiddenError,
     ServerError,
 } = require("../helpers/errorHandler");
+const { validateEmail, validatePhone } = require("../helpers");
+const transporter = require("../helpers/emailHelper");
+const { app_url, app_port } = require("../configs");
 
+// register new user
 const signUp = async (req, res) => {
     // get data from request body
     let { fullname, email, phone, password, address } = req.body;
+
+    // check null
     if (!fullname || !email || !phone || !password || !address)
         throw new BadRequestError();
+
+    // check email
+    if (!validateEmail(email)) throw new BadRequestError("Invalid email");
+
+    // check phone number
+    if (!validatePhone(phone)) throw new BadRequestError("Invalid phone");
 
     // check exist user
     const checkUser = await userModel.findOne({ email }).lean();
@@ -43,44 +54,65 @@ const signUp = async (req, res) => {
         phone,
         address,
         password: passwordHash,
-        roles: roleMember._id,
+        role: roleMember._id,
+    });
+    // create new user failed
+    if (!newUser)
+        throw new CreateDatabaseError("Error: Cannot created new shop");
+
+    // create keys pair - asymmetric
+    const { privateKey, publicKey } = generateKeyPairSync();
+
+    // create tokens pair - accessToken, refreshToken
+    const tokens = await createTokenPair({ userId: newUser._id }, privateKey);
+
+    // store key
+    const keyStore = await keyModel.create({
+        user: newUser._id,
+        publicKey,
+    });
+    if (!keyStore) throw CreateDatabaseError("Cant not create keyStore");
+
+    // set refreshToken in cookie headers
+    res.cookie("refreshToken", tokens.refreshToken, {
+        maxAge: 86400 * 1000, // 3d - milisecond
+        httpOnly: true,
     });
 
-    if (newUser) {
-        // create keys pair - asymmetric
-        const { privateKey, publicKey } = generateKeyPairSync();
+    // get nodemailder config
+    const nodemailer = await transporter();
 
-        // create tokens pair - accessToken, refreshToken
-        const tokens = await createTokenPair(
-            { userId: newUser._id },
-            privateKey
-        );
+    // email message
+    const mailOptions = {
+        from: "CloudZone. <cloudzone.noreply@gmail.com>",
+        to: email,
+        subject: "Welcome to CloudZone.",
+        html: `Hello <b>${fullname}</b>,<br>
+               Congratulations on successfully registering and becoming a valued member of our platform.<br>
+               We are delighted and appreciate your participation, marking the beginning of a fantastic<br>
+               online shopping journey with <a href='${app_url}:${app_port}'>CloudZone.</><br><br>
+               As a member, you will have the opportunity to experience exclusive benefits, receive<br>
+               notifications about exciting promotions, and stay updated on the latest product<br>
+               releases. We are committed to providing you with a safe, convenient, and enjoyable<br>
+               online shopping experience.<br><br>
+               Best regards,<br>
+               The CloudZone Team.`,
+    };
 
-        // store key
-        const keyStore = await keyModel.create({
-            user: newUser._id,
-            publicKey,
-        });
-        if (!keyStore) throw CreateDatabaseError("Cant not create keyStore");
+    // send welcome email
+    nodemailer.sendMail(mailOptions);
 
-        // set refreshToken in cookie headers
-        res.cookie("refreshToken", tokens.refreshToken, {
-            maxAge: 86400 * 1000, // 3d - milisecond
-            httpOnly: true,
-        });
-
-        return res.status(201).json({
-            message: "Registed successfully !",
-            metadata: {
-                id: newUser._id,
-                accessToken: tokens.accessToken,
-                username: newUser.fullname,
-                isAdmin: false,
-            },
-        });
-    }
-
-    throw new CreateDatabaseError("Error: Cannot created new shop");
+    // return user
+    return res.status(200).json({
+        status: "success",
+        message: "Registed successfully !",
+        metadata: {
+            id: newUser._id,
+            accessToken: tokens.accessToken,
+            username: newUser.fullname,
+            isAdmin: false,
+        },
+    });
 };
 
 const login = async (req, res) => {
@@ -88,7 +120,7 @@ const login = async (req, res) => {
     const { email, password } = req.body;
     if (!email || !password) throw new BadRequestError();
 
-    // check exist
+    // check exist email
     const foundUser = await userModel
         .findOne({ email })
         .where({ status: "active" })
@@ -123,8 +155,10 @@ const login = async (req, res) => {
         httpOnly: true,
     });
 
-    return res.status(201).json({
-        message: "login",
+    // login successful
+    return res.status(200).json({
+        status: "success",
+        message: "login successful",
         metadata: {
             id: userId,
             accessToken: tokens.accessToken,
@@ -139,7 +173,8 @@ const logout = async (req, res) => {
     res.clearCookie("refreshToken");
 
     return res.status(200).json({
-        message: "logout",
+        status: "success",
+        message: "logout successful",
     });
 };
 
@@ -196,8 +231,10 @@ const refresh = async (req, res) => {
         httpOnly: true,
     });
 
+    // get new access token
     return res.status(201).json({
-        message: "success",
+        status: "success",
+        message: "refresh token successful",
         metadata: {
             newAccessToken: tokens.accessToken,
         },
@@ -210,7 +247,10 @@ const checkAuth = async (req, res) => {
 
     // check role
     const isAdmin = user.role.name === "ADMIN" ? true : false;
+
+    // return user information
     return res.status(200).json({
+        status: "success",
         message: "check-authentication",
         metadata: {
             id: user._id,
@@ -261,7 +301,7 @@ const forgot = async (req, res) => {
         subject: "Forgot Password",
         html: `Hi <b>${foundUser.fullname}</b>,<br>
                You've recently asked to reset password for this CloudZone account: ${email}<br>
-               Please click <a href='http://localhost:3000/reset-password/${token}/${userId}/${expiredAt}'>this link</a> to reset the password. This link will expire in 15 minutes.<br>
+               Please click <a href='${app_url}:${app_port}/reset-password/${token}/${userId}/${expiredAt}'>this link</a> to reset the password. This link will expire in 15 minutes.<br>
                If you did not initiate this password reset request, you can safely ignore this email.`,
     };
 
@@ -270,6 +310,7 @@ const forgot = async (req, res) => {
         if (error) throw new ServerError("Send email failed");
 
         return res.status(200).json({
+            status: "success",
             message: "send reset email successfully",
         });
     });
@@ -315,6 +356,7 @@ const reset = async (req, res) => {
     await keyStore.save();
 
     return res.status(200).json({
+        status: "success",
         message: "reset password successfully",
     });
 };

@@ -1,10 +1,11 @@
 const mongoose = require("mongoose");
 const roleModel = require("../models/role.model");
-
 const {
     db: { host, port, name },
-} = require("../configs/mongodb.config");
+} = require("../configs");
+const { log } = require("../helpers");
 
+// connection string
 const connectString = `mongodb://${host}:${port}/${name}`;
 
 // singleton pattern
@@ -20,7 +21,7 @@ class Database {
                 maxPoolSize: 500,
             })
             .then((_) => {
-                console.log("Connected MongoDB Successfully");
+                log.blue("Connected MongoDB Successfully");
                 countConnect();
                 initial();
             })

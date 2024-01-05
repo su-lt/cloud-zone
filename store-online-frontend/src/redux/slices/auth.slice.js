@@ -1,4 +1,5 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import { validateEmail, validatePhone } from "../../helpers/ultil";
 import api from "../../helpers/axiosApi";
 
 const initialState = {
@@ -132,21 +133,27 @@ export const authSlice = createSlice({
     extraReducers: (builder) => {
         // login
         builder.addCase(login.fulfilled, (state, { payload }) => {
-            if (payload) {
-                const { id, username, isAdmin, accessToken } = payload;
-                state.id = id;
-                state.isLogin = true;
-                state.fullname = username;
-                state.isAdmin = isAdmin;
-                state.completed = true;
+            if (payload)
+                switch (payload.status) {
+                    case "success":
+                        const { id, username, isAdmin, accessToken } =
+                            payload.metadata;
+                        state.id = id;
+                        state.isLogin = true;
+                        state.fullname = username;
+                        state.isAdmin = isAdmin;
+                        state.completed = true;
+                        state.error = null;
 
-                // set local storage
-                localStorage.setItem("id", id);
-                localStorage.setItem("accessToken", accessToken);
-            }
-        });
-        builder.addCase(login.rejected, (state, action) => {
-            state.error = "Login failed, please try again !";
+                        // set local storage
+                        localStorage.setItem("id", id);
+                        localStorage.setItem("accessToken", accessToken);
+                        break;
+
+                    default:
+                        state.error = "Login failed, please try again !";
+                        break;
+                }
         });
         // signup
         builder.addCase(signup.fulfilled, (state, { payload }) => {
@@ -174,24 +181,36 @@ export const authSlice = createSlice({
         });
         // forgotPassword
         builder.addCase(forgotPassword.fulfilled, (state, { payload }) => {
-            state.pending = false;
-            state.completed = true;
-            state.error = null;
+            switch (payload.status) {
+                case "success":
+                    state.completed = true;
+                    state.pending = false;
+                    state.error = null;
+
+                    break;
+
+                default:
+                    state.pending = false;
+                    state.error = "Reset failed, please try again !!!";
+                    break;
+            }
         });
         builder.addCase(forgotPassword.pending, (state, { error }) => {
             state.pending = true;
         });
-        builder.addCase(forgotPassword.rejected, (state, { error }) => {
-            state.pending = false;
-            state.error = "Reset failed, please try again !!!";
-        });
         // resetPassword
         builder.addCase(resetPassword.fulfilled, (state, { payload }) => {
-            state.resetCompleted = true;
-            state.error = null;
-        });
-        builder.addCase(resetPassword.rejected, (state, { error }) => {
-            state.error = "Reset failed, please try again !!!";
+            switch (payload.status) {
+                case "success":
+                    state.resetCompleted = true;
+                    state.error = null;
+                    break;
+
+                default:
+                    state.pending = false;
+                    state.error = "Reset failed, please try again !!!";
+                    break;
+            }
         });
         // check authentication
         builder.addCase(checkAuth.fulfilled, (state, { payload }) => {
@@ -218,9 +237,8 @@ export const login = createAsyncThunk(
                 email,
                 password,
             });
-            return response.data.metadata;
+            return response.data;
         }
-        return null;
     }
 );
 
@@ -280,27 +298,6 @@ export const checkAuth = createAsyncThunk("auth/checkAuth", async () => {
     const response = await api.get("/access/checkAuth");
     return response.data.metadata;
 });
-
-// check phone number
-const validatePhone = (paramPhone) => {
-    var vValidRegex = /((0|\+)+([0-9]{9,11})\b)/g;
-    if (paramPhone.match(vValidRegex)) {
-        return true;
-    } else {
-        return false;
-    }
-};
-
-// check email
-const validateEmail = (paramEmail) => {
-    var vValidRegex =
-        /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|.(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-    if (paramEmail.match(vValidRegex)) {
-        return true;
-    } else {
-        return false;
-    }
-};
 
 export const {
     handleOnChange,

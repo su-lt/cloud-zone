@@ -42,3 +42,24 @@ export const useDebounce = (value, duration = 500) => {
 
     return debounceValue;
 };
+
+// check phone number
+export const validatePhone = (paramPhone) => {
+    var vValidRegex = /((0|\+)+([0-9]{9,11})\b)/g;
+    if (paramPhone.match(vValidRegex)) {
+        return true;
+    } else {
+        return false;
+    }
+};
+
+// check email
+export const validateEmail = (paramEmail) => {
+    var vValidRegex =
+        /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|.(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+    if (paramEmail.match(vValidRegex)) {
+        return true;
+    } else {
+        return false;
+    }
+};

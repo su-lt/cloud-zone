@@ -1,9 +1,11 @@
 const app = require("./app/app");
 
-const { port } = require("./app/configs");
+const { app_port, server_port } = require("./app/configs");
+const { log } = require("./app/helpers");
 
-app.listen(port, () => {
-    console.log(`Server start on port ${port}`);
+app.listen(server_port, () => {
+    log.white(`Server start on port: ${server_port}`);
 });
+log.green(`Application start on port: ${app_port}`);
 
 module.exports = app;

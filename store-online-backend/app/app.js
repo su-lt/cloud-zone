@@ -8,6 +8,7 @@ const fs = require("fs");
 const cookieParser = require("cookie-parser");
 const express = require("express");
 const app = express();
+const { app_url, app_port } = require("./configs");
 
 // middlewares
 app.use(cookieParser());
@@ -19,11 +20,10 @@ app.use(
 );
 app.use(
     cors({
-        origin: "http://localhost:3000",
+        origin: `${app_url}:${app_port}`,
         credentials: true,
     })
 );
-
 // init db
 require("./databases/db.mongodb.js");
 
@@ -63,7 +63,7 @@ app.use((error, req, res, next) => {
     }
 
     const statusCode = error.status || 500;
-    return res.status(statusCode).json({
+    return res.status(200).json({
         status: "error",
         code: statusCode,
         // stack: error.stack,

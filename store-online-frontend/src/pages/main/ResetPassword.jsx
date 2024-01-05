@@ -10,7 +10,7 @@ const ResetPassword = () => {
     // get params
     const { token, id, expired } = useParams();
     // redux state
-    const { error, completed } = useSelector((slice) => slice.auth);
+    const { error, resetCompleted } = useSelector((slice) => slice.auth);
     // use state
     const [pass, setPass] = useState("");
     const [repass, setRepass] = useState("");
@@ -90,7 +90,7 @@ const ResetPassword = () => {
                             {error}
                         </div>
                     )}
-                    {completed ? (
+                    {resetCompleted ? (
                         <div className="p-3 w-full text-center bg-blue-50 dark:text-primary">
                             <div className="flex gap-2 justify-center items-center ">
                                 <div>

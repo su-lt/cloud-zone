@@ -14,20 +14,22 @@ class Database {
     constructor() {
         this.connect();
     }
-    // connect function
+    // connect
     connect() {
         mongoose
             .connect(connectString, {
                 maxPoolSize: 500,
             })
+            //  success callback
             .then((_) => {
-                log.blue("Connected MongoDB Successfully");
-                countConnect();
+                log.blue(`Connected MongoDB Successfully on port: ${port}`);
                 initial();
             })
+            // error callback
             .catch((err) => console.log("Error Connect MongoDB: ", err));
     }
 
+    // instance
     static getInstance() {
         if (!Database.instance) {
             Database.instance = new Database();
@@ -35,6 +37,8 @@ class Database {
         return Database.instance;
     }
 }
+
+// call instance function
 const instanceMongodb = Database.getInstance();
 
 // initial data (roles)
@@ -50,14 +54,6 @@ const initial = async () => {
     } catch (error) {
         console.error("Error initializing roles:", error);
     }
-};
-
-// count connections
-const countConnect = () => {
-    const numConnections = mongoose.connections.length;
-    console.log(`Number of connections: ${numConnections}`);
-
-    return numConnections;
 };
 
 module.exports = instanceMongodb;

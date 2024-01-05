@@ -8,7 +8,9 @@ const fs = require("fs");
 const cookieParser = require("cookie-parser");
 const express = require("express");
 const app = express();
-const { app_url, app_port } = require("./configs");
+const {
+    application: { url, port },
+} = require("./configs");
 
 // middlewares
 app.use(cookieParser());
@@ -20,7 +22,7 @@ app.use(
 );
 app.use(
     cors({
-        origin: `${app_url}:${app_port}`,
+        origin: `${url}:${port}`,
         credentials: true,
     })
 );

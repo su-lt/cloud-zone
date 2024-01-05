@@ -157,27 +157,40 @@ export const authSlice = createSlice({
         });
         // signup
         builder.addCase(signup.fulfilled, (state, { payload }) => {
-            if (payload) {
-                const { id, username, isAdmin, accessToken } = payload;
-                state.id = id;
-                state.isLogin = true;
-                state.fullname = username;
-                state.isAdmin = isAdmin;
-                state.completed = true;
+            if (payload)
+                switch (payload.status) {
+                    case "success":
+                        const { id, username, isAdmin, accessToken } =
+                            payload.metadata;
+                        state.id = id;
+                        state.isLogin = true;
+                        state.fullname = username;
+                        state.isAdmin = isAdmin;
+                        state.completed = true;
+                        state.error = null;
+                        state.pending = false;
 
-                // set local storage
-                localStorage.setItem("id", id);
-                localStorage.setItem("accessToken", accessToken);
-            }
+                        // set local storage
+                        localStorage.setItem("id", id);
+                        localStorage.setItem("accessToken", accessToken);
+                        break;
+
+                    default:
+                        state.pending = false;
+                        state.error = "Sign up failed, please try again !";
+                        break;
+                }
         });
-        builder.addCase(signup.rejected, (state, action) => {
-            state.error = "Sign up failed, please try again !";
+        builder.addCase(signup.pending, (state) => {
+            state.pending = true;
         });
         // logout
-        builder.addCase(logout.fulfilled, (state) => {
-            localStorage.removeItem("id");
-            localStorage.removeItem("accessToken");
-            localStorage.removeItem("cart");
+        builder.addCase(logout.fulfilled, (state, { payload }) => {
+            if (payload.status === "success") {
+                localStorage.removeItem("id");
+                localStorage.removeItem("accessToken");
+                localStorage.removeItem("cart");
+            }
         });
         // forgotPassword
         builder.addCase(forgotPassword.fulfilled, (state, { payload }) => {
@@ -186,7 +199,6 @@ export const authSlice = createSlice({
                     state.completed = true;
                     state.pending = false;
                     state.error = null;
-
                     break;
 
                 default:
@@ -195,7 +207,7 @@ export const authSlice = createSlice({
                     break;
             }
         });
-        builder.addCase(forgotPassword.pending, (state, { error }) => {
+        builder.addCase(forgotPassword.pending, (state) => {
             state.pending = true;
         });
         // resetPassword
@@ -214,8 +226,8 @@ export const authSlice = createSlice({
         });
         // check authentication
         builder.addCase(checkAuth.fulfilled, (state, { payload }) => {
-            if (payload) {
-                const { id, username, isAdmin } = payload;
+            if (payload.status === "success") {
+                const { id, username, isAdmin } = payload.metadata;
                 state.id = id;
                 state.isLogin = true;
                 state.fullname = username;
@@ -260,9 +272,8 @@ export const signup = createAsyncThunk(
                 address,
                 password,
             });
-            return response.data.metadata;
+            return response.data;
         }
-        return null;
     }
 );
 
@@ -296,7 +307,7 @@ export const resetPassword = createAsyncThunk(
 // check authentication
 export const checkAuth = createAsyncThunk("auth/checkAuth", async () => {
     const response = await api.get("/access/checkAuth");
-    return response.data.metadata;
+    return response.data;
 });
 
 export const {

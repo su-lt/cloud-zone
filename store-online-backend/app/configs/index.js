@@ -1,33 +1,45 @@
 // dev mode
 const dev = {
-    app_url: process.env.DEV_APP_URL,
-    app_port: process.env.DEV_APP_PORT,
-    server_url: process.env.DEV_SERVER_URL,
-    server_port: process.env.DEV_SERVER_PORT,
+    application: {
+        url: process.env.DEV_APP_URL,
+        port: process.env.DEV_APP_PORT,
+    },
+    server: {
+        url: process.env.DEV_SERVER_URL,
+        port: process.env.DEV_SERVER_PORT,
+    },
     db: {
         host: process.env.DEV_DB_HOST,
         port: process.env.DEV_DB_PORT,
         name: process.env.DEV_DB_NAME,
     },
-    gmailClientId: process.env.DEV_GOOGLE_MAILER_CLIENT_ID,
-    gmailClientSecret: process.env.DEV_GOOGLE_MAILER_CLIENT_SECRET,
-    gmailRefreshToken: process.env.DEV_GOOGLE_MAILER_REFRESH_TOKEN,
+    gmailService: {
+        clientId: process.env.DEV_GOOGLE_MAILER_CLIENT_ID,
+        clientSecret: process.env.DEV_GOOGLE_MAILER_CLIENT_SECRET,
+        refreshToken: process.env.DEV_GOOGLE_MAILER_REFRESH_TOKEN,
+    },
 };
 
 // production mode
 const product = {
-    app_url: process.env.DEV_APP_URL,
-    app_port: process.env.DEV_APP_PORT,
-    server_url: process.env.DEV_SERVER_URL,
-    server_port: process.env.DEV_SERVER_PORT,
-    db: {
-        host: process.env.DEV_DB_HOST,
-        port: process.env.DEV_DB_PORT,
-        name: process.env.DEV_DB_NAME,
+    application: {
+        url: process.env.PRODUCT_APP_URL,
+        port: process.env.DEV_APP_PORT,
     },
-    gmailClientId: process.env.DEV_GOOGLE_MAILER_CLIENT_ID,
-    gmailClientSecret: process.env.DEV_GOOGLE_MAILER_CLIENT_SECRET,
-    gmailRefreshToken: process.env.DEV_GOOGLE_MAILER_REFRESH_TOKEN,
+    server: {
+        url: process.env.PRODUCT_SERVER_URL,
+        port: process.env.PRODUCT_SERVER_PORT,
+    },
+    db: {
+        host: process.env.PRODUCT_DB_HOST,
+        port: process.env.PRODUCT_DB_PORT,
+        name: process.env.PRODUCT_DB_NAME,
+    },
+    gmailService: {
+        clientId: process.env.PRODUCT_GOOGLE_MAILER_CLIENT_ID,
+        clientSecret: process.env.PRODUCT_GOOGLE_MAILER_CLIENT_SECRET,
+        refreshToken: process.env.PRODUCT_GOOGLE_MAILER_REFRESH_TOKEN,
+    },
 };
 
 const config = { dev, product };

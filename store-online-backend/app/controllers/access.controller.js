@@ -1,4 +1,7 @@
 const mongoose = require("mongoose");
+const {
+    application: { url, port },
+} = require("../configs");
 const keyModel = require("../models/key.model");
 const roleModel = require("../models/role.model");
 const userModel = require("../models/user.model");
@@ -19,14 +22,13 @@ const {
 } = require("../helpers/errorHandler");
 const { validateEmail, validatePhone } = require("../helpers");
 const transporter = require("../helpers/emailHelper");
-const { app_url, app_port } = require("../configs");
 
 // register new user
 const signUp = async (req, res) => {
     // get data from request body
     let { fullname, email, phone, password, address } = req.body;
 
-    // check null
+    // check params null
     if (!fullname || !email || !phone || !password || !address)
         throw new BadRequestError();
 
@@ -56,14 +58,19 @@ const signUp = async (req, res) => {
         password: passwordHash,
         role: roleMember._id,
     });
-    // create new user failed
     if (!newUser)
+        // create new user failed
         throw new CreateDatabaseError("Error: Cannot created new shop");
 
-    // create keys pair - asymmetric
+    /** create access token and refresh token and save
+     * create keys pair - asymmetric
+     * */
     const { privateKey, publicKey } = generateKeyPairSync();
 
-    // create tokens pair - accessToken, refreshToken
+    /** create tokens pair - accessToken, refreshToken
+     * payload is userId
+     * secret key is privateKey
+     * */
     const tokens = await createTokenPair({ userId: newUser._id }, privateKey);
 
     // store key
@@ -82,7 +89,11 @@ const signUp = async (req, res) => {
     // get nodemailder config
     const nodemailer = await transporter();
 
-    // email message
+    /** email message
+     * from admin email
+     * to user email
+     * subject welcome
+     * */
     const mailOptions = {
         from: "CloudZone. <cloudzone.noreply@gmail.com>",
         to: email,
@@ -90,7 +101,7 @@ const signUp = async (req, res) => {
         html: `Hello <b>${fullname}</b>,<br>
                Congratulations on successfully registering and becoming a valued member of our platform.<br>
                We are delighted and appreciate your participation, marking the beginning of a fantastic<br>
-               online shopping journey with <a href='${app_url}:${app_port}'>CloudZone.</><br><br>
+               online shopping journey with <a href='${url}:${port}'>CloudZone.</><br><br>
                As a member, you will have the opportunity to experience exclusive benefits, receive<br>
                notifications about exciting promotions, and stay updated on the latest product<br>
                releases. We are committed to providing you with a safe, convenient, and enjoyable<br>
@@ -116,11 +127,17 @@ const signUp = async (req, res) => {
 };
 
 const login = async (req, res) => {
-    // check params
+    /** get params
+     * check null params
+     *  */
     const { email, password } = req.body;
     if (!email || !password) throw new BadRequestError();
 
-    // check exist email
+    /** check exist email
+     * get mail with active status
+     * populate role
+     * lean result
+     * */
     const foundUser = await userModel
         .findOne({ email })
         .where({ status: "active" })
@@ -128,19 +145,26 @@ const login = async (req, res) => {
         .lean();
     if (!foundUser) throw new BadRequestError("User not registered !");
 
-    // match password
+    /** compare password
+     * check match password
+     * */
     const match = await bcrypt.compare(password, foundUser.password);
     if (!match) throw new AuthFailureError("Authentication failed");
 
-    // create access token and refresh token and save
-    // create keys pair - asymmetric
+    /** create access token and refresh token and save
+     * create keys pair - asymmetric
+     * */
     const { privateKey, publicKey } = generateKeyPairSync();
 
     // create tokens pair - accessToken, refreshToken
     const { _id: userId } = foundUser;
     const tokens = await createTokenPair({ userId }, privateKey);
 
-    // update store key
+    /** update store key
+     * filter with userId
+     * update publicKey
+     * if key null create new key
+     * */
     const filter = { user: userId };
     const update = { publicKey: publicKey.toString() };
     const keyStore = await keyModel.findOneAndUpdate(filter, update, {
@@ -158,7 +182,7 @@ const login = async (req, res) => {
     // login successful
     return res.status(200).json({
         status: "success",
-        message: "login successful",
+        message: "login successfull",
         metadata: {
             id: userId,
             accessToken: tokens.accessToken,
@@ -172,21 +196,26 @@ const logout = async (req, res) => {
     // clear cookies
     res.clearCookie("refreshToken");
 
+    // return message successfull
     return res.status(200).json({
         status: "success",
-        message: "logout successful",
+        message: "logout successfull",
     });
 };
 
 const refresh = async (req, res) => {
-    // get refresh token
+    // get refresh token in cookies - check null
     const refreshToken = req.cookies.refreshToken;
     if (!refreshToken) throw new BadRequestError("token is required");
-    // get user id
+
+    // get user id in request headers - check null
     const userId = req.headers["x-client-id"];
     if (!userId) throw new BadRequestError();
 
-    // check keys of user
+    /** get key of user
+     * to get publicKey
+     * check null
+     */
     const keyStore = await keyModel.findOne({ user: userId });
     if (!keyStore) throw new NotFoundError();
 
@@ -221,7 +250,8 @@ const refresh = async (req, res) => {
             publicKey: publicKey,
         },
         $addToSet: {
-            refreshTokensUsed: refreshToken, //add onl refreshToken to usedl ist
+            //add old refreshToken to used list
+            refreshTokensUsed: refreshToken,
         },
     });
 
@@ -231,7 +261,7 @@ const refresh = async (req, res) => {
         httpOnly: true,
     });
 
-    // get new access token
+    // return new access token
     return res.status(201).json({
         status: "success",
         message: "refresh token successful",
@@ -262,11 +292,14 @@ const checkAuth = async (req, res) => {
 
 // forgot password
 const forgot = async (req, res) => {
-    // get email
+    // get email - check null
     const { email } = req.body;
     if (!email) throw new BadRequestError();
 
-    // check exist
+    /** check email exist
+     * with active user
+     * lean result
+     */
     const foundUser = await userModel
         .findOne({ email })
         .where({ status: "active" })
@@ -277,12 +310,19 @@ const forgot = async (req, res) => {
     // create keys pair - asymmetric
     const { privateKey, publicKey } = generateKeyPairSync();
 
-    // create reset-token
+    // get userId in foundUser
     const { _id: userId } = foundUser;
+
+    // create reset-token
     const token = createToken({ userId }, privateKey);
+
+    // set expire time is 15m
     const expiredAt = Date.now() + 15 * 60 * 1000; // 15m
 
-    // update store key
+    /** update store key
+     * resetKey is publicKey
+     * if key not exist -> create key
+     */
     const filter = { user: userId };
     const update = { resetKey: publicKey.toString() };
     const keyStore = await keyModel.findOneAndUpdate(filter, update, {
@@ -294,14 +334,18 @@ const forgot = async (req, res) => {
     // get nodemailder config
     const nodemailer = await transporter();
 
-    // email message
+    /** email message
+     * from admin email
+     * to user email
+     * subject forgot password
+     * */
     const mailOptions = {
         from: "CloudZone. <cloudzone.noreply@gmail.com>",
         to: email,
         subject: "Forgot Password",
         html: `Hi <b>${foundUser.fullname}</b>,<br>
                You've recently asked to reset password for this CloudZone account: ${email}<br>
-               Please click <a href='${app_url}:${app_port}/reset-password/${token}/${userId}/${expiredAt}'>this link</a> to reset the password. This link will expire in 15 minutes.<br>
+               Please click <a href='${url}:${port}/reset-password/${token}/${userId}/${expiredAt}'>this link</a> to reset the password. This link will expire in 15 minutes.<br>
                If you did not initiate this password reset request, you can safely ignore this email.`,
     };
 
@@ -309,6 +353,7 @@ const forgot = async (req, res) => {
     nodemailer.sendMail(mailOptions, (error, info) => {
         if (error) throw new ServerError("Send email failed");
 
+        // return send email success
         return res.status(200).json({
             status: "success",
             message: "send reset email successfully",
@@ -318,13 +363,13 @@ const forgot = async (req, res) => {
 
 // reset password
 const reset = async (req, res) => {
-    // get _id
+    // get _id - check valid
     const id = req.params.id;
     if (!mongoose.Types.ObjectId.isValid(id)) {
         throw new BadRequestError("Id not valid !");
     }
 
-    // get params
+    // get params - check null
     let { password, token } = req.body;
     if (!password || !token) throw new BadRequestError();
 
@@ -355,6 +400,7 @@ const reset = async (req, res) => {
     keyStore.resetKey = null;
     await keyStore.save();
 
+    // return reset password successfully
     return res.status(200).json({
         status: "success",
         message: "reset password successfully",

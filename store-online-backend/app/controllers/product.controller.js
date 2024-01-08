@@ -1,17 +1,22 @@
 const fs = require("fs");
-const productModel = require("../models/product.model");
-require("../models/productDetail.model");
-const { baseUrl } = require("../configs");
 const { Types } = require("mongoose");
+const {
+    server: { url, port },
+} = require("../configs");
+const productModel = require("../models/product.model");
+const productDetailModel = require("../models/productDetail.model");
 const {
     NotFoundError,
     CreateDatabaseError,
     BadRequestError,
 } = require("../helpers/errorHandler");
-const productDetailModel = require("../models/productDetail.model");
 
 const getAllProducts = async (req, res) => {
-    // get params
+    // get limit - check limit null or NaN
+    const { limit } = req.query;
+    if (!limit || isNaN(limit)) throw new BadRequestError();
+
+    // get query params
     let {
         minPrice,
         maxPrice,
@@ -19,81 +24,100 @@ const getAllProducts = async (req, res) => {
         searchString,
         searchCategory,
         sort,
-        limit,
         defaultConfig,
     } = req.query;
 
-    // check variable product
-    minPrice = parseInt(minPrice) || 0;
-    maxPrice = parseInt(maxPrice) || 0;
-    page = parseInt(page) || 1;
-    limit = parseInt(limit) || 4;
+    /** check page
+     * if page undefined, page = 1
+     */
+    page = +page || 1;
 
+    // get skip value
     const skip = (page - 1) * limit;
-    const query = productModel.find().skip(skip).limit(limit);
-    const countQuery = productModel.find();
+
+    /** get products
+     * queryProducts is limit products with conditions
+     * countProducts is number of all products with conditions
+     */
+    const queryProducts = productModel.find().skip(skip).limit(+limit);
+    const countProducts = productModel.find();
 
     // get product with conditions
     // min price condition
-    if (minPrice > 0) {
-        query.where("price").gt(minPrice);
-        countQuery.where("price").gt(minPrice);
+    if (+minPrice > 0) {
+        queryProducts.where("price").gt(+minPrice);
+        countProducts.where("price").gt(+minPrice);
     }
     // max price condition
-    if (maxPrice > 0) {
-        query.where("price").lt(maxPrice);
-        countQuery.where("price").lt(maxPrice);
+    if (+maxPrice > 0) {
+        queryProducts.where("price").lt(+maxPrice);
+        countProducts.where("price").lt(+maxPrice);
     }
     // search name condition
     if (searchString) {
         const regex = new RegExp(searchString, "i");
-        query.where({ name: regex });
-        countQuery.where({ name: regex });
+        queryProducts.where({ name: regex });
+        countProducts.where({ name: regex });
     }
     // categories search condition
     if (searchCategory) {
         // split into categories
         const categories = searchCategory.split(",");
         // find by categories
-        query.find({ category: { $in: categories } });
-        countQuery.where({ category: { $in: categories } });
+        queryProducts.find({ category: { $in: categories } });
+        countProducts.where({ category: { $in: categories } });
     }
-    // sort
+
+    /** sort conditions
+     * sort products by condition:
+     * latest, oldest, bestseller,
+     * price hight to low and price low to high
+     */
     if (sort) {
         switch (sort) {
+            // sort by newest
             case "latest":
-                query.sort({ updatedAt: -1 });
+                queryProducts.sort({ updatedAt: -1 });
                 break;
+            // sort by oldest
             case "oldest":
-                query.sort({ updatedAt: 1 });
+                queryProducts.sort({ updatedAt: 1 });
                 break;
+            // sort by bestseller
             case "bestseller":
-                query.sort({ quantity_sold: -1 });
+                queryProducts.sort({ quantity_sold: -1 });
                 break;
+            // sort by price hight to low
             case "htl":
-                query.sort({ price: -1 });
+                queryProducts.sort({ price: -1 });
                 break;
+            // sort by price low to high
             case "lth":
-                query.sort({ price: 1 });
+                queryProducts.sort({ price: 1 });
                 break;
             default:
                 break;
         }
     }
 
+    /** defaultConfig
+     *  the default configuration for active products
+     *  defaultConfig = true -> for all products
+     */
     if (!defaultConfig) {
-        query.where("status").equals("active");
-        countQuery.where("status").equals("active");
+        queryProducts.where("status").equals("active");
+        countProducts.where("status").equals("active");
     }
 
-    // get total number of products
-    const totalProducts = await countQuery.countDocuments().exec();
-
     // get products
-    const products = await query.lean().exec();
+    const products = await queryProducts.lean().exec();
 
+    // get total number of products
+    const totalProducts = await countProducts.countDocuments().exec();
+
+    // return products and total products
     return res.status(200).json({
-        message: "success",
+        status: "success",
         metadata: {
             products,
             totalProducts,
@@ -102,18 +126,23 @@ const getAllProducts = async (req, res) => {
 };
 
 const getProductById = async (req, res) => {
-    // get _id
+    // get _id - check null
     const id = req.params.id;
     if (!id) throw new BadRequestError();
-    // get product by id
+
+    /** get product by id
+     * populate product details
+     * lean result
+     */
     const product = await productModel
         .findById(id)
         .populate("productDetail")
         .lean();
     if (!product) throw new NotFoundError();
 
+    // return product
     return res.status(200).json({
-        message: "success",
+        status: "success",
         metadata: {
             product,
         },
@@ -121,19 +150,25 @@ const getProductById = async (req, res) => {
 };
 
 const getProductBySlug = async (req, res) => {
-    // get slug
+    // get slug - check null
     const slug = req.params.slug;
     if (!slug) throw new BadRequestError();
-    // get product by slug
+
+    /** get product by slug
+     * populate product details
+     * populate category
+     * lean result
+     */
     const product = await productModel
         .findOne({ slug })
         .populate("productDetail")
         .populate("category")
         .lean();
-    if (!product) throw new NotFoundError();
+    if (!product) throw new NotFoundError("404");
 
+    // return product
     return res.status(200).json({
-        message: "success",
+        status: "success",
         metadata: {
             product,
         },
@@ -141,18 +176,24 @@ const getProductBySlug = async (req, res) => {
 };
 
 const getRelatedProducts = async (req, res) => {
-    // get _id
+    // get _id - chekc null
     const id = req.params.id;
     if (!id) throw new BadRequestError();
-    // get related products
+
+    /** get related products by category id
+     * sort newest
+     * limit 4 products
+     * lean result
+     */
     const relatedProducts = await productModel
         .find({ category: id })
         .sort({ createdAt: -1 })
         .limit(4)
         .lean();
 
+    // retun products
     return res.status(200).json({
-        message: "success",
+        status: "success",
         metadata: {
             relatedProducts,
         },
@@ -160,23 +201,47 @@ const getRelatedProducts = async (req, res) => {
 };
 
 const createProduct = async (req, res) => {
+    // get body params - check null
     const { name, price, category, quantity, brand, description } = req.body;
+    if (!name || !price || !category || !brand || !description)
+        throw new BadRequestError();
 
-    // get images by multer
+    /** check price
+     * price is exist
+     * price must be a number
+     */
+    if (isNaN(price)) throw new BadRequestError();
+
+    /** check quantity
+     * if quantity exist, quantity must be a number
+     */
+    if (quantity && isNaN(quantity)) throw new BadRequestError();
+
+    /** get images by multer
+     * upload to folder /uploads/images
+     * get filename to path
+     */
     const images = req.files.map((file) => {
         return {
-            path: `${baseUrl}/images/` + file.filename,
+            path: `${url}:${port}/images/` + file.filename,
             filename: file.filename,
         };
     });
-    // create product details
+
+    /** create product detail
+     * get _id product detail for product
+     * 1 product : 1 product detail
+     */
     const productDetails = await productDetailModel.create({
         brand,
         description,
         images,
     });
     if (!productDetails) throw new CreateDatabaseError();
-    // create product
+
+    /** create product
+     * image_thumbnail is first image
+     */
     const product = await productModel.create({
         name,
         price,
@@ -188,7 +253,7 @@ const createProduct = async (req, res) => {
     if (!product) throw new CreateDatabaseError();
 
     return res.status(200).json({
-        message: "success",
+        status: "success",
         metadata: {
             product,
         },
@@ -196,11 +261,13 @@ const createProduct = async (req, res) => {
 };
 
 const updateProduct = async (req, res) => {
+    // get id - check valid
     const id = req.params.id;
     if (!Types.ObjectId.isValid(id)) {
         throw new BadRequestError("Id not valid !");
     }
 
+    // get body params - check null
     const {
         name,
         price,
@@ -211,21 +278,56 @@ const updateProduct = async (req, res) => {
         status,
         productDetail,
     } = req.body;
-    // get images by multer
+    if (
+        !name ||
+        !price ||
+        !category ||
+        !brand ||
+        !description ||
+        !status ||
+        !productDetail
+    )
+        throw new BadRequestError();
+
+    /** check price
+     * price is exist
+     * price must be a number
+     */
+    if (isNaN(price)) throw new BadRequestError();
+
+    /** check quantity
+     * if quantity exist, quantity must be a number
+     */
+    if (quantity && isNaN(quantity)) throw new BadRequestError();
+
+    /** get images by multer
+     * upload to folder /uploads/images
+     * get filename to path
+     */
     const images = req.files.map((file) => {
         return {
-            path: `${baseUrl}/images/` + file.filename,
+            path: `${url}:${port}/images/` + file.filename,
             filename: file.filename,
         };
     });
-    // update product details
+
+    //
+    /** update product details by product detail id
+     * if images is exist, push more
+     * update brand
+     * update description
+     */
     const detail = await productDetailModel.findByIdAndUpdate(productDetail, {
         $push: { images: { $each: images } },
         brand,
         description,
     });
     if (!detail) throw new CreateDatabaseError();
-    // update product
+
+    /** update product
+     * update image_thumbnail is first image
+     * return new result
+     */
     const product = await productModel.findByIdAndUpdate(
         id,
         {
@@ -240,8 +342,9 @@ const updateProduct = async (req, res) => {
     );
     if (!product) throw new CreateDatabaseError();
 
+    // return upudate product
     return res.status(200).json({
-        message: "success",
+        status: "success",
         metadata: {
             product,
         },
@@ -249,12 +352,16 @@ const updateProduct = async (req, res) => {
 };
 
 const deleteProduct = async (req, res) => {
+    // get id - check valid
     const id = req.params.id;
     if (!Types.ObjectId.isValid(id)) {
         throw new BadRequestError("Id not valid !");
     }
 
-    // get product to get images
+    /** get product by id
+     * populate product detail
+     * lean result
+     */
     const product = await productModel
         .findById(id)
         .populate("productDetail")
@@ -286,39 +393,45 @@ const deleteProduct = async (req, res) => {
         });
     }
 
+    // delete product detail by id
     const detail = await productDetailModel.findByIdAndDelete(
         product.productDetail._id
     );
     if (!detail) throw new CreateDatabaseError();
 
+    // delete product
     const deleteProduct = await productModel.findByIdAndDelete(id);
     if (!deleteProduct) throw new CreateDatabaseError();
 
+    // return successfull
     return res.status(200).json({
-        message: "success",
+        status: "success",
     });
 };
 
 const totalProducts = async (req, res) => {
-    // count products with active status
-    const count = await productModel
+    // count total products with active status
+    const total = await productModel
         .find({ status: "active" })
         .countDocuments();
 
+    // return total products
     return res.status(200).json({
-        message: "success",
+        status: "success",
         metadata: {
-            count,
+            total,
         },
     });
 };
 
 const removeImage = async (req, res) => {
+    // get id - check valid
     const id = req.params.id;
     if (!Types.ObjectId.isValid(id))
         throw new BadRequestError("Id not valid !");
 
-    const { filename } = req.query;
+    // get filename image - check null
+    const { filename } = req.queryProducts;
     if (!filename) throw new BadRequestError();
 
     // remove image of product from server
@@ -339,6 +452,7 @@ const removeImage = async (req, res) => {
                 $pull: { images: { filename } },
             });
 
+            // return successfull
             return res.status(200).json({
                 message: "remove image successfully",
             });

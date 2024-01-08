@@ -138,47 +138,70 @@ export const productSlice = createSlice({
         builder.addCase(
             fetchRelatedProductById.fulfilled,
             (state, { payload }) => {
-                state.relatedProducts = payload.relatedProducts;
+                switch (payload.status) {
+                    case "success":
+                        const { relatedProducts } = payload.metadata;
+                        state.relatedProducts = relatedProducts;
+                        break;
+                    default:
+                        break;
+                }
             }
         );
         // fetch product by slug
         builder.addCase(fetchProductBySlug.fulfilled, (state, { payload }) => {
-            state.product = payload.product;
-        });
-        builder.addCase(fetchProductBySlug.rejected, (state, { error }) => {
-            if (error.message.includes("404")) state.error = "404";
-            else state.error = error.message;
+            switch (payload.status) {
+                case "success":
+                    const { product } = payload.metadata;
+                    state.product = product;
+                    break;
+                default:
+                    if (payload.message === "404") state.error = "404";
+                    else state.error = payload.message;
+                    break;
+            }
         });
         // fetch product by id
         builder.addCase(fetchProductById.fulfilled, (state, { payload }) => {
-            const { product } = payload;
-            if (product)
-                state.updateObject = {
-                    id: product._id,
-                    name: product.name,
-                    price: product.price,
-                    category: product.category,
-                    quantity: product.quantity,
-                    status: product.status,
-                    brand: product.productDetail.brand,
-                    description: product.productDetail.description,
-                    productDetail: product.productDetail._id,
-                    images: product.productDetail.images,
-                };
+            switch (payload.status) {
+                case "success":
+                    const { product } = payload.metadata;
+                    // push data to update object
+                    state.updateObject = {
+                        id: product._id,
+                        name: product.name,
+                        price: product.price,
+                        category: product.category,
+                        quantity: product.quantity,
+                        status: product.status,
+                        brand: product.productDetail.brand,
+                        description: product.productDetail.description,
+                        productDetail: product.productDetail._id,
+                        images: product.productDetail.images,
+                    };
+                    break;
+                default:
+                    break;
+            }
         });
         // handle fetch all products
         builder.addCase(fetchProducts.fulfilled, (state, { payload }) => {
-            state.pending = false;
-            state.error = null;
-            state.product = null;
-            state.products = payload.products;
-            state.totalPages = Math.ceil(
-                payload.totalProducts / process.env.REACT_APP_PRODUCT_LIMIT
-            );
-        });
-        builder.addCase(fetchProducts.rejected, (state, { error }) => {
-            state.pending = false;
-            // state.error = error.message;
+            switch (payload.status) {
+                case "success":
+                    const { products, totalProducts } = payload.metadata;
+                    state.pending = false;
+                    state.error = null;
+                    state.product = null;
+                    state.products = products;
+                    state.totalPages = Math.ceil(
+                        totalProducts / process.env.REACT_APP_PRODUCT_LIMIT
+                    );
+                    break;
+                default:
+                    state.pending = false;
+                    state.products = [];
+                    break;
+            }
         });
         builder.addCase(fetchProducts.pending, (state) => {
             state.pending = true;
@@ -186,13 +209,15 @@ export const productSlice = createSlice({
         // handle create product
         builder.addCase(createProduct.fulfilled, (state, { payload }) => {
             state.pending = false;
-            if (payload) {
-                state.createCompleted = true;
-            }
-        });
-        builder.addCase(createProduct.rejected, (state, { error }) => {
-            state.pending = false;
-            state.error = error.message;
+            if (payload.status)
+                switch (payload.status) {
+                    case "success":
+                        state.createCompleted = true;
+                        break;
+                    default:
+                        state.error = payload.message;
+                        break;
+                }
         });
         builder.addCase(createProduct.pending, (state) => {
             state.pending = true;
@@ -200,38 +225,58 @@ export const productSlice = createSlice({
         // handle update api
         builder.addCase(updateProduct.fulfilled, (state, { payload }) => {
             state.pending = false;
-            if (payload) {
-                state.updateCompleted = true;
-            }
-        });
-        builder.addCase(updateProduct.rejected, (state, { error }) => {
-            state.pending = false;
-            state.error = error.message;
+            if (payload.status)
+                switch (payload.status) {
+                    case "success":
+                        state.updateCompleted = true;
+                        break;
+                    default:
+                        state.error = payload.message;
+                        break;
+                }
         });
         builder.addCase(updateProduct.pending, (state) => {
             state.pending = true;
         });
         // handle delete api
         builder.addCase(deleteProduct.fulfilled, (state, { payload }) => {
-            state.pending = false;
-            state.deleteCompleted = true;
-        });
-        builder.addCase(deleteProduct.rejected, (state, { error }) => {
-            state.pending = false;
-            state.error = error.message;
+            switch (payload.status) {
+                case "success":
+                    state.pending = false;
+                    state.deleteCompleted = true;
+                    break;
+                default:
+                    state.pending = false;
+                    state.error = payload.message;
+                    break;
+            }
         });
         builder.addCase(deleteProduct.pending, (state) => {
             state.pending = true;
         });
         // total products
         builder.addCase(fetchTotalProducts.fulfilled, (state, { payload }) => {
-            state.totalProducts = payload.count;
+            switch (payload.status) {
+                case "success":
+                    const { total } = payload.metadata;
+                    state.totalProducts = total;
+                    break;
+                default:
+                    break;
+            }
         });
         // popular products
         builder.addCase(
             fetchPopularProducts.fulfilled,
             (state, { payload }) => {
-                state.popularProducts = payload.products;
+                switch (payload.status) {
+                    case "success":
+                        const { products } = payload.metadata;
+                        state.popularProducts = products;
+                        break;
+                    default:
+                        break;
+                }
             }
         );
     },
@@ -247,7 +292,7 @@ export const fetchProducts = createAsyncThunk(
         searchCategory,
         sort,
         page,
-        limit,
+        limit = process.env.REACT_APP_PRODUCT_LIMIT,
         defaultConfig,
     }) => {
         const query = buildQueryString({
@@ -261,7 +306,7 @@ export const fetchProducts = createAsyncThunk(
             defaultConfig,
         });
         const response = await api.get("/product?" + query);
-        return response.data.metadata;
+        return response.data;
     }
 );
 
@@ -291,7 +336,7 @@ export const createProduct = createAsyncThunk(
                     "Content-Type": "multipart/form-data",
                 },
             });
-            return response.data.metadata;
+            return response.data;
         }
 
         return null;
@@ -323,10 +368,8 @@ export const updateProduct = createAsyncThunk(
                     "Content-Type": "multipart/form-data",
                 },
             });
-            return response.data.metadata;
+            return response.data;
         }
-
-        return null;
     }
 );
 
@@ -335,7 +378,7 @@ export const deleteProduct = createAsyncThunk(
     "product/deleteProduct",
     async (id) => {
         const response = await api.delete("/product/" + id);
-        return response.data.metadata;
+        return response.data;
     }
 );
 
@@ -355,7 +398,7 @@ export const fetchProductById = createAsyncThunk(
     "product/fetchProductById",
     async (id) => {
         const response = await api.get(`/product/${id}`);
-        return response.data.metadata;
+        return response.data;
     }
 );
 
@@ -364,7 +407,7 @@ export const fetchProductBySlug = createAsyncThunk(
     "product/fetchProductBySlug",
     async (slug) => {
         const response = await api.get(`/product/slug/${slug}`);
-        return response.data.metadata;
+        return response.data;
     }
 );
 
@@ -373,7 +416,7 @@ export const fetchRelatedProductById = createAsyncThunk(
     "product/fetchRelatedProductById",
     async (id) => {
         const response = await api.post(`/product/related/${id}`);
-        return response.data.metadata;
+        return response.data;
     }
 );
 
@@ -382,7 +425,7 @@ export const fetchTotalProducts = createAsyncThunk(
     "product/fetchTotalProducts",
     async () => {
         const response = await api.get(`/product/totalProducts`);
-        return response.data.metadata;
+        return response.data;
     }
 );
 
@@ -391,7 +434,7 @@ export const fetchPopularProducts = createAsyncThunk(
     "product/fetchPopularProducts",
     async () => {
         const response = await api.get(`/product/popularProducts`);
-        return response.data.metadata;
+        return response.data;
     }
 );
 

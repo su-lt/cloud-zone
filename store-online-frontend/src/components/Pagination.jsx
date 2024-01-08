@@ -16,16 +16,17 @@ const Pagination = () => {
     };
 
     useEffect(() => {
-        dispatch(
-            fetchProducts({
-                minPrice,
-                maxPrice,
-                searchString,
-                searchCategory,
-                sort,
-                page,
-            })
-        );
+        if (page <= totalPages)
+            dispatch(
+                fetchProducts({
+                    minPrice,
+                    maxPrice,
+                    searchString,
+                    searchCategory,
+                    sort,
+                    page,
+                })
+            );
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [page]);
 

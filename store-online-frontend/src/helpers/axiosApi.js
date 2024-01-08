@@ -19,7 +19,9 @@ let refreshQueue = [];
 api.interceptors.request.use(async (config) => {
     if (
         config.url.indexOf("/login") > -1 ||
-        config.url.indexOf("/signup") > -1
+        config.url.indexOf("/signup") > -1 ||
+        config.url.indexOf("/forgot") > -1 ||
+        config.url.indexOf("/reset") > -1
     ) {
         return config;
     }
@@ -35,7 +37,9 @@ api.interceptors.response.use(
         const config = response.config;
         if (
             config.url.indexOf("/login") > -1 ||
-            config.url.indexOf("/signup") > -1
+            config.url.indexOf("/signup") > -1 ||
+            config.url.indexOf("/forgot") > -1 ||
+            config.url.indexOf("/reset") > -1
         ) {
             return response;
         }
@@ -79,25 +83,6 @@ api.interceptors.response.use(
         return Promise.reject(err);
     }
 );
-
-// signup
-export const signup = async (fullname, email, password) => {
-    try {
-        const response = await api.post("/signup", {
-            fullname,
-            email,
-            password,
-        });
-        const { id } = response.data.metadata;
-
-        // set id to localStorage
-        localStorage.setItem("id", id);
-
-        return null;
-    } catch (error) {
-        return error.response.data.message;
-    }
-};
 
 // handle refresh token
 export const handleRefreshToken = async () => {

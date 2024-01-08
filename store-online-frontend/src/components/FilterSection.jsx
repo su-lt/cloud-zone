@@ -65,7 +65,6 @@ const FilterSection = () => {
 
     useEffect(() => {
         dispatch(fetchProducts({ searchString: debounceSearch }));
-
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [debounceSearch]);
 

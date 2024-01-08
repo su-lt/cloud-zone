@@ -1,6 +1,7 @@
 const JWT = require("jsonwebtoken");
 const crypto = require("node:crypto");
 
+// generate public key and private key
 const generateKeyPairSync = () => {
     return crypto.generateKeyPairSync("rsa", {
         modulusLength: 2048,
@@ -44,6 +45,7 @@ const createToken = (payload, privateKey) => {
     }
 };
 
+// check token valid
 const verifyJWT = (token, keySecret) => {
     return JWT.verify(token, keySecret);
 };

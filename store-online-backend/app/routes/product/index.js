@@ -5,6 +5,7 @@ const upload = require("../../middlewares/uploader.middleware");
 const asyncHandler = require("../../helpers/asyncHandler");
 const {
     getAllProducts,
+    getOrderProducts,
     getProductById,
     getProductBySlug,
     getRelatedProducts,
@@ -21,6 +22,8 @@ const {
 
 // get products
 router.get("/", asyncHandler(getAllProducts));
+// get products
+router.get("/orderProducts", asyncHandler(getOrderProducts));
 // count products
 router.get("/totalProducts", asyncHandler(totalProducts));
 // get product

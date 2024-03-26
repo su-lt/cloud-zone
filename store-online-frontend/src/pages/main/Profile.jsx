@@ -35,6 +35,7 @@ const Profile = () => {
     // useState
     const [openUpdateInfo, setUpdateInfo] = useState(false);
     const [openUpdatePass, setUpdatePass] = useState(false);
+    const [repassword, setRepassword] = useState("");
     const [isVisiablePassword, setIsVisiablePassword] = useState(false);
 
     // handle update info
@@ -43,6 +44,11 @@ const Profile = () => {
     };
     // handle update info
     const handleUpdatePass = () => {
+        if (updateObjPass.newpass !== repassword) {
+            toast.error("Passwords do not match !");
+            return;
+        }
+
         dispatch(updatePass({ id, ...updateObjPass }));
     };
 
@@ -55,13 +61,13 @@ const Profile = () => {
         }
         // update pass successfully
         if (updatePassCompleted) {
-            toast.success("Update pass successfully !");
+            toast.success("Update password successfully !");
             dispatch(clearState());
             setUpdatePass(false);
         }
         // update fail
         if (error) {
-            toast.warning("Update fail, please try again !");
+            toast.error("Update fail, please try again !");
             dispatch(clearState());
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -247,7 +253,7 @@ const Profile = () => {
                                     <h4 className="w-[160px] text-sm sm:text-lg">
                                         Curent password
                                     </h4>
-                                    <div className="relative w-full">
+                                    <div className="relative max-w-lg w-full">
                                         <input
                                             type={
                                                 isVisiablePassword
@@ -262,7 +268,7 @@ const Profile = () => {
                                                     })
                                                 )
                                             }
-                                            className="max-w-lg w-full p-2 pr-10 border border-custom-500 rounded-sm"
+                                            className="w-full p-2 pr-10 border border-custom-500 rounded-sm"
                                         />
                                         <button
                                             className="absolute right-2 top-0 translate-y-1/2"
@@ -284,7 +290,7 @@ const Profile = () => {
                                     <h4 className="w-[160px] text-sm sm:text-lg">
                                         New password
                                     </h4>
-                                    <div className="relative w-full">
+                                    <div className="relative max-w-lg w-full">
                                         <input
                                             type={
                                                 isVisiablePassword
@@ -299,7 +305,39 @@ const Profile = () => {
                                                     })
                                                 )
                                             }
-                                            className="max-w-lg w-full p-2 pr-10 border border-custom-500 rounded-sm"
+                                            className="w-full p-2 pr-10 border border-custom-500 rounded-sm"
+                                        />
+                                        <button
+                                            className="absolute right-2 top-0 translate-y-1/2"
+                                            onClick={() =>
+                                                setIsVisiablePassword(
+                                                    (pre) => !pre
+                                                )
+                                            }
+                                        >
+                                            {isVisiablePassword ? (
+                                                <RiEyeLine size={24} />
+                                            ) : (
+                                                <RiEyeCloseLine size={24} />
+                                            )}
+                                        </button>
+                                    </div>
+                                </div>
+                                <div className="mt-1 flex items-center">
+                                    <h4 className="w-[160px] text-sm sm:text-lg">
+                                        Repeat password
+                                    </h4>
+                                    <div className="relative max-w-lg w-full">
+                                        <input
+                                            type={
+                                                isVisiablePassword
+                                                    ? "text"
+                                                    : "password"
+                                            }
+                                            onChange={(e) =>
+                                                setRepassword(e.target.value)
+                                            }
+                                            className="w-full p-2 pr-10 border border-custom-500 rounded-sm"
                                         />
                                         <button
                                             className="absolute right-2 top-0 translate-y-1/2"

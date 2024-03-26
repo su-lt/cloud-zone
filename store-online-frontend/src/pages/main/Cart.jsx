@@ -1,29 +1,32 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { SiShopify } from "react-icons/si";
+import { toast } from "react-toastify";
 import {
     cartSlice,
     createOrder,
     fetchProductById,
-    fetchCities,
-    fetchDistricts,
-    fetchWards,
+    // fetchCities,
+    // fetchDistricts,
+    // fetchWards,
     setAddress,
-    setFullAddress,
+    // setFullAddress,
     updateQuantity,
     clearAddress,
     handleVoucherOnChange,
     fetchVoucherByCode,
+    clearCartState,
 } from "../../redux/slices/cart.slice";
-import { fetchUserAddress } from "../../redux/slices/user.slice";
+// import { fetchUserAddress } from "../../redux/slices/user.slice";
 import { Link } from "react-router-dom";
 import { formattedPrice } from "../../helpers/ultil";
 import {
+    clearCompletedAuthState,
     handleOnChange,
     login,
     setLastPage,
 } from "../../redux/slices/auth.slice";
-import AutocompleteBox from "../../components/AutocompleteBox";
+// import AutocompleteBox from "../../components/AutocompleteBox";
 import Modal from "../../components/CartModal";
 import Breadcrumb from "../../components/Breadcrumb";
 
@@ -41,11 +44,11 @@ const Cart = () => {
         totalPrice,
         voucher,
         discount,
-        cities,
-        districts,
-        wards,
+        // cities,
+        // districts,
+        // wards,
         address,
-        fullAddress,
+        // fullAddress,
         createCompleted,
         orderError,
         orderCode,
@@ -54,7 +57,7 @@ const Cart = () => {
     const { id, isLogin, loginObject, lastPage, completed, errors, error } =
         useSelector((slice) => slice.auth);
     // user state
-    const { defaultAddress } = useSelector((slice) => slice.user);
+    // const { defaultAddress } = useSelector((slice) => slice.user);
 
     // useState
     const [showCheckout, setShowCheckout] = useState(true);
@@ -73,23 +76,48 @@ const Cart = () => {
     };
 
     // handle city change
-    const handleCity = (item) => {
-        dispatch(fetchDistricts(item.code));
-        dispatch(setAddress({ field: "city", value: item.name }));
-    };
+    // const handleCity = (item) => {
+    //     dispatch(fetchDistricts(item.code));
+    //     dispatch(setAddress({ field: "city", value: item.name }));
+    // };
 
     // handle district change
-    const handleDistrict = (item) => {
-        dispatch(fetchWards(item.code));
-        dispatch(setAddress({ field: "district", value: item.name }));
-    };
+    // const handleDistrict = (item) => {
+    //     dispatch(fetchWards(item.code));
+    //     dispatch(setAddress({ field: "district", value: item.name }));
+    // };
+
     // handle ward change
-    const handleWard = (item) => {
-        dispatch(setAddress({ field: "ward", value: item.name }));
+    // const handleWard = (item) => {
+    //     dispatch(setAddress({ field: "ward", value: item.name }));
+    // };
+
+    // check login and show confirm
+    const handleCheckLogin = () => {
+        setShowCheckout(false);
+        if (isLogin) {
+            // dispatch(fetchUserAddress(id));
+            // dispatch(
+            //     setFullAddress(
+            //         `${address.street} ${address.ward} ${address.district} ${address.city}`
+            //     )
+            // );
+            setShowConfirm(true);
+        } else setShowLogin(true);
     };
 
     // handle processing
     const handleProcess = () => {
+        // check address
+        if (
+            !address.street ||
+            !address.ward ||
+            !address.district ||
+            !address.city
+        ) {
+            toast.error("Please enter address !");
+            return;
+        }
         // check out of stock items
         const isOutOfStock = cart.some(
             (item) => item.out_of_stock || item.quantity > item.stock
@@ -99,16 +127,7 @@ const Cart = () => {
             return;
         }
 
-        setShowCheckout(false);
-        if (isLogin) {
-            dispatch(fetchUserAddress(id));
-            dispatch(
-                setFullAddress(
-                    `${address.street} ${address.ward} ${address.district} ${address.city}`
-                )
-            );
-            setShowConfirm(true);
-        } else setShowLogin(true);
+        handleCheckLogin();
     };
 
     // handle got it button click
@@ -123,16 +142,7 @@ const Cart = () => {
         setShowModal(false);
 
         // continue processing
-        setShowCheckout(false);
-        if (isLogin) {
-            dispatch(fetchUserAddress(id));
-            dispatch(
-                setFullAddress(
-                    `${address.street} ${address.ward} ${address.district} ${address.city}`
-                )
-            );
-            setShowConfirm(true);
-        } else setShowLogin(true);
+        handleCheckLogin();
     };
 
     // handle login onchange
@@ -151,7 +161,7 @@ const Cart = () => {
             createOrder({
                 cart,
                 id,
-                address: fullAddress,
+                address: `${address.street} ${address.ward} ${address.district} ${address.city}`,
                 totalPrice,
                 voucherCode: voucher,
             })
@@ -168,39 +178,43 @@ const Cart = () => {
         cart.forEach((item) => {
             dispatch(fetchProductById(item._id));
         });
-    }, [cart, dispatch]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [cart]);
 
     // fetch default user address
     useEffect(() => {
         if (completed) {
-            dispatch(fetchUserAddress(id));
-            dispatch(
-                setFullAddress(
-                    `${address.street} ${address.ward} ${address.district} ${address.city}`
-                )
-            );
+            // dispatch(fetchUserAddress(id));
+            // dispatch(
+            //     setFullAddress(
+            //         `${address.street} ${address.ward} ${address.district} ${address.city}`
+            //     )
+            // );
             setShowLogin(false);
             setShowConfirm(true);
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [completed]);
 
-    useEffect(() => {
         if (createCompleted) {
             setShowCheckout(false);
             setShowLogin(false);
             setShowConfirm(false);
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [createCompleted]);
+    }, [completed, createCompleted]);
 
     // fetch cities
     useEffect(() => {
-        dispatch(fetchCities());
+        // dispatch(fetchCities());
 
         // clearup
         return () => {
             dispatch(clearAddress());
+            dispatch(clearCartState());
+            dispatch(clearCompletedAuthState());
+            setShowCheckout(true);
+            setShowLogin(false);
+            setShowConfirm(false);
+            setShowModal(false);
         };
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
@@ -223,7 +237,9 @@ const Cart = () => {
                     )}
                     {createCompleted && orderCode && (
                         <div className="p-7 flex flex-col justify-center items-center border border-custom-500">
-                            <h4>Thank you for your shopping</h4>
+                            <h4 className="text-center">
+                                Thank you for your shopping
+                            </h4>
                             <h5 className="flex">
                                 Your order code is:
                                 <p className="text-red-500"> #{orderCode}</p>
@@ -239,7 +255,7 @@ const Cart = () => {
                                     {cart.length > 0 &&
                                         cart.map((item) => (
                                             <div
-                                                className="p-5 flex gap-x-5 border border-b-0 border-custom-500 relative group"
+                                                className="p-5 flex gap-x-5 border border-custom-500 relative group"
                                                 key={item._id}
                                             >
                                                 {item.out_of_stock && (
@@ -344,10 +360,23 @@ const Cart = () => {
 
                                     {/*  apply voucher */}
                                     {cart.length > 0 && (
-                                        <div className="p-5 flex justify-between border border-custom-500">
+                                        <div
+                                            className={`p-5 flex justify-between border border-t-0 border-custom-500 ${
+                                                showConfirm
+                                                    ? "cursor-not-allowed"
+                                                    : ""
+                                            }`}
+                                        >
                                             <input
+                                                disabled={
+                                                    showConfirm ? true : false
+                                                }
                                                 type="text"
-                                                className="pl-2 border border-custom-500 rounded-xl focus:outline-orange-400"
+                                                className={`pl-2 border border-custom-500 rounded-xl focus:outline-orange-400 ${
+                                                    showConfirm
+                                                        ? "cursor-not-allowed"
+                                                        : ""
+                                                }`}
                                                 placeholder="voucher code"
                                                 onChange={(e) =>
                                                     dispatch(
@@ -358,7 +387,14 @@ const Cart = () => {
                                                 }
                                             />
                                             <button
-                                                className="px-4 sm:text-lg sm:px-8 sm:py-4 py-3 text-xs border border-custom-500 rounded-xl"
+                                                disabled={
+                                                    showConfirm ? true : false
+                                                }
+                                                className={`px-4 sm:text-lg sm:px-8 sm:py-4 py-3 text-xs border border-custom-500 rounded-xl ${
+                                                    showConfirm
+                                                        ? "cursor-not-allowed"
+                                                        : ""
+                                                }`}
                                                 onClick={() =>
                                                     dispatch(
                                                         fetchVoucherByCode(
@@ -412,7 +448,7 @@ const Cart = () => {
                                                             CALCULATE SHIPPING
                                                         </h4>
                                                         {/* citis */}
-                                                        <AutocompleteBox
+                                                        {/* <AutocompleteBox
                                                             items={cities}
                                                             setSelected={
                                                                 handleCity
@@ -420,10 +456,25 @@ const Cart = () => {
                                                             selected={
                                                                 address.city
                                                             }
+                                                        /> */}
+                                                        <input
+                                                            onChange={(e) =>
+                                                                dispatch(
+                                                                    setAddress({
+                                                                        field: "city",
+                                                                        value: e
+                                                                            .target
+                                                                            .value,
+                                                                    })
+                                                                )
+                                                            }
+                                                            type="text"
+                                                            className="py-2 pl-3 mt-3 w-full border border-custom-500 rounded-md cursor-default overflow-hidden text-left focus:outline-none"
+                                                            placeholder="Provice / City"
                                                         />
 
                                                         {/* districts */}
-                                                        <AutocompleteBox
+                                                        {/* <AutocompleteBox
                                                             items={districts}
                                                             setSelected={
                                                                 handleDistrict
@@ -431,10 +482,25 @@ const Cart = () => {
                                                             selected={
                                                                 address.district
                                                             }
+                                                        /> */}
+                                                        <input
+                                                            onChange={(e) =>
+                                                                dispatch(
+                                                                    setAddress({
+                                                                        field: "district",
+                                                                        value: e
+                                                                            .target
+                                                                            .value,
+                                                                    })
+                                                                )
+                                                            }
+                                                            type="text"
+                                                            className="py-2 pl-3 mt-3 w-full border border-custom-500 rounded-md cursor-default overflow-hidden text-left focus:outline-none"
+                                                            placeholder="City / District"
                                                         />
 
                                                         {/* wards */}
-                                                        <AutocompleteBox
+                                                        {/* <AutocompleteBox
                                                             items={wards}
                                                             setSelected={
                                                                 handleWard
@@ -442,7 +508,23 @@ const Cart = () => {
                                                             selected={
                                                                 address.ward
                                                             }
+                                                        /> */}
+                                                        <input
+                                                            onChange={(e) =>
+                                                                dispatch(
+                                                                    setAddress({
+                                                                        field: "ward",
+                                                                        value: e
+                                                                            .target
+                                                                            .value,
+                                                                    })
+                                                                )
+                                                            }
+                                                            type="text"
+                                                            className="p-2 mt-3 w-full border border-custom-500 rounded-md cursor-default overflow-hidden text-left focus:outline-none"
+                                                            placeholder="Township / Ward"
                                                         />
+
                                                         {/* street */}
                                                         <input
                                                             onChange={(e) =>
@@ -456,7 +538,7 @@ const Cart = () => {
                                                                 )
                                                             }
                                                             type="text"
-                                                            className="mt-3 w-full p-2 border border-custom-500 rounded-sm"
+                                                            className="mt-3 w-full p-2 border border-custom-500 rounded-md cursor-default overflow-hidden text-left focus:outline-none"
                                                             placeholder="Street address"
                                                         />
                                                     </div>
@@ -500,7 +582,7 @@ const Cart = () => {
                                                 </div>
                                                 <button
                                                     onClick={handleProcess}
-                                                    className="mt-3 w-full py-4 text-white uppercase text-xl font-semibold bg-primary rounded-xl hover:bg-white hover:border hover:border-primary  hover:text-primary"
+                                                    className="mt-3 w-full py-4 text-white uppercase text-md xl:text-xl font-semibold bg-primary rounded-xl hover:bg-white hover:border hover:border-primary  hover:text-primary"
                                                 >
                                                     proceed to checkout
                                                 </button>
@@ -632,7 +714,7 @@ const Cart = () => {
                                         <h3 className="mt-5">
                                             Shipping Address:
                                         </h3>
-                                        {defaultAddress && (
+                                        {/* {defaultAddress && (
                                             <div className="mt-4 flex items-start gap-4">
                                                 <input
                                                     className="mt-1"
@@ -655,9 +737,9 @@ const Cart = () => {
                                                     </p>
                                                 </label>
                                             </div>
-                                        )}
+                                        )} */}
 
-                                        <div className="flex items-start gap-4">
+                                        {/* <div className="flex items-start gap-4">
                                             <input
                                                 className="mt-1"
                                                 type="radio"
@@ -679,6 +761,13 @@ const Cart = () => {
                                                     {` ${address.street} ${address.ward} ${address.district} ${address.city}`}
                                                 </p>
                                             </label>
+                                        </div> */}
+
+                                        <div className="flex items-start gap-4">
+                                            <p className="pl-3">
+                                                Order address:
+                                                {` ${address.street} ${address.ward} ${address.district} ${address.city}`}
+                                            </p>
                                         </div>
                                         <div className="mt-3">
                                             <button

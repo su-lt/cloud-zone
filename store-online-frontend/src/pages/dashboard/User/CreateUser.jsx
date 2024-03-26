@@ -21,6 +21,7 @@ const CreateUser = ({ isOpen, onClose }) => {
 
     // create click button
     const handleClick = () => {
+        console.log("nhấn đấy");
         dispatch(createUser());
     };
 
@@ -129,6 +130,32 @@ const CreateUser = ({ isOpen, onClose }) => {
                                         {errors.email && (
                                             <span className="text-xs text-red-500">
                                                 * {errors.email}
+                                            </span>
+                                        )}
+                                    </div>
+                                </div>
+                                {/* phone */}
+                                <div className="mt-4 flex items-center">
+                                    <label className="w-20 text-sm font-medium text-gray-700">
+                                        Phone
+                                    </label>
+                                    <div className="flex-1">
+                                        <input
+                                            type="text"
+                                            className={`w-full p-2 border rounded-md ${
+                                                errors.phone && "border-red-400"
+                                            }`}
+                                            value={userObject.phone}
+                                            onChange={(e) =>
+                                                handleChange(
+                                                    "phone",
+                                                    e.target.value
+                                                )
+                                            }
+                                        />
+                                        {errors.phone && (
+                                            <span className="text-xs text-red-500">
+                                                * {errors.phone}
                                             </span>
                                         )}
                                     </div>

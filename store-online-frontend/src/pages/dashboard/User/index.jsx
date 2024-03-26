@@ -49,19 +49,19 @@ const Users = () => {
     useEffect(() => {
         if (createCompleted) {
             toast.success("Create new user successfully !");
-            dispatch(fetchUsers());
+            dispatch(fetchUsers({}));
             dispatch(setCreateCompleted());
         }
 
         if (updateCompleted) {
             toast.success("Update user successfully !");
-            dispatch(fetchUsers());
+            dispatch(fetchUsers({}));
             dispatch(setUpdateCompleted());
         }
 
         if (deleteCompleted) {
             toast.success("Delete user successfully !");
-            dispatch(fetchUsers());
+            dispatch(fetchUsers({}));
             dispatch(setDeleteCompleted());
         }
 
@@ -167,8 +167,17 @@ const Users = () => {
                                 </td>
                                 <td className="text-right px-6 whitespace-nowrap">
                                     <button
+                                        disabled={
+                                            user.status === "deleted"
+                                                ? true
+                                                : false
+                                        }
                                         onClick={() => handleUpdate(user)}
-                                        className="py-2 px-3 font-medium text-indigo-600 hover:text-indigo-500 duration-150 hover:bg-gray-50 rounded-lg"
+                                        className={`py-2 px-3 font-medium duration-150 hover:bg-gray-50 rounded-lg ${
+                                            user.status === "deleted"
+                                                ? "text-gray-600 hover:text-gray-500"
+                                                : "text-indigo-600 hover:text-indigo-500"
+                                        }`}
                                     >
                                         Edit
                                     </button>

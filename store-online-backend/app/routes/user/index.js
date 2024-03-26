@@ -13,6 +13,7 @@ const {
     getAddress,
     updateInfoById,
     updatePasswordById,
+    findUser,
 } = require("../../controllers/user.controller");
 const {
     authentication,
@@ -29,6 +30,8 @@ router.put("/profile/:id", asyncHandler(updateInfoById));
 router.patch("/profile/:id", asyncHandler(updatePasswordById));
 // get user by id
 router.get("/profile/:id", asyncHandler(getUserById));
+// find customer
+router.get("/findCustomer/:searchString", asyncHandler(findUser));
 // check admin role
 router.use(asyncHandler(isAdmin));
 // get users

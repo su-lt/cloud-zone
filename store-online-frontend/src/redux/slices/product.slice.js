@@ -132,6 +132,13 @@ export const productSlice = createSlice({
                 error: null,
             };
         },
+        clearProductsState: (state) => {
+            state.products = initialState.products;
+            state.totalProducts = initialState.totalProducts;
+            state.totalPages = initialState.totalPages;
+            state.pending = initialState.pending;
+            state.error = initialState.error;
+        },
     },
     extraReducers: (builder) => {
         // fetch related product by id
@@ -203,6 +210,28 @@ export const productSlice = createSlice({
                     break;
             }
         });
+        // handle fetch products continously
+        builder.addCase(
+            fetchProductsContinuous.fulfilled,
+            (state, { payload }) => {
+                switch (payload.status) {
+                    case "success":
+                        const { products, totalProducts } = payload.metadata;
+                        state.pending = false;
+                        state.error = null;
+                        state.product = null;
+                        state.products = products;
+                        state.totalPages = Math.ceil(
+                            totalProducts / process.env.REACT_APP_PRODUCT_LIMIT
+                        );
+                        break;
+                    default:
+                        state.pending = false;
+                        state.products = [];
+                        break;
+                }
+            }
+        );
         builder.addCase(fetchProducts.pending, (state) => {
             state.pending = true;
         });
@@ -225,7 +254,7 @@ export const productSlice = createSlice({
         // handle update api
         builder.addCase(updateProduct.fulfilled, (state, { payload }) => {
             state.pending = false;
-            if (payload.status)
+            if (payload)
                 switch (payload.status) {
                     case "success":
                         state.updateCompleted = true;
@@ -283,6 +312,7 @@ export const productSlice = createSlice({
 });
 
 // thunk
+// fetch products per page
 export const fetchProducts = createAsyncThunk(
     "product/fetchProducts",
     async ({
@@ -306,6 +336,24 @@ export const fetchProducts = createAsyncThunk(
             defaultConfig,
         });
         const response = await api.get("/product?" + query);
+        return response.data;
+    }
+);
+
+// fetch products continuously
+export const fetchProductsContinuous = createAsyncThunk(
+    "product/fetchProductsContinuous",
+    async ({
+        searchString,
+        page,
+        limit = process.env.REACT_APP_PRODUCT_LIMIT,
+    }) => {
+        const query = buildQueryString({
+            searchString,
+            page,
+            limit,
+        });
+        const response = await api.get("/product/orderProducts?" + query);
         return response.data;
     }
 );
@@ -449,5 +497,6 @@ export const {
     setUpdateCompleted,
     setDeleteCompleted,
     clearState,
+    clearProductsState,
     setError,
 } = productSlice.actions;

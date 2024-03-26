@@ -70,41 +70,66 @@ export const profileSlice = createSlice({
     extraReducers: (builder) => {
         // fetch user by id
         builder.addCase(fetchProfile.fulfilled, (state, { payload }) => {
-            state.user = payload.user;
+            switch (payload.status) {
+                case "success":
+                    const { user } = payload.metadata;
+                    state.user = user;
+                    // Spread
+                    const { fullname, email, phone, address } = user;
+                    state.updateObjInfo["fullname"] = fullname;
+                    state.updateObjInfo["email"] = email;
+                    state.updateObjInfo["phone"] = phone;
+                    state.updateObjInfo["address"] = address;
+                    break;
 
-            // Spread
-            const { fullname, email, phone, address } = payload.user;
-            state.updateObjInfo["fullname"] = fullname;
-            state.updateObjInfo["email"] = email;
-            state.updateObjInfo["phone"] = phone;
-            state.updateObjInfo["address"] = address;
+                default:
+                    break;
+            }
         });
         // update info
         builder.addCase(updateInfo.fulfilled, (state, { payload }) => {
             if (payload) {
-                state.updateInfoCompleted = true;
-                const { fullname, email, phone, address } = payload.user;
-                state.updateObjInfo["fullname"] = fullname;
-                state.updateObjInfo["email"] = email;
-                state.updateObjInfo["phone"] = phone;
-                state.updateObjInfo["address"] = address;
+                switch (payload.status) {
+                    case "success":
+                        state.updateInfoCompleted = true;
+                        const { fullname, email, phone, address } =
+                            payload.metadata.user;
+                        state.updateObjInfo["fullname"] = fullname;
+                        state.updateObjInfo["email"] = email;
+                        state.updateObjInfo["phone"] = phone;
+                        state.updateObjInfo["address"] = address;
+                        break;
+
+                    default:
+                        state.error = payload.message;
+                        break;
+                }
             }
-        });
-        builder.addCase(updateInfo.rejected, (state, { error }) => {
-            state.error = error.message;
         });
         // update pass profile
         builder.addCase(updatePass.fulfilled, (state, { payload }) => {
             if (payload) {
-                state.updatePassCompleted = true;
+                switch (payload.status) {
+                    case "success":
+                        state.updatePassCompleted = true;
+                        break;
+
+                    default:
+                        state.error = payload.message;
+                        break;
+                }
             }
-        });
-        builder.addCase(updatePass.rejected, (state, { error }) => {
-            state.error = error.message;
         });
         // get orders by user id
         builder.addCase(fetchOrdersByUserId.fulfilled, (state, { payload }) => {
-            state.orders = payload.orders;
+            switch (payload.status) {
+                case "success":
+                    state.orders = payload.metadata.orders;
+                    break;
+
+                default:
+                    break;
+            }
         });
     },
 });
@@ -114,7 +139,7 @@ export const fetchProfile = createAsyncThunk(
     "profile/fetchProfile",
     async (id) => {
         const response = await api.get("/user/profile/" + id);
-        return response.data.metadata;
+        return response.data;
     }
 );
 
@@ -133,9 +158,8 @@ export const updateInfo = createAsyncThunk(
                 phone,
                 address,
             });
-            return response.data.metadata;
+            return response.data;
         }
-        return null;
     }
 );
 
@@ -154,7 +178,6 @@ export const updatePass = createAsyncThunk(
             });
             return response.data;
         }
-        return null;
     }
 );
 
@@ -163,7 +186,7 @@ export const fetchOrdersByUserId = createAsyncThunk(
     "profile/fetchOrdersByUserId",
     async (id) => {
         const response = await api.get("/order/profile/" + id);
-        return response.data.metadata;
+        return response.data;
     }
 );
 

@@ -82,7 +82,7 @@ const signUp = async (req, res) => {
 
     // set refreshToken in cookie headers
     res.cookie("refreshToken", tokens.refreshToken, {
-        maxAge: 86400 * 1000, // 3d - milisecond
+        maxAge: 86400 * 3 * 1000, // 3d - milisecond
         httpOnly: true,
     });
 
@@ -133,6 +133,9 @@ const login = async (req, res) => {
     const { email, password } = req.body;
     if (!email || !password) throw new BadRequestError();
 
+    // check email
+    if (!validateEmail(email)) throw new BadRequestError("Invalid email");
+
     /** check exist email
      * get mail with active status
      * populate role
@@ -175,7 +178,7 @@ const login = async (req, res) => {
 
     // set refreshToken in cookie headers
     res.cookie("refreshToken", tokens.refreshToken, {
-        maxAge: 86400 * 1000, // 3d - milisecond
+        maxAge: 86400 * 3 * 1000, // 3d - milisecond
         httpOnly: true,
     });
 
@@ -206,7 +209,7 @@ const logout = async (req, res) => {
 const refresh = async (req, res) => {
     // get refresh token in cookies - check null
     const refreshToken = req.cookies.refreshToken;
-    if (!refreshToken) throw new BadRequestError("token is required");
+    if (!refreshToken) throw new BadRequestError("refreshToken is required");
 
     // get user id in request headers - check null
     const userId = req.headers["x-client-id"];
@@ -221,6 +224,8 @@ const refresh = async (req, res) => {
 
     // check refresh token in refresh token used
     if (keyStore.refreshTokensUsed.includes(refreshToken)) {
+        // console.log("bi xoaaaaa");
+        // console.log(">> refreshTokensUsed:", refreshToken);
         // if exist
         // clear cookies
         res.clearCookie("refreshToken");
@@ -256,8 +261,8 @@ const refresh = async (req, res) => {
     });
 
     // set refreshToken in cookie headers
-    res.cookie("refreshToken", tokens.refreshToken, {
-        maxAge: 86400 * 1000, // 3d - milisecond
+    await res.cookie("refreshToken", tokens.refreshToken, {
+        maxAge: 86400 * 3 * 1000, // 3d - milisecond
         httpOnly: true,
     });
 
@@ -267,11 +272,12 @@ const refresh = async (req, res) => {
         message: "refresh token successful",
         metadata: {
             newAccessToken: tokens.accessToken,
+            rf: tokens.refreshToken,
         },
     });
 };
 
-const checkAuth = async (req, res) => {
+const checkRole = async (req, res) => {
     // get user req.user (check authentication middleware success)
     const user = req.user;
 
@@ -412,7 +418,7 @@ module.exports = {
     login,
     logout,
     refresh,
-    checkAuth,
+    checkRole,
     forgot,
     reset,
 };

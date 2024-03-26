@@ -1,7 +1,5 @@
 // packages
 const mongoose = require("mongoose");
-const ExcelJS = require("exceljs");
-const fs = require("fs/promises");
 // models
 const orderModel = require("../models/order.model");
 const productModel = require("../models/product.model");
@@ -12,16 +10,30 @@ const { NotFoundError, BadRequestError } = require("../helpers/errorHandler");
 const { generateCode } = require("../helpers");
 
 const getOrders = async (req, res) => {
-    // get params
-    let { searchString, page, limit, status, startDate, endDate } = req.query;
-    page = parseInt(page) || 1;
-    limit = parseInt(limit) || 12;
+    /** get limit
+     * if limit undefined, set limit 0
+     */
+    let { limit } = req.query;
+    limit = limit ? +limit : 0;
+
+    // if limit exists, check type
+    if (limit && isNaN(limit)) throw new BadRequestError();
+
+    // get params query
+    let { searchString, page, status, startDate, endDate } = req.query;
+
+    /** check page
+     * if page undefined, page = 1
+     */
+    page = page ? +page : 1;
+
+    // get skip value
     const skip = (page - 1) * limit;
 
     // match object
     const orderMatch = {};
 
-    // check search string
+    // check search string condition
     if (searchString) {
         const codeRegex = new RegExp(searchString, "i");
         orderMatch.$or = [
@@ -31,12 +43,12 @@ const getOrders = async (req, res) => {
         ];
     }
 
-    // check status
+    // check status condition
     if (status) {
         orderMatch.status = status;
     }
 
-    // check date time
+    // check date time condition
     if (startDate || endDate) {
         orderMatch.createdAt = {};
         if (startDate) {
@@ -49,6 +61,9 @@ const getOrders = async (req, res) => {
         }
     }
 
+    /** get orders - sorted by update time - join table to check conditions
+     * orders is limit products with conditions
+     */
     const orders = await orderModel.aggregate([
         {
             $facet: {
@@ -66,8 +81,7 @@ const getOrders = async (req, res) => {
                     {
                         $match: orderMatch,
                     },
-                    { $skip: skip },
-                    { $limit: limit },
+                    ...(limit > 0 ? [{ $skip: skip }, { $limit: limit }] : []),
                     {
                         $project: {
                             code: 1,
@@ -105,8 +119,9 @@ const getOrders = async (req, res) => {
         },
     ]);
 
+    // return orders - total orders
     return res.status(200).json({
-        message: "success",
+        status: "success",
         metadata: {
             orders: orders[0].orders,
             totalOrders: orders[0].totalOrders,
@@ -117,11 +132,15 @@ const getOrders = async (req, res) => {
 const getOrderById = async (req, res) => {
     // get _id
     const id = req.params.id;
+    // check valid
     if (!mongoose.Types.ObjectId.isValid(id)) {
         throw new BadRequestError("Id not valid !");
     }
 
-    // find by _id
+    /** find order by _id
+     * populate user get fullname
+     * populate item.product get name, price, image thumbnail, status
+     */
     const order = await orderModel
         .findById(id)
         .populate({
@@ -132,10 +151,12 @@ const getOrderById = async (req, res) => {
             path: "items.product",
             select: "name price image_thumbnail status", // get fields of product
         });
+    // check error
     if (!order) throw new NotFoundError("order not found");
 
+    // return order
     return res.status(200).json({
-        message: "success",
+        status: "success",
         metadata: {
             order,
         },
@@ -143,10 +164,14 @@ const getOrderById = async (req, res) => {
 };
 
 const createOrder = async (req, res) => {
-    const { user, address, items, totalPrice, voucherCode } = req.body;
+    // get request params
+    const { user, address, items, totalPrice, voucherCode, note } = req.body;
+    // check null
     if (!user && !address && !items && !totalPrice) throw new BadRequestError();
 
-    // check items is array
+    /** check items is array
+     * if items exists, check item to reduce the amount of quantity products
+     */
     if (Array.isArray(items)) {
         for (const item of items) {
             await productModel.findByIdAndUpdate(item.product, {
@@ -155,36 +180,44 @@ const createOrder = async (req, res) => {
         }
     }
 
-    // create order object
+    /** create new order object
+     * auto generate order code
+     */
     const orderObject = {
         code: generateCode(),
         user,
         address,
         items,
         totalPrice,
+        note,
     };
 
     // check discount exists
     if (voucherCode) {
+        // if exist, change status voucher to used
         const voucher = await voucherModel.findOneAndUpdate(
             { code: voucherCode },
             { status: "used" },
             { new: true }
         );
+        // check error
         if (!voucher) throw new CreateDatabaseError();
 
-        // add discount
+        // add discount amount
         orderObject.discount = voucher.discount;
         orderObject.totalPrice =
             orderObject.totalPrice -
             (orderObject.totalPrice * voucher.discount) / 100;
     }
-    // create order
+
+    // create new order
     const order = await orderModel.create(orderObject);
+    // check error
     if (!order) throw new CreateDatabaseError();
 
+    // return created order
     return res.status(200).json({
-        message: "success",
+        status: "success",
         metadata: {
             order,
         },
@@ -194,31 +227,39 @@ const createOrder = async (req, res) => {
 const updateOrderById = async (req, res) => {
     // get_id
     const id = req.params.id;
+    // check valid
     if (!mongoose.Types.ObjectId.isValid(id)) {
         throw new BadRequestError("Id not valid !");
     }
 
+    // get request params
     const { note, status } = req.body;
-    if (!note && !status) throw new BadRequestError();
+    // check status
+    if (!status) throw new BadRequestError();
 
-    // get order by _id
+    /** get order by _id
+     * populate item product get status
+     */
     const order = await orderModel.findById(id).populate({
         path: "items.product",
         select: "status", // get fields of product
     });
-    // update note
-    order.note = note;
 
     // update status
     order.status = status;
+    // check note exist
+    if (note)
+        // update note
+        order.note = note;
 
     // remove inactive products from the order
     if (status === "shipping" || status === "delivered") {
         order.items = order.items.filter(
             (item) => item.product && item.product.status === "active"
         );
+        // calculate total price
         const totalPrice = order.items.reduce((total, item) => {
-            const price = parseInt(item.quantity) * parseInt(item.price);
+            const price = +item.quantity * +item.price;
             return total + price;
         }, 0);
         order.totalPrice = totalPrice;
@@ -246,8 +287,9 @@ const updateOrderById = async (req, res) => {
     const update = await order.save();
     if (!update) throw new CreateDatabaseError();
 
+    // return success
     return res.status(200).json({
-        message: "success",
+        status: "success",
         metadata: {
             order: update,
         },
@@ -258,16 +300,18 @@ const updateOrderById = async (req, res) => {
 const getOrdersByUserId = async (req, res) => {
     // get_id
     const id = req.params.id;
+    // check valid
     if (!mongoose.Types.ObjectId.isValid(id)) {
         throw new BadRequestError("Id not valid !");
     }
 
     // get orders by user_id
     const orders = await orderModel.find({ user: id });
+    // check error
     if (!orders) throw new NotFoundError();
 
     return res.status(200).json({
-        message: "success",
+        status: "success",
         metadata: {
             orders: orders,
         },
@@ -299,8 +343,9 @@ const deleteOrderById = async (req, res) => {
     const result = await order.deleteOne();
     if (result.deletedCount !== 1) throw new CreateDatabaseError();
 
+    // return deleted successfully
     return res.status(200).json({
-        message: "deleted successfully",
+        status: "success",
     });
 };
 
@@ -320,7 +365,7 @@ const totalOrders = async (req, res) => {
         );
 
     return res.status(200).json({
-        message: "success",
+        status: "success",
         metadata: {
             count,
             totalPrices,
@@ -335,7 +380,7 @@ const exportData = async (req, res) => {
     // match object
     const orderMatch = {};
 
-    // check search string
+    // check search string condition
     if (searchString) {
         const codeRegex = new RegExp(searchString, "i");
         orderMatch.$or = [
@@ -345,12 +390,12 @@ const exportData = async (req, res) => {
         ];
     }
 
-    // check status
+    // check status condition
     if (status) {
         orderMatch.status = status;
     }
 
-    // check date time
+    // check date time condition
     if (startDate || endDate) {
         orderMatch.createdAt = {};
         if (startDate) {
@@ -363,6 +408,7 @@ const exportData = async (req, res) => {
         }
     }
 
+    // join table to get results
     const orders = await orderModel.aggregate([
         {
             $facet: {
@@ -402,8 +448,9 @@ const exportData = async (req, res) => {
         },
     ]);
 
+    // return export data
     return res.status(200).json({
-        message: "export success",
+        status: "success",
         metadata: {
             orders: orders[0].orders,
         },

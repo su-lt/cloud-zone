@@ -5,7 +5,7 @@ const {
     login,
     logout,
     refresh,
-    checkAuth,
+    checkRole,
     forgot,
     reset,
 } = require("../../controllers/access.controller");
@@ -29,7 +29,7 @@ router.post("/reset/:id", asyncHandler(reset));
 router.use(asyncHandler(authentication));
 
 // check role
-router.get("/checkAuth", asyncHandler(checkAuth));
+router.get("/checkRole", asyncHandler(checkRole));
 // logout
 router.get("/logout", asyncHandler(logout));
 

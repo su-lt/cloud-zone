@@ -23,5 +23,8 @@ const categorySchema = new Schema(
 categorySchema.pre("find", function () {
     this.where({ isDeleted: false });
 });
+categorySchema.pre("countDocuments", function () {
+    this.where({ isDeleted: false });
+});
 
 module.exports = model("Category", categorySchema);

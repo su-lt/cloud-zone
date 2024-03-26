@@ -65,6 +65,7 @@ app.use((error, req, res, next) => {
     }
 
     const statusCode = error.status || 500;
+    console.log("error.stack:", error.message);
     return res.status(200).json({
         status: "error",
         code: statusCode,

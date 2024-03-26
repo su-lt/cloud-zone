@@ -10,10 +10,14 @@ const {
     CreateDatabaseError,
     BadRequestError,
 } = require("../helpers/errorHandler");
+const categoryModel = require("../models/category.model");
 
 const getAllProducts = async (req, res) => {
     // get limit - check limit null or NaN
-    const { limit } = req.query;
+    let { limit } = req.query;
+    limit = limit ? +limit : 0;
+
+    // if limit exists, check type
     if (!limit || isNaN(limit)) throw new BadRequestError();
 
     // get query params
@@ -30,7 +34,7 @@ const getAllProducts = async (req, res) => {
     /** check page
      * if page undefined, page = 1
      */
-    page = +page || 1;
+    page = page ? +page : 1;
 
     // get skip value
     const skip = (page - 1) * limit;
@@ -39,7 +43,11 @@ const getAllProducts = async (req, res) => {
      * queryProducts is limit products with conditions
      * countProducts is number of all products with conditions
      */
-    const queryProducts = productModel.find().skip(skip).limit(+limit);
+    const queryProducts = productModel
+        .find()
+        .skip(skip)
+        .limit(+limit)
+        .populate("category");
     const countProducts = productModel.find();
 
     // get product with conditions
@@ -101,12 +109,65 @@ const getAllProducts = async (req, res) => {
     }
 
     /** defaultConfig
-     *  the default configuration for active products
+     *  the default configuration for active products and not uncategory
      *  defaultConfig = true -> for all products
      */
     if (!defaultConfig) {
-        queryProducts.where("status").equals("active");
-        countProducts.where("status").equals("active");
+        const uncategory = await categoryModel.findOne({
+            name: "UNCATEGORY",
+        });
+        queryProducts
+            .where({ status: "active" })
+            .where({ category: { $ne: uncategory._id } });
+        countProducts
+            .where({ status: "active" })
+            .where({ category: { $ne: uncategory._id } });
+    }
+
+    // get products
+    const products = await queryProducts.lean().exec();
+
+    // get total number of products
+    const totalProducts = await countProducts.countDocuments().exec();
+
+    // return products and total products
+    return res.status(200).json({
+        status: "success",
+        metadata: {
+            products,
+            totalProducts,
+        },
+    });
+};
+
+const getOrderProducts = async (req, res) => {
+    // get query params
+    let { page, searchString } = req.query;
+
+    /** check page
+     * if page undefined, page = 1
+     */
+    page = page ? +page : 1;
+
+    // get limit - check limit null or NaN
+    let { limit } = req.query;
+    limit = limit ? +limit * page : 0;
+
+    // if limit exists, check type
+    if (!limit || isNaN(limit)) throw new BadRequestError();
+
+    /** get products
+     * queryProducts is limit products with conditions
+     * countProducts is number of all products with conditions
+     */
+    const queryProducts = productModel.find().limit(limit).populate("category");
+    const countProducts = productModel.find();
+
+    // search name condition
+    if (searchString) {
+        const regex = new RegExp(searchString, "i");
+        queryProducts.where({ name: regex });
+        countProducts.where({ name: regex });
     }
 
     // get products
@@ -217,11 +278,15 @@ const createProduct = async (req, res) => {
      */
     if (quantity && isNaN(quantity)) throw new BadRequestError();
 
+    // check images in multer
+    let images = req.files;
+    if (!images) images = [];
+
     /** get images by multer
      * upload to folder /uploads/images
      * get filename to path
      */
-    const images = req.files.map((file) => {
+    images = req.files.map((file) => {
         return {
             path: `${url}:${port}/images/` + file.filename,
             filename: file.filename,
@@ -300,11 +365,15 @@ const updateProduct = async (req, res) => {
      */
     if (quantity && isNaN(quantity)) throw new BadRequestError();
 
+    // check images in multer
+    let images = req.files;
+    if (!images) images = [];
+
     /** get images by multer
      * upload to folder /uploads/images
      * get filename to path
      */
-    const images = req.files.map((file) => {
+    images = req.files.map((file) => {
         return {
             path: `${url}:${port}/images/` + file.filename,
             filename: file.filename,
@@ -431,7 +500,7 @@ const removeImage = async (req, res) => {
         throw new BadRequestError("Id not valid !");
 
     // get filename image - check null
-    const { filename } = req.queryProducts;
+    const { filename } = req.query;
     if (!filename) throw new BadRequestError();
 
     // remove image of product from server
@@ -462,6 +531,7 @@ const removeImage = async (req, res) => {
 
 module.exports = {
     getAllProducts,
+    getOrderProducts,
     getProductById,
     getProductBySlug,
     getRelatedProducts,

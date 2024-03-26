@@ -28,14 +28,17 @@ const Orders = () => {
         deleteCompleted,
         error,
     } = useSelector((slice) => slice.product);
+    const { categories } = useSelector((slice) => slice.category);
     const { searchString } = useSelector((slice) => slice.filter);
     // use custom hook
     const debounceSearch = useDebounce(searchString);
-
+    // useState
     const [page, setPage] = useState(1);
     const [isOpenCreate, setIsOpenCreate] = useState(false);
     const [isOpenUpdate, setIsOpenUpdate] = useState(false);
     const [isOpenDelete, setIsOpenDelete] = useState(false);
+    const [status, setStatus] = useState("");
+    const [category, setCategory] = useState("");
 
     // handle update click
     const handleUpdate = (id) => {
@@ -89,16 +92,16 @@ const Orders = () => {
         dispatch(
             fetchProducts({
                 searchString,
+                searchCategory: category,
                 page,
                 defaultConfig: true,
             })
         );
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [page]);
+    }, [page, category]);
 
     // fetch categories
     useEffect(() => {
-        // dispatch(fetchProducts({ defaultConfig: true }));
         dispatch(fetchCategories({}));
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
@@ -131,12 +134,44 @@ const Orders = () => {
                     Create Product
                 </button>
             </div>
+            {/* filter */}
+            <div className="mt-3 flex flex-col md:flex-row gap-2">
+                {/* status */}
+                <div>
+                    <select
+                        className="p-2 min-w-[120px] border text-custom-1000 rounded-md"
+                        onChange={(e) => setStatus(e.target.value)}
+                        value={status}
+                    >
+                        <option value="">All status</option>
+                        <option value="active">active</option>
+                        <option value="deactive">deactive</option>
+                    </select>
+                </div>
+                {/* categories */}
+                <div>
+                    <select
+                        className="p-2 min-w-[120px] border text-custom-1000 rounded-md"
+                        onChange={(e) => setCategory(e.target.value)}
+                        value={category}
+                    >
+                        <option value="">All categories</option>
+                        {categories.map((category) => (
+                            <option key={category._id} value={category._id}>
+                                {category.name}
+                            </option>
+                        ))}
+                    </select>
+                </div>
+            </div>
+            {/* end filter */}
             <div className="mt-3 shadow-sm border rounded-lg overflow-x-auto">
                 <table className="w-full table-auto text-sm text-left">
                     <thead className="bg-gray-50 text-gray-600 font-medium border-b">
                         <tr>
                             <th className="py-3 px-2">#</th>
                             <th className="py-3 px-6">Name</th>
+                            <th className="py-3 px-6">Category</th>
                             <th className="py-3 px-3">Thumbnail</th>
                             <th className="py-3 px-3">Quantity</th>
                             <th className="py-3 px-2">Price</th>
@@ -153,10 +188,21 @@ const Orders = () => {
                         {products.map((item, index) => (
                             <tr key={item._id}>
                                 <td className="px-2 py-4 whitespace-nowrap">
-                                    {index + 1}
+                                    {(page - 1) *
+                                        process.env.REACT_APP_PRODUCT_LIMIT +
+                                        index +
+                                        1}
                                 </td>
                                 <td className="w-full px-6 py-4 whitespace-nowrap">
                                     {item.name}
+                                </td>
+                                <td
+                                    className={`w-full px-6 py-4 whitespace-nowrap ${
+                                        item.category.name === "UNCATEGORY" &&
+                                        "text-red-400 font-semibold"
+                                    }`}
+                                >
+                                    {item.category.name}
                                 </td>
                                 <td className="px-3 py-4 whitespace-nowrap">
                                     <img

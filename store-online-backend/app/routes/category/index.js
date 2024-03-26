@@ -5,10 +5,10 @@ const asyncHandler = require("../../helpers/asyncHandler");
 const {
     getCategories,
     getCategoryById,
+    getUncategory,
     createCategory,
     updateCategoryById,
     deleteCategoryById,
-    getTotalProductByCategoryId,
 } = require("../../controllers/category.controller");
 const {
     authentication,
@@ -22,6 +22,8 @@ router.get("/", asyncHandler(getCategories));
 router.use(asyncHandler(authentication));
 router.use(asyncHandler(isAdmin));
 
+// get total uncategory products
+router.get("/uncategory", asyncHandler(getUncategory));
 // get category by id
 router.get("/:id", asyncHandler(getCategoryById));
 // create category
@@ -30,7 +32,5 @@ router.post("/", asyncHandler(createCategory));
 router.post("/:id", asyncHandler(updateCategoryById));
 // delete category
 router.delete("/:id", asyncHandler(deleteCategoryById));
-// get dependent products
-router.get("/dependence/:id", asyncHandler(getTotalProductByCategoryId));
 
 module.exports = router;

@@ -6,9 +6,9 @@ import {
     deleteCategory,
 } from "../../../redux/slices/category.slice";
 
-const DeleteCategory = ({ isOpen, onClose }) => {
+const DeleteCategory = ({ isOpen, onClose, dependencies }) => {
     const dispatch = useDispatch();
-    const { deleteObject, dependencies, deleteCompleted, error } = useSelector(
+    const { deleteObject, deleteCompleted, error } = useSelector(
         (slice) => slice.category
     );
 

@@ -4,6 +4,7 @@ import { buildQueryString } from "../../helpers/ultil";
 
 const initialState = {
     categories: [],
+    uncategory: 0,
     createObject: {
         name: "",
     },
@@ -16,7 +17,6 @@ const initialState = {
     errors: {
         name: "",
     },
-    dependencies: 0,
     createCompleted: false,
     updateCompleted: false,
     deleteCompleted: false,
@@ -81,22 +81,43 @@ export const categorySlice = createSlice({
     extraReducers: (builder) => {
         // get all categories
         builder.addCase(fetchCategories.fulfilled, (state, { payload }) => {
-            state.completed = false;
-            state.categories = payload.categories;
-            state.totalPages = Math.ceil(
-                payload.totalCategories / process.env.REACT_APP_PRODUCT_LIMIT
-            );
+            switch (payload.status) {
+                case "success":
+                    const { categories, totalCategories } = payload.metadata;
+                    state.completed = false;
+                    state.categories = categories;
+                    state.totalPages = Math.ceil(
+                        totalCategories / process.env.REACT_APP_PRODUCT_LIMIT
+                    );
+                    break;
+                default:
+                    break;
+            }
+        });
+        // get total uncategory products
+        builder.addCase(fetchUncategories.fulfilled, (state, { payload }) => {
+            switch (payload.status) {
+                case "success":
+                    const { totalProducts } = payload.metadata;
+                    state.uncategory = totalProducts;
+                    break;
+                default:
+                    break;
+            }
         });
         // create a new category
         builder.addCase(createCategory.fulfilled, (state, { payload }) => {
             state.pending = false;
             if (payload) {
-                state.createCompleted = true;
+                switch (payload.status) {
+                    case "success":
+                        state.createCompleted = true;
+                        break;
+                    default:
+                        state.error = payload.message;
+                        break;
+                }
             }
-        });
-        builder.addCase(createCategory.rejected, (state, { error }) => {
-            state.pending = false;
-            state.error = error.message;
         });
         builder.addCase(createCategory.pending, (state, { payload }) => {
             state.pending = true;
@@ -105,48 +126,58 @@ export const categorySlice = createSlice({
         builder.addCase(updateCategory.fulfilled, (state, { payload }) => {
             state.pending = false;
             if (payload) {
-                state.updateCompleted = true;
+                switch (payload.status) {
+                    case "success":
+                        state.updateCompleted = true;
+                        break;
+                    default:
+                        state.error = payload.message;
+                        break;
+                }
             }
-        });
-        builder.addCase(updateCategory.rejected, (state, { error }) => {
-            state.pending = false;
-            state.error = error.message;
         });
         builder.addCase(updateCategory.pending, (state, { payload }) => {
             state.pending = true;
         });
         // delete a category
-        builder.addCase(deleteCategory.fulfilled, (state) => {
+        builder.addCase(deleteCategory.fulfilled, (state, { payload }) => {
             state.pending = false;
-            state.deleteCompleted = true;
-        });
-        builder.addCase(deleteCategory.rejected, (state, { error }) => {
-            state.pending = false;
-            state.error = error.message;
+            switch (payload.status) {
+                case "success":
+                    state.deleteCompleted = true;
+                    break;
+                default:
+                    state.error = payload.message;
+                    break;
+            }
         });
         builder.addCase(deleteCategory.pending, (state, { payload }) => {
             state.pending = true;
         });
-        // count all products by category
-        builder.addCase(
-            totalProductByCategoryId.fulfilled,
-            (state, { payload }) => {
-                state.dependencies = payload.totalProduct;
-            }
-        );
     },
 });
 
 // get categories
 export const fetchCategories = createAsyncThunk(
     "category/fetchCategories",
-    async ({ searchString, page }) => {
+    async ({ searchString, page, limit, loadAll }) => {
         const query = buildQueryString({
             searchString,
             page,
+            limit,
+            loadAll,
         });
         const response = await api.get("/category?" + query);
-        return response.data.metadata;
+        return response.data;
+    }
+);
+
+// get uncategories
+export const fetchUncategories = createAsyncThunk(
+    "category/fetchUncategories",
+    async () => {
+        const response = await api.get("/category/uncategory");
+        return response.data;
     }
 );
 
@@ -159,9 +190,8 @@ export const createCategory = createAsyncThunk(
 
         if (state.isValid) {
             const response = await api.post(`/category/`, { name });
-            return response.data.metadata;
+            return response.data;
         }
-        return null;
     }
 );
 
@@ -174,7 +204,7 @@ export const updateCategory = createAsyncThunk(
 
         if (state.isValid) {
             const response = await api.post(`/category/${id}`, { name });
-            return response.data.metadata;
+            return response.data;
         }
         return null;
     }
@@ -185,16 +215,7 @@ export const deleteCategory = createAsyncThunk(
     "category/deleteCategory",
     async (id) => {
         const response = await api.delete(`/category/${id}`);
-        return response.data.metadata;
-    }
-);
-
-// soft delete category by id
-export const totalProductByCategoryId = createAsyncThunk(
-    "category/totalProductByCategoryId",
-    async (id) => {
-        const response = await api.get(`/category/dependence/${id}`);
-        return response.data.metadata;
+        return response.data;
     }
 );
 

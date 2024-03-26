@@ -7,15 +7,18 @@ import {
     fetchOrderById,
     fetchOrders,
     setDeleteObject,
+    setCreateOrderCompleted,
     setUpdateCompleted,
     setDeleteCompleted,
+    setExportCompleted,
     setError,
     exportOrders,
-    setExportCompleted,
     clearState,
 } from "../../../redux/slices/order.slice";
 import { useDebounce } from "../../../helpers/ultil";
 import Datepicker from "react-tailwindcss-datepicker";
+import { TbFileExport } from "react-icons/tb";
+import CreateOrder from "./CreateOrder";
 
 const Orders = () => {
     const dispatch = useDispatch();
@@ -23,6 +26,7 @@ const Orders = () => {
     const {
         orders,
         totalPages,
+        createOrderCompleted,
         updateCompleted,
         deleteCompleted,
         exportCompleted,
@@ -33,6 +37,7 @@ const Orders = () => {
     const debounceSearch = useDebounce(searchString);
 
     const [page, setPage] = useState(1);
+    const [isOpenCreate, setIsOpenCreate] = useState(false);
     const [isOpenUpdate, setIsOpenUpdate] = useState(false);
     const [isOpenDelete, setIsOpenDelete] = useState(false);
 
@@ -56,8 +61,22 @@ const Orders = () => {
     };
 
     useEffect(() => {
+        if (createOrderCompleted) {
+            toast.success("Create order successfully !");
+            dispatch(
+                fetchOrders({
+                    searchString,
+                    status,
+                    startDate: date.startDate,
+                    endDate: date.endDate,
+                    page,
+                })
+            );
+            dispatch(setCreateOrderCompleted());
+        }
+
         if (updateCompleted) {
-            toast.success("Update user successfully !");
+            toast.success("Update order successfully !");
             dispatch(
                 fetchOrders({
                     searchString,
@@ -71,7 +90,7 @@ const Orders = () => {
         }
 
         if (deleteCompleted) {
-            toast.success("Delete user successfully !");
+            toast.success("Delete order successfully !");
             dispatch(
                 fetchOrders({
                     searchString,
@@ -93,7 +112,13 @@ const Orders = () => {
             dispatch(setError());
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [updateCompleted, deleteCompleted, exportCompleted, error]);
+    }, [
+        createOrderCompleted,
+        updateCompleted,
+        deleteCompleted,
+        exportCompleted,
+        error,
+    ]);
 
     // search orders
     useEffect(() => {
@@ -131,10 +156,17 @@ const Orders = () => {
     return (
         <div className="px-4 mt-3">
             {/* create modal */}
+            <CreateOrder
+                isOpen={isOpenCreate}
+                onClose={() => setIsOpenCreate(false)}
+            />
+            {/* update modal */}
+
             <UpdateOder
                 isOpen={isOpenUpdate}
                 onClose={() => setIsOpenUpdate(false)}
             />
+            {/* delete modal */}
             <DeleteOrder
                 isOpen={isOpenDelete}
                 onClose={() => setIsOpenDelete(false)}
@@ -143,6 +175,12 @@ const Orders = () => {
                 <div className="text-lg md:text-2xl text-gray-700 font-medium">
                     Orders management
                 </div>
+                <button
+                    onClick={() => setIsOpenCreate(true)}
+                    className="px-4 py-2 text-sm text-white duration-150 font-medium bg-indigo-600 rounded-lg hover:bg-indigo-500 active:bg-indigo-700 md:text-md"
+                >
+                    Create Order
+                </button>
             </div>
             {/* filter */}
             <div className="mt-3 flex flex-col md:flex-row gap-2">
@@ -172,7 +210,8 @@ const Orders = () => {
                 </div>
                 <div className="flex-1 flex md:justify-end items-center">
                     <button
-                        className="px-4 py-2 text-sm text-white select-none duration-150 font-medium bg-indigo-600 rounded-lg hover:bg-indigo-500 active:bg-indigo-700 md:text-md"
+                        className="px-4 py-2 flex gap-2 items-center text-sm text-white select-none duration-150 
+                                font-medium bg-gray-500 rounded-lg hover:bg-gray-400 active:bg-gray-700 md:text-md"
                         onClick={() =>
                             dispatch(
                                 exportOrders({
@@ -185,7 +224,7 @@ const Orders = () => {
                             )
                         }
                     >
-                        Export orders
+                        Export orders <TbFileExport />
                     </button>
                 </div>
             </div>

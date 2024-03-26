@@ -8,9 +8,9 @@ const initialState = {
     voucher: "",
     discount: 0,
     address: {
-        city: "Province / City",
-        district: "City / District",
-        ward: "Township / Ward",
+        city: "",
+        district: "",
+        ward: "",
         street: "",
     },
     fullAddress: "",
@@ -127,31 +127,54 @@ export const cartSlice = createSlice({
             state.address = initialState.address;
         },
         clearCartState: (state) => {
-            return initialState;
+            state.createCompleted = initialState.createCompleted;
+            state.orderCode = initialState.orderCode;
         },
     },
     extraReducers: (builder) => {
         // fetch product by id
         builder.addCase(fetchProductById.fulfilled, (state, { payload }) => {
-            const foundIndex = state.cart.findIndex(
-                (item) => item._id === payload._id
-            );
-            // if product found, increase quantity
-            if (foundIndex !== -1) {
-                state.cart[foundIndex].name = payload.name;
-                state.cart[foundIndex].stock = payload.quantity;
-                state.cart[foundIndex].image_thumbnail =
-                    payload.image_thumbnail;
-                state.cart[foundIndex].out_of_stock =
-                    payload.quantity > 0 ? false : true;
+            switch (payload.status) {
+                case "success":
+                    const { product } = payload.metadata;
+                    const foundIndex = state.cart.findIndex(
+                        (item) => item._id === product._id
+                    );
+                    // if product found, increase quantity
+                    if (foundIndex !== -1) {
+                        state.cart[foundIndex].name = product.name;
+                        state.cart[foundIndex].stock = product.quantity;
+                        state.cart[foundIndex].image_thumbnail =
+                            product.image_thumbnail;
+                        state.cart[foundIndex].out_of_stock =
+                            product.quantity > 0 ? false : true;
+                    }
+                    break;
+
+                default:
+                    break;
             }
         });
         // fetch voucher by code
         builder.addCase(fetchVoucherByCode.fulfilled, (state, { payload }) => {
-            state.discount = payload.voucher.discount;
+            switch (payload.status) {
+                case "success":
+                    const { voucher } = payload.metadata;
+                    state.discount = voucher.discount;
+                    break;
+
+                case "none-voucher":
+                    state.discount = 0;
+                    break;
+
+                default:
+                    state.discount = -1;
+                    break;
+            }
         });
         // fetch cities
         builder.addCase(fetchCities.fulfilled, (state, { payload }) => {
+            console.log(":::", payload);
             state.cities = payload;
         });
         // fetch districts
@@ -164,18 +187,23 @@ export const cartSlice = createSlice({
         });
         // create order
         builder.addCase(createOrder.fulfilled, (state, { payload }) => {
-            const { order } = payload;
-            state.orderCode = order.code;
-            state.createCompleted = true;
-            // clear state
-            state.cart = initialState.cart;
-            state.totalPrice = initialState.totalPrice;
-            state.totalQuantity = initialState.totalQuantity;
-            // clear cart in local storage
-            localStorage.removeItem("cart");
-        });
-        builder.addCase(createOrder.rejected, (state, { error }) => {
-            state.orderCode = error.message;
+            switch (payload.status) {
+                case "success":
+                    const { order } = payload.metadata;
+                    state.orderCode = order.code;
+                    state.createCompleted = true;
+                    // clear cartstate
+                    state.cart = initialState.cart;
+                    state.totalPrice = initialState.totalPrice;
+                    state.totalQuantity = initialState.totalQuantity;
+                    // clear cart in local storage
+                    localStorage.removeItem("cart");
+                    break;
+
+                default:
+                    state.orderCode = payload.message;
+                    break;
+            }
         });
     },
 });
@@ -185,22 +213,27 @@ export const fetchProductById = createAsyncThunk(
     "cart/fetchProductById",
     async (id) => {
         const response = await api.get(`/product/${id}`);
-        return response.data.metadata.product;
+        return response.data;
     }
 );
 
 // get voucher by code
 export const fetchVoucherByCode = createAsyncThunk(
-    "cart/fetchVoucher",
+    "cart/fetchVoucherByCode",
     async (code) => {
-        const response = await api.get(`/voucher/${code}`);
-        return response.data.metadata;
+        if (code) {
+            const response = await api.get(`/voucher/${code}`);
+            return response.data;
+        }
+        return { status: "none-voucher" };
     }
 );
 
 // get cities
 export const fetchCities = createAsyncThunk("cart/fetchCities", async () => {
-    const response = await provinceApi.get();
+    const response = await provinceApi.get(
+        "https://vn-public-apis.fpo.vn/provinces/getAll?limit=-1"
+    );
     return response.data;
 });
 
@@ -222,13 +255,14 @@ export const fetchWards = createAsyncThunk("cart/fetchWards", async (code) => {
 // create order
 export const createOrder = createAsyncThunk(
     "cart/createOrder",
-    async ({ cart, id, address, totalPrice, voucherCode }) => {
+    async ({ cart, id, address, totalPrice, voucherCode, note }) => {
         // create items object
         const items = cart.map((item) => ({
             product: item._id,
             quantity: item.quantity,
             price: item.price,
         }));
+
         // post api create order
         const response = await api.post("/order/", {
             user: id,
@@ -236,8 +270,9 @@ export const createOrder = createAsyncThunk(
             items,
             totalPrice,
             voucherCode,
+            note,
         });
-        return response.data.metadata;
+        return response.data;
     }
 );
 

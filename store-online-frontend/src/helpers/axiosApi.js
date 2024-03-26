@@ -1,7 +1,8 @@
 import axios from "axios";
 
 export const provinceApi = axios.create({
-    baseURL: process.env.REACT_APP_PROVINCE_API_URL,
+    // baseURL: process.env.REACT_APP_PROVINCE_API_URL,
+    maxBodyLength: Infinity,
 });
 
 const api = axios.create({
@@ -44,6 +45,7 @@ api.interceptors.response.use(
             return response;
         }
         const { code, message } = response.data;
+        // console.log(">>>>>>>>> tra ve:", code, message, isRefreshing);
         if (code && code === 401) {
             if (message && message === "TokenExpiredError") {
                 if (!isRefreshing) {

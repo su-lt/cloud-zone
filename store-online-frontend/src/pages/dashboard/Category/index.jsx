@@ -8,6 +8,7 @@ import {
     setDeleteCompleted,
     setUpdateCompleted,
     setError,
+    fetchUncategories,
 } from "../../../redux/slices/category.slice";
 import { toast } from "react-toastify";
 
@@ -15,7 +16,6 @@ import {
     fetchCategories,
     setDeleteObject,
     setUpdateObject,
-    totalProductByCategoryId,
 } from "../../../redux/slices/category.slice";
 import { useDebounce } from "../../../helpers/ultil";
 
@@ -23,6 +23,7 @@ const Category = () => {
     const dispatch = useDispatch();
     const {
         categories,
+        uncategory,
         totalPages,
         createCompleted,
         updateCompleted,
@@ -38,6 +39,7 @@ const Category = () => {
     const [isOpenCreate, setIsOpenCreate] = useState(false);
     const [isOpenUpdate, setIsOpenUpdate] = useState(false);
     const [isOpenDelete, setIsOpenDelete] = useState(false);
+    const [dependencies, setDependencies] = useState(0);
 
     // handle update click
     const handleUpdate = (category) => {
@@ -48,7 +50,7 @@ const Category = () => {
     // handle delete click
     const handledDelete = (category) => {
         dispatch(setDeleteObject(category));
-        dispatch(totalProductByCategoryId(category._id));
+        setDependencies(category.totalProduct);
         setIsOpenDelete(true);
     };
 
@@ -56,21 +58,24 @@ const Category = () => {
         // create completed
         if (createCompleted) {
             toast.success("Create new category successfully!");
-            dispatch(fetchCategories());
+            dispatch(fetchCategories({}));
+            dispatch(fetchUncategories());
             dispatch(setCreateCompleted());
         }
 
         // update completed
         if (updateCompleted) {
             toast.success("Update category successfully !");
-            dispatch(fetchCategories());
+            dispatch(fetchCategories({}));
+            dispatch(fetchUncategories());
             dispatch(setUpdateCompleted());
         }
 
         // delete completed
         if (deleteCompleted) {
             toast.success("Delete category successfully !");
-            dispatch(fetchCategories());
+            dispatch(fetchCategories({}));
+            dispatch(fetchUncategories());
             dispatch(setDeleteCompleted());
         }
 
@@ -94,6 +99,12 @@ const Category = () => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [page]);
 
+    // fetch total uncategory products
+    useEffect(() => {
+        dispatch(fetchUncategories());
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
     return (
         <div className="px-4 mt-3">
             {/* create modal */}
@@ -108,6 +119,7 @@ const Category = () => {
             <DeleteCategory
                 isOpen={isOpenDelete}
                 onClose={() => setIsOpenDelete(false)}
+                dependencies={dependencies}
             />
             <div className="mt-3 items-start justify-between flex flex-col gap-3 md:flex-row">
                 <div className="text-lg md:text-2xl text-gray-700 font-medium">
@@ -126,28 +138,47 @@ const Category = () => {
                         <tr>
                             <th className="py-3 px-2">#</th>
                             <th className="py-3 px-3">Name</th>
+                            <th className="py-3 px-3 text-right">
+                                Product quantity
+                            </th>
                             <th className="py-3 px-6"></th>
                         </tr>
                     </thead>
                     <tbody className="text-gray-600 divide-y">
+                        <tr>
+                            <td className="px-3 py-4 whitespace-nowrap">1</td>
+                            <td className="px-3 py-4 whitespace-nowrap">
+                                UNCATEGORY
+                            </td>
+                            <td className="px-3 py-4 whitespace-nowrap text-right">
+                                {uncategory}
+                            </td>
+                        </tr>
                         {categories.map((item, index) => (
                             <tr key={item._id}>
                                 <td className="px-3 py-4 whitespace-nowrap">
-                                    {index + 1}
+                                    {(page - 1) *
+                                        process.env.REACT_APP_PRODUCT_LIMIT +
+                                        index +
+                                        2}
                                 </td>
                                 <td className="px-3 py-4 whitespace-nowrap">
                                     {item.name}
                                 </td>
+                                <td className="px-3 py-4 whitespace-nowrap text-right">
+                                    {item.totalProduct}
+                                </td>
+
                                 <td className="text-right px-6 whitespace-nowrap">
                                     <button
                                         onClick={() => handleUpdate(item)}
-                                        className="py-2 px-3 font-medium text-indigo-600 hover:text-indigo-500 duration-150 hover:bg-gray-50 rounded-lg"
+                                        className="py-2 px-3 font-medium duration-150 hover:bg-gray-50 rounded-lg text-indigo-600 hover:text-indigo-500"
                                     >
                                         Edit
                                     </button>
                                     <button
                                         onClick={() => handledDelete(item)}
-                                        className="py-2 leading-none px-3 font-medium text-red-600 hover:text-red-500 duration-150 hover:bg-gray-50 rounded-lg"
+                                        className="py-2 leading-none px-3 font-medium duration-150 hover:bg-gray-50 rounded-lg text-red-600 hover:text-red-500"
                                     >
                                         Delete
                                     </button>

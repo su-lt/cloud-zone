@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const roleModel = require("../models/role.model");
+const categoryModel = require("../models/category.model");
 const {
     db: { host, port, name },
 } = require("../configs");
@@ -47,10 +48,14 @@ const initial = async () => {
         // check roles 'ADMIN' and 'MEMBER' exist
         const adminRole = await roleModel.findOne({ name: "ADMIN" });
         const memberRole = await roleModel.findOne({ name: "MEMBER" });
-
         // if not exist, create
         if (!adminRole) await roleModel.create({ name: "ADMIN" });
         if (!memberRole) await roleModel.create({ name: "MEMBER" });
+
+        // check categories "UNCATEGORY"
+        const unCategory = await categoryModel.findOne({ name: "UNCATEGORY" });
+        // if not exist, create
+        if (!unCategory) await categoryModel.create({ name: "UNCATEGORY" });
     } catch (error) {
         console.error("Error initializing roles:", error);
     }

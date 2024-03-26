@@ -8,8 +8,14 @@ const initialState = {
     totalCustomers: 0,
     defaultAddress: "",
     user: null,
-    userObject: { fullname: "", password: "", email: "", address: "" },
-    errors: { fullname: "", password: "", email: "", address: "" },
+    userObject: {
+        fullname: "",
+        password: "",
+        email: "",
+        phone: "",
+        address: "",
+    },
+    errors: { fullname: "", password: "", email: "", phone: "", address: "" },
     updateObject: { id: "", role: "", status: "" },
     deleteObject: { id: "", email: "" },
     totalPages: 0,
@@ -76,14 +82,18 @@ export const userSlice = createSlice({
         // fetch users
         builder.addCase(fetchUsers.fulfilled, (state, { payload }) => {
             state.pending = false;
-            state.users = payload.users;
-            state.totalPages = Math.ceil(
-                payload.totalUsers / process.env.REACT_APP_PRODUCT_LIMIT
-            );
-        });
-        builder.addCase(fetchUsers.rejected, (state, { error }) => {
-            state.pending = false;
-            // state.error = error.message;
+            switch (payload.status) {
+                case "success":
+                    const { users, totalUsers } = payload.metadata;
+                    state.users = users;
+                    state.totalPages = Math.ceil(
+                        totalUsers / process.env.REACT_APP_PRODUCT_LIMIT
+                    );
+                    break;
+
+                default:
+                    break;
+            }
         });
         builder.addCase(fetchUsers.pending, (state) => {
             state.pending = true;
@@ -92,40 +102,109 @@ export const userSlice = createSlice({
         builder.addCase(createUser.fulfilled, (state, { payload }) => {
             state.pending = false;
             if (payload) {
-                state.createCompleted = true;
+                switch (payload.status) {
+                    case "success":
+                        state.createCompleted = true;
+                        break;
+
+                    default:
+                        state.error = payload.message;
+                        break;
+                }
             }
-        });
-        builder.addCase(createUser.rejected, (state, { error }) => {
-            state.pending = false;
-            state.error = error.message;
         });
         builder.addCase(createUser.pending, (state) => {
             state.pending = true;
         });
+        // create user by admin
+        builder.addCase(createUserByAdmin.fulfilled, (state, { payload }) => {
+            state.pending = false;
+            if (payload) {
+                switch (payload.status) {
+                    case "success":
+                        const { user } = payload.metadata;
+                        state.createCompleted = true;
+                        state.user = user;
+                        state.userObject = initialState.userObject;
+                        break;
+
+                    default:
+                        state.error = payload.message;
+                        break;
+                }
+            }
+        });
+        builder.addCase(createUserByAdmin.pending, (state) => {
+            state.pending = true;
+        });
         // update user
-        builder.addCase(updateUser.fulfilled, (state) => {
-            state.updateCompleted = true;
+        builder.addCase(updateUser.fulfilled, (state, { payload }) => {
+            switch (payload.status) {
+                case "success":
+                    state.updateCompleted = true;
+                    break;
+
+                default:
+                    state.error = payload.message;
+                    break;
+            }
         });
-        builder.addCase(updateUser.rejected, (state, { error }) => {
-            state.error = error.message;
-        });
-        builder.addCase(deleteUser.fulfilled, (state) => {
-            state.deleteCompleted = true;
-        });
-        builder.addCase(deleteUser.rejected, (state, { error }) => {
-            state.error = error.message;
+        // delete user
+        builder.addCase(deleteUser.fulfilled, (state, { payload }) => {
+            switch (payload.status) {
+                case "success":
+                    state.deleteCompleted = true;
+                    break;
+
+                default:
+                    state.error = payload.message;
+                    break;
+            }
         });
         // fetch roles
         builder.addCase(fetchRoles.fulfilled, (state, { payload }) => {
-            state.roles = payload.roles;
+            switch (payload.status) {
+                case "success":
+                    state.roles = payload.metadata.roles;
+                    break;
+
+                default:
+                    break;
+            }
         });
         // get total customers
         builder.addCase(fetchTotalCustomers.fulfilled, (state, { payload }) => {
-            state.totalCustomers = payload.count;
+            switch (payload.status) {
+                case "success":
+                    state.totalCustomers = payload.metadata.count;
+                    break;
+
+                default:
+                    break;
+            }
         });
         // fetch user address
         builder.addCase(fetchUserAddress.fulfilled, (state, { payload }) => {
-            state.defaultAddress = payload.address;
+            switch (payload.status) {
+                case "success":
+                    state.defaultAddress = payload.metadata.address;
+                    break;
+
+                default:
+                    break;
+            }
+        });
+        // find customers
+        builder.addCase(findCustomer.fulfilled, (state, { payload }) => {
+            switch (payload.status) {
+                case "success":
+                    const { users } = payload.metadata;
+                    state.users = users;
+                    break;
+
+                default:
+                    break;
+            }
         });
     },
 });
@@ -133,23 +212,28 @@ export const userSlice = createSlice({
 // get users
 export const fetchUsers = createAsyncThunk(
     "users/fetchUsers",
-    async ({ searchString, page }) => {
+    async ({
+        searchString,
+        page,
+        limit = process.env.REACT_APP_PRODUCT_LIMIT,
+    }) => {
         const query = buildQueryString({
             searchString,
             page,
+            limit,
         });
         const response = await api.get("/user?" + query);
-        return response.data.metadata;
+        return response.data;
     }
 );
 
 // get roles
 export const fetchRoles = createAsyncThunk("users/fetchRoles", async () => {
     const response = await api.get("/user/roles");
-    return response.data.metadata;
+    return response.data;
 });
 
-// create user
+// user create new customer
 export const createUser = createAsyncThunk(
     "users/createUser",
     async (_, { getState, dispatch }) => {
@@ -160,12 +244,28 @@ export const createUser = createAsyncThunk(
             const response = await api.post("/user/", {
                 fullname: state.userObject.fullname,
                 password: state.userObject.password,
+                phone: state.userObject.phone,
                 email: state.userObject.email,
                 address: state.userObject.address,
             });
-            return response.data.metadata;
+            return response.data;
         }
-        return null;
+    }
+);
+
+// admin create new customer
+export const createUserByAdmin = createAsyncThunk(
+    "users/createUserByAdmin",
+    async ({ fullname, email, phone, address }) => {
+        const response = await api.post("/user/", {
+            fullname,
+            email,
+            phone,
+            address,
+            password: Math.floor(100000 + Math.random() * 900000).toString(),
+            status: "inactive",
+        });
+        return response.data;
     }
 );
 
@@ -179,14 +279,14 @@ export const updateUser = createAsyncThunk(
             role: user.updateObject.role,
             status: user.updateObject.status,
         });
-        return response.data.metadata;
+        return response.data;
     }
 );
 
 // delete user
 export const deleteUser = createAsyncThunk("users/deleteUser", async (id) => {
     const response = await api.delete("/user/" + id);
-    return response.data.metadata;
+    return response.data;
 });
 
 // fetch total customers
@@ -194,7 +294,7 @@ export const fetchTotalCustomers = createAsyncThunk(
     "users/fetchTotalCustomers",
     async () => {
         const response = await api.get("/user/totalCustomer");
-        return response.data.metadata;
+        return response.data;
     }
 );
 
@@ -203,7 +303,17 @@ export const fetchUserAddress = createAsyncThunk(
     "users/fetchUserAddress",
     async (id) => {
         const response = await api.get("/user/address/" + id);
-        return response.data.metadata;
+        return response.data;
+    }
+);
+
+// find customer by name/phone
+export const findCustomer = createAsyncThunk(
+    "users/findCustomer",
+    async (searchCustomer) => {
+        const search = searchCustomer ? searchCustomer : "notsearch";
+        const response = await api.get("/user/findCustomer/" + search);
+        return response.data;
     }
 );
 

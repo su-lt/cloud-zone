@@ -123,6 +123,9 @@ export const authSlice = createSlice({
             state.error = initialState.error;
             state.isValid = initialState.isValid;
         },
+        clearCompletedAuthState: (state) => {
+            state.completed = initialState.completed;
+        },
         clearAuthState: (state) => {
             return {
                 ...initialState,
@@ -225,7 +228,7 @@ export const authSlice = createSlice({
             }
         });
         // check authentication
-        builder.addCase(checkAuth.fulfilled, (state, { payload }) => {
+        builder.addCase(checkRole.fulfilled, (state, { payload }) => {
             if (payload.status === "success") {
                 const { id, username, isAdmin } = payload.metadata;
                 state.id = id;
@@ -305,8 +308,8 @@ export const resetPassword = createAsyncThunk(
 );
 
 // check authentication
-export const checkAuth = createAsyncThunk("auth/checkAuth", async () => {
-    const response = await api.get("/access/checkAuth");
+export const checkRole = createAsyncThunk("auth/checkRole", async () => {
+    const response = await api.get("/access/checkRole");
     return response.data;
 });
 
@@ -319,4 +322,5 @@ export const {
     toggleDarkMode,
     clearObjectState,
     clearAuthState,
+    clearCompletedAuthState,
 } = authSlice.actions;

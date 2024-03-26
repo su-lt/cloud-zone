@@ -80,33 +80,56 @@ export const voucherSlice = createSlice({
     extraReducers: (builder) => {
         // get all vouchers
         builder.addCase(fetchVouchers.fulfilled, (state, { payload }) => {
-            state.vouchers = payload.vouchers;
-            state.totalPages = Math.ceil(
-                payload.totalVoucher / process.env.REACT_APP_PRODUCT_LIMIT
-            );
+            switch (payload.status) {
+                case "success":
+                    const { vouchers, totalVoucher } = payload.metadata;
+                    state.vouchers = vouchers;
+                    state.totalPages = Math.ceil(
+                        totalVoucher / process.env.REACT_APP_PRODUCT_LIMIT
+                    );
+                    break;
+
+                default:
+                    break;
+            }
         });
         // create voucher api
         builder.addCase(createVoucher.fulfilled, (state, { payload }) => {
             if (payload) {
-                state.createCompleted = true;
+                switch (payload.status) {
+                    case "success":
+                        state.createCompleted = true;
+                        break;
+
+                    default:
+                        state.error = payload.message;
+                        break;
+                }
             }
-        });
-        builder.addCase(createVoucher.rejected, (state, { error }) => {
-            state.error = error.message;
         });
         // update voucher api
         builder.addCase(updateVoucher.fulfilled, (state, { payload }) => {
-            state.updateCompleted = true;
-        });
-        builder.addCase(updateVoucher.rejected, (state, { error }) => {
-            state.error = error.message;
+            switch (payload.status) {
+                case "success":
+                    state.updateCompleted = true;
+                    break;
+
+                default:
+                    state.error = payload.message;
+                    break;
+            }
         });
         // delete voucher api
         builder.addCase(deleteVoucher.fulfilled, (state, { payload }) => {
-            state.deleteCompleted = true;
-        });
-        builder.addCase(deleteVoucher.rejected, (state, { error }) => {
-            state.error = error.message;
+            switch (payload.status) {
+                case "success":
+                    state.deleteCompleted = true;
+                    break;
+
+                default:
+                    state.error = payload.message;
+                    break;
+            }
         });
     },
 });
@@ -114,13 +137,18 @@ export const voucherSlice = createSlice({
 // get vouchers
 export const fetchVouchers = createAsyncThunk(
     "voucher/fetchVouchers",
-    async ({ searchString, page }) => {
+    async ({
+        searchString,
+        page,
+        limit = process.env.REACT_APP_PRODUCT_LIMIT,
+    }) => {
         const query = buildQueryString({
             searchString,
             page,
+            limit,
         });
         const response = await api.get("/voucher?" + query);
-        return response.data.metadata;
+        return response.data;
     }
 );
 
@@ -133,9 +161,8 @@ export const createVoucher = createAsyncThunk(
 
         if (state.isValid) {
             const response = await api.post(`/voucher/`, { discount });
-            return response.data.metadata;
+            return response.data;
         }
-        return null;
     }
 );
 
@@ -144,7 +171,7 @@ export const updateVoucher = createAsyncThunk(
     "voucher/updateVoucher",
     async ({ id, status }) => {
         const response = await api.post(`/voucher/${id}`, { status });
-        return response.data.metadata;
+        return response.data;
     }
 );
 
@@ -153,7 +180,7 @@ export const deleteVoucher = createAsyncThunk(
     "voucher/deleteVoucher",
     async (id) => {
         const response = await api.delete(`/voucher/${id}`);
-        return response.data.metadata;
+        return response.data;
     }
 );
 

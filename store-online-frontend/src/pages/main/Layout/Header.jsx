@@ -35,7 +35,7 @@ const Header = () => {
 
     // close menu toggle if menu toggle open and resize
     const handlerCloseToggleMenu = () => {
-        if (window.innerWidth >= 768 && open) setOpen(() => false);
+        if (window.innerWidth >= 768 && open === true) setOpen(false);
     };
 
     // handle fix header
@@ -47,12 +47,18 @@ const Header = () => {
         setIsFixed(scrollPosition >= offset);
     };
 
+    // handle navigation change
+    const navClick = (link) => {
+        navigate(link);
+        setOpen(false);
+    };
+
     //handle logout
     const handleLogout = () => {
         dispatch(logout());
         dispatch(clearAuthState());
         dispatch(clearCartState());
-        navigate("/");
+        navClick("/");
     };
 
     useEffect(() => {
@@ -103,7 +109,7 @@ const Header = () => {
                                                     active && "bg-gray-100"
                                                 } px-4 text-gray-700 cursor-pointer rounded-sm focus:bg-gray-200`}
                                                 onClick={() =>
-                                                    navigate("/profile")
+                                                    navClick("/profile")
                                                 }
                                             >
                                                 Profile
@@ -118,7 +124,7 @@ const Header = () => {
                                                         active && "bg-gray-100"
                                                     } px-4 text-gray-700 cursor-pointer rounded-sm focus:bg-gray-200`}
                                                     onClick={() =>
-                                                        navigate(
+                                                        navClick(
                                                             "/admin/dashboard"
                                                         )
                                                     }
@@ -145,7 +151,11 @@ const Header = () => {
                         </Menu>
                     ) : (
                         <div className="my-2 px-4 border-x border-custom-300">
-                            <Link to="/login" className="leading-6 text-xs">
+                            <Link
+                                to="/login"
+                                onClick={() => setOpen(false)}
+                                className="leading-6 text-xs"
+                            >
                                 My Account
                             </Link>
                         </div>
@@ -222,7 +232,11 @@ const Header = () => {
             {/* navbar mobile */}
             <nav className="px-4 h-14 shadow-b shadow-nav flex items-center justify-between md:hidden dark:bg-dark dark:text-custom-1000">
                 {/* brand logo */}
-                <Link to="/" className="flex items-center">
+                <Link
+                    className="flex items-center"
+                    onClick={() => setOpen(false)}
+                    to="/"
+                >
                     <h2 className="font-bold">Cloud</h2>
                     <h2 className="font-light">Zone</h2>
                     <h2 className="font-bold">.</h2>
@@ -232,7 +246,11 @@ const Header = () => {
                     {/* cart - menu */}
                     <div className="flex gap-4 items-center">
                         {/* cart */}
-                        <Link className="relative" to="/cart">
+                        <Link
+                            className="relative"
+                            onClick={() => setOpen(false)}
+                            to="/cart"
+                        >
                             <div>
                                 <HiShoppingCart size={20} />
                             </div>

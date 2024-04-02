@@ -49,19 +49,19 @@ const Users = () => {
     useEffect(() => {
         if (createCompleted) {
             toast.success("Create new user successfully !");
-            dispatch(fetchUsers({}));
+            dispatch(fetchUsers({ page }));
             dispatch(setCreateCompleted());
         }
 
         if (updateCompleted) {
             toast.success("Update user successfully !");
-            dispatch(fetchUsers({}));
+            dispatch(fetchUsers({ page }));
             dispatch(setUpdateCompleted());
         }
 
         if (deleteCompleted) {
             toast.success("Delete user successfully !");
-            dispatch(fetchUsers({}));
+            dispatch(fetchUsers({ page }));
             dispatch(setDeleteCompleted());
         }
 

@@ -44,8 +44,15 @@ const Profile = () => {
     };
     // handle update info
     const handleUpdatePass = () => {
+        // check null
+        if (!updateObjPass.currentpass || !updateObjPass.newpass) {
+            toast.error("Password cannot empty !");
+            return;
+        }
+
+        // check match
         if (updateObjPass.newpass !== repassword) {
-            toast.error("Passwords do not match !");
+            toast.error("Password do not match !");
             return;
         }
 

@@ -27,6 +27,7 @@ const getAllProducts = async (req, res) => {
         page,
         searchString,
         searchCategory,
+        status,
         sort,
         defaultConfig,
     } = req.query;
@@ -74,6 +75,12 @@ const getAllProducts = async (req, res) => {
         // find by categories
         queryProducts.find({ category: { $in: categories } });
         countProducts.where({ category: { $in: categories } });
+    }
+    // status search condition
+    if (status) {
+        // find by status
+        queryProducts.find({ status });
+        countProducts.where({ status });
     }
 
     /** sort conditions

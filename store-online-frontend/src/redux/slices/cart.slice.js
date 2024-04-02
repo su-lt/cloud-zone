@@ -174,7 +174,6 @@ export const cartSlice = createSlice({
         });
         // fetch cities
         builder.addCase(fetchCities.fulfilled, (state, { payload }) => {
-            console.log(":::", payload);
             state.cities = payload;
         });
         // fetch districts

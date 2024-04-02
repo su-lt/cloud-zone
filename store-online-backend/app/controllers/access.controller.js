@@ -101,7 +101,7 @@ const signUp = async (req, res) => {
         html: `Hello <b>${fullname}</b>,<br>
                Congratulations on successfully registering and becoming a valued member of our platform.<br>
                We are delighted and appreciate your participation, marking the beginning of a fantastic<br>
-               online shopping journey with <a href='${url}:${port}'>CloudZone.</><br><br>
+               online shopping journey with <a href='${url}:${port}'>CloudZone.</a><br><br>
                As a member, you will have the opportunity to experience exclusive benefits, receive<br>
                notifications about exciting promotions, and stay updated on the latest product<br>
                releases. We are committed to providing you with a safe, convenient, and enjoyable<br>
@@ -224,8 +224,6 @@ const refresh = async (req, res) => {
 
     // check refresh token in refresh token used
     if (keyStore.refreshTokensUsed.includes(refreshToken)) {
-        // console.log("bi xoaaaaa");
-        // console.log(">> refreshTokensUsed:", refreshToken);
         // if exist
         // clear cookies
         res.clearCookie("refreshToken");

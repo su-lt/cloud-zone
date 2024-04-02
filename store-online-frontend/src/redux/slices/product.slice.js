@@ -238,7 +238,7 @@ export const productSlice = createSlice({
         // handle create product
         builder.addCase(createProduct.fulfilled, (state, { payload }) => {
             state.pending = false;
-            if (payload.status)
+            if (payload)
                 switch (payload.status) {
                     case "success":
                         state.createCompleted = true;
@@ -320,6 +320,7 @@ export const fetchProducts = createAsyncThunk(
         maxPrice,
         searchString,
         searchCategory,
+        status,
         sort,
         page,
         limit = process.env.REACT_APP_PRODUCT_LIMIT,
@@ -330,6 +331,7 @@ export const fetchProducts = createAsyncThunk(
             maxPrice,
             searchString,
             searchCategory,
+            status,
             sort,
             page,
             limit,
@@ -386,8 +388,6 @@ export const createProduct = createAsyncThunk(
             });
             return response.data;
         }
-
-        return null;
     }
 );
 

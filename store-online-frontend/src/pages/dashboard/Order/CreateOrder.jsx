@@ -137,6 +137,7 @@ const CreateOrder = ({ isOpen, onClose }) => {
     // cancel click button
     const handleClose = () => {
         setAddressError("");
+        setSearchProduct("");
         setSelectedCustomer(null);
         setListItem([]);
         setTotalPrice(0);
@@ -173,6 +174,7 @@ const CreateOrder = ({ isOpen, onClose }) => {
             toast.success("Create new customer successfully !");
             setIsNewCustomer(false);
             setSelectedCustomer(user);
+            setSearchProduct("");
             dispatch(setCreateCompleted());
         }
         if (error) {
@@ -369,7 +371,8 @@ const CreateOrder = ({ isOpen, onClose }) => {
                                                         className="py-1 flex justify-between border-b border-custom-300"
                                                     >
                                                         <p className="text-xs">
-                                                            {item.name}
+                                                            {item.name} - $
+                                                            {item.price}
                                                         </p>
                                                         <div className="flex gap-2 items-center select-none">
                                                             {item.quantity >
@@ -531,7 +534,7 @@ const CreateOrder = ({ isOpen, onClose }) => {
                                             }}
                                         />
                                         {discount > 0 && (
-                                            <span className="text-xs text-red-500 text-right">
+                                            <span className="text-xs text-blue-700 text-right">
                                                 discount {discount}%
                                             </span>
                                         )}

@@ -151,6 +151,12 @@ export const authSlice = createSlice({
                         // set local storage
                         localStorage.setItem("id", id);
                         localStorage.setItem("accessToken", accessToken);
+
+                        // add login signal
+                        localStorage.setItem(
+                            "loginSignal",
+                            Date.now().toString()
+                        );
                         break;
 
                     default:
@@ -176,6 +182,12 @@ export const authSlice = createSlice({
                         // set local storage
                         localStorage.setItem("id", id);
                         localStorage.setItem("accessToken", accessToken);
+
+                        // add login signal
+                        localStorage.setItem(
+                            "loginSignal",
+                            Date.now().toString()
+                        );
                         break;
 
                     default:
@@ -193,6 +205,9 @@ export const authSlice = createSlice({
                 localStorage.removeItem("id");
                 localStorage.removeItem("accessToken");
                 localStorage.removeItem("cart");
+
+                // add logout signal
+                localStorage.setItem("logoutSignal", Date.now().toString());
             }
         });
         // forgotPassword

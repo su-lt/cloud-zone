@@ -21,7 +21,6 @@ const CreateUser = ({ isOpen, onClose }) => {
 
     // create click button
     const handleClick = () => {
-        console.log("nhấn đấy");
         dispatch(createUser());
     };
 

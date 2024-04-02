@@ -25,6 +25,14 @@ if (existCart)
 const darkMode = localStorage.getItem("darkMode");
 if (darkMode === "true") store.dispatch(toggleDarkMode());
 
+window.addEventListener("storage", (event) => {
+    if (event.key === "logoutSignal" || event.key === "loginSignal") {
+        // if logout was successful
+        // refresh all tab
+        window.location.reload();
+    }
+});
+
 root.render(
     <React.StrictMode>
         <BrowserRouter>

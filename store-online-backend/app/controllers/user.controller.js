@@ -119,7 +119,6 @@ const createUser = async (req, res) => {
     // get data from request body
     let { fullname, email, phone, password, address, status } = req.body;
 
-    console.log(">>>>>>>", fullname, email, phone, password, address, status);
     // check params null
     if (!fullname || !email || !phone || !password || !address)
         throw new BadRequestError();
@@ -382,18 +381,17 @@ const findUser = async (req, res) => {
         .find()
         .limit(10)
         .select("fullname email phone address")
+        .where({ status: { $ne: "deleted" } })
         .populate("role");
 
     /** find user by searchString
-     * lean result
      */
-    if (searchString) {
-        // RegExp - i mode - case-insenitive match
-        const regex = new RegExp(searchString, "i");
-        queryUsers.where({
-            $or: [{ phone: regex }, { email: regex }],
-        });
-    }
+    // RegExp - i mode - case-insenitive match
+    const regex = new RegExp(searchString, "i");
+    queryUsers.where({
+        $or: [{ phone: regex }, { email: regex }],
+    });
+    // execute
     const users = await queryUsers.exec();
 
     // return found users

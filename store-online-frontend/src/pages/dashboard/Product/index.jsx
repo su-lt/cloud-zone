@@ -93,12 +93,13 @@ const Orders = () => {
             fetchProducts({
                 searchString,
                 searchCategory: category,
+                status,
                 page,
                 defaultConfig: true,
             })
         );
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [page, category]);
+    }, [page, category, status]);
 
     // fetch categories
     useEffect(() => {

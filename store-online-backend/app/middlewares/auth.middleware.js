@@ -9,7 +9,8 @@ const {
 
 const authentication = async (req, res, next) => {
     // get userId
-    const userId = req.headers["x-client-id"]; // return null string if header null
+    // return null string if header null
+    const userId = req.headers["x-client-id"];
     if (!userId) throw new BadRequestError();
 
     // get user

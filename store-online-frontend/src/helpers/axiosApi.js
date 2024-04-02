@@ -45,7 +45,6 @@ api.interceptors.response.use(
             return response;
         }
         const { code, message } = response.data;
-        // console.log(">>>>>>>>> tra ve:", code, message, isRefreshing);
         if (code && code === 401) {
             if (message && message === "TokenExpiredError") {
                 if (!isRefreshing) {

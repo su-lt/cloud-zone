@@ -18,7 +18,7 @@ const getUsers = async (req, res) => {
     limit = limit ? +limit : 0;
 
     // if limit exists, check type
-    if (limit && isNaN(limit)) throw new BadRequestError();
+    if (isNaN(limit)) throw new BadRequestError();
 
     // get params query
     let { searchString, page } = req.query;
@@ -26,6 +26,8 @@ const getUsers = async (req, res) => {
      * if page undefined, page = 1
      */
     page = page ? +page : 1;
+    // if page exists, check type
+    if (isNaN(page)) throw new BadRequestError();
 
     // get skip value
     const skip = (page - 1) * limit;
@@ -55,11 +57,12 @@ const getUsers = async (req, res) => {
         });
     }
 
-    // get total number of users
-    const totalUsers = await countUsers.countDocuments().exec();
     // get users
     const users = await queryUsers.lean().exec();
     if (!users) throw new NotFoundError("Cannot load users");
+
+    // get total number of users
+    const totalUsers = await countUsers.countDocuments().exec();
 
     // return users and total users
     return res.status(200).json({

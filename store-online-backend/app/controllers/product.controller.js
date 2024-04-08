@@ -16,9 +16,8 @@ const getAllProducts = async (req, res) => {
     // get limit - check limit null or NaN
     let { limit } = req.query;
     limit = limit ? +limit : 0;
-
     // if limit exists, check type
-    if (!limit || isNaN(limit)) throw new BadRequestError();
+    if (isNaN(limit)) throw new BadRequestError();
 
     // get query params
     let {
@@ -36,6 +35,8 @@ const getAllProducts = async (req, res) => {
      * if page undefined, page = 1
      */
     page = page ? +page : 1;
+    // if limit page, check type
+    if (isNaN(page)) throw new BadRequestError();
 
     // get skip value
     const skip = (page - 1) * limit;
@@ -293,7 +294,7 @@ const createProduct = async (req, res) => {
      * upload to folder /uploads/images
      * get filename to path
      */
-    images = req.files.map((file) => {
+    images = images.map((file) => {
         return {
             path: `${url}:${port}/images/` + file.filename,
             filename: file.filename,
@@ -380,7 +381,7 @@ const updateProduct = async (req, res) => {
      * upload to folder /uploads/images
      * get filename to path
      */
-    images = req.files.map((file) => {
+    images = images.map((file) => {
         return {
             path: `${url}:${port}/images/` + file.filename,
             filename: file.filename,

@@ -26,8 +26,10 @@ app.use(
         credentials: true,
     })
 );
-// init db
-require("./databases/db.mongodb.js");
+// init develop database
+// require("./databases/db.mongodb.js");
+// init testing database
+require("./databases/db.test.mongodb.js");
 
 // init routers
 app.use("/", require("./routes"));

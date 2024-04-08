@@ -7,7 +7,7 @@ const voucherModel = require("../models/voucher.model");
 require("../models/user.model");
 // modules
 const { NotFoundError, BadRequestError } = require("../helpers/errorHandler");
-const { generateCode } = require("../helpers");
+const { generateCode, log } = require("../helpers");
 
 const getOrders = async (req, res) => {
     /** get limit
@@ -167,17 +167,27 @@ const createOrder = async (req, res) => {
     // get request params
     const { user, address, items, totalPrice, voucherCode, note } = req.body;
     // check null
-    if (!user && !address && !items && !totalPrice) throw new BadRequestError();
+    if (!user && !address && !totalPrice) throw new BadRequestError();
 
-    /** check items is array
+    // check user id valid
+    if (!mongoose.Types.ObjectId.isValid(user)) {
+        throw new BadRequestError("User id not valid !");
+    }
+
+    // check price - must be a number
+    if (isNaN(totalPrice))
+        throw new BadRequestError("totalPrice must be a number");
+
+    // check items is array
+    if (!Array.isArray(items)) throw new BadRequestError("Items cannot null");
+
+    /**
      * if items exists, check item to reduce the amount of quantity products
      */
-    if (Array.isArray(items)) {
-        for (const item of items) {
-            await productModel.findByIdAndUpdate(item.product, {
-                $inc: { quantity: -item.quantity },
-            });
-        }
+    for (const item of items) {
+        await productModel.findByIdAndUpdate(item.product, {
+            $inc: { quantity: -item.quantity },
+        });
     }
 
     /** create new order object
@@ -331,7 +341,6 @@ const deleteOrderById = async (req, res) => {
         select: "status", // get fields of product
     });
     if (!order) throw new BadRequestError();
-
     // rollback quantity of products
     for (const item of order.items) {
         await productModel.findByIdAndUpdate(item.product._id, {

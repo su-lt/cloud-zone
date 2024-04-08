@@ -23,7 +23,6 @@ const createTokenPair = async (payload, privateKey) => {
             algorithm: "RS256",
             expiresIn: "3d",
         });
-
         return { accessToken, refreshToken };
     } catch (error) {
         return error.message;

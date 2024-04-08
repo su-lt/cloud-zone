@@ -12,7 +12,6 @@ const authentication = async (req, res, next) => {
     // return null string if header null
     const userId = req.headers["x-client-id"];
     if (!userId) throw new BadRequestError();
-
     // get user
     const user = await userModel.findById(userId).populate("role").lean();
     if (!user) throw new NotFoundError("User not found");

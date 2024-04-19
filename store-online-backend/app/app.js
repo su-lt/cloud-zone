@@ -27,9 +27,9 @@ app.use(
     })
 );
 // init develop database
-// require("./databases/db.mongodb.js");
+require("./databases/db.mongodb.js");
 // init testing database
-require("./databases/db.test.mongodb.js");
+// require("./databases/db.test.mongodb.js");
 
 // init routers
 app.use("/", require("./routes"));
@@ -39,7 +39,7 @@ app.use("/images", express.static(path.join(__dirname, "/uploads/images/")));
 
 // handling errors
 app.use((error, req, res, next) => {
-    // cleanup - remove image upload on cloudinary server
+    // cleanup - remove image upload on server
     const images = req.files;
     if (images && images.length > 0) {
         images.map((image) => {
